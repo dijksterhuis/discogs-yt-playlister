@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<releases>
+  <release id="1" status="Accepted">
+    <images>
+      <image height="600" type="primary" uri="" uri150="" width="600"/>
+      <image height="600" type="secondary" uri="" uri150="" width="600"/>
+      <image height="600" type="secondary" uri="" uri150="" width="600"/>
+      <image height="600" type="secondary" uri="" uri150="" width="600"/>
+    </images>
+    <artists>
+      <artist>
+        <id>1</id>
+        <name>The Persuader</name>
+        <anv/>
+        <join>,</join>
+        <role/>
+        <tracks/>
+      </artist>
+    </artists>
+    <title>Stockholm</title>
+    <labels>
+      <label catno="SK032" id="5" name="Svek"/>
+    </labels>
+    <extraartists>
+      <artist>
+        <id>239</id>
+        <name>Jesper Dahlb&#xE4;ck</name>
+        <anv/>
+        <join/>
+        <role>Music By [All Tracks By]</role>
+        <tracks/>
+      </artist>
+    </extraartists>
+    <formats>
+      <format name="Vinyl" qty="2" text="">
+        <descriptions>
+          <description>12"</description>
+          <description>33 &#x2153; RPM</description>
+        </descriptions>
+      </format>
+    </formats>
+    <genres>
+      <genre>Electronic</genre>
+    </genres>
+    <styles>
+      <style>Deep House</style>
+    </styles>
+    <country>Sweden</country>
+    <released>1999-03-00</released>
+    <notes>The song titles are the names of six of Stockholm's 82 districts.
+
+Title on label: - Stockholm -
+
+Recorded at the Globe Studio, Stockholm
+
+FAX: +46 8 679 64 53
+
+</notes>
+    <data_quality>Needs Vote</data_quality>
+    <tracklist>
+      <track>
+        <position>A</position>
+        <title>&#xD6;stermalm</title>
+        <duration>4:45</duration>
+      </track>
+      <track>
+        <position>B1</position>
+        <title>Vasastaden</title>
+        <duration>6:11</duration>
+      </track>
+      <track>
+        <position>B2</position>
+        <title>Kungsholmen</title>
+        <duration>2:49</duration>
+      </track>
+      <track>
+        <position>C1</position>
+        <title>S&#xF6;dermalm</title>
+        <duration>5:38</duration>
+      </track>
+      <track>
+        <position>C2</position>
+        <title>Norrmalm</title>
+        <duration>4:52</duration>
+      </track>
+      <track>
+        <position>D</position>
+        <title>Gamla Stan</title>
+        <duration>5:16</duration>
+      </track>
+    </tracklist>
+    <identifiers>
+      <identifier description="A-Side Runout" type="Matrix / Runout" value="MPO SK 032 A1"/>
+      <identifier description="B-Side Runout" type="Matrix / Runout" value="MPO SK 032 B1"/>
+      <identifier description="C-Side Runout" type="Matrix / Runout" value="MPO SK 032 C1"/>
+      <identifier description="D-Side Runout" type="Matrix / Runout" value="MPO SK 032 D1"/>
+      <identifier description="Only On A-Side Runout" type="Matrix / Runout" value="G PHRUPMASTERGENERAL T27 LONDON"/>
+    </identifiers>
+    <videos>
+      <video duration="290" embed="true" src="https://www.youtube.com/watch?v=AHuQWcylaU4">
+        <title>The Persuader (Jesper Dahlb&#xE4;ck) - &#xD6;stermalm</title>
+        <description>The Persuader (Jesper Dahlb&#xE4;ck) - &#xD6;stermalm</description>
+      </video>
+      <video duration="380" embed="true" src="https://www.youtube.com/watch?v=5rA8CTKKEP4">
+        <title>The Persuader - Vasastaden</title>
+        <description>The Persuader - Vasastaden</description>
+      </video>
+      <video duration="335" embed="true" src="https://www.youtube.com/watch?v=QVdDhOnoR8k">
+        <title>The Persuader-Stockholm-Sodermalm</title>
+        <description>The Persuader-Stockholm-Sodermalm</description>
+      </video>
+      <video duration="289" embed="true" src="https://www.youtube.com/watch?v=hy47qgyJeG0">
+        <title>The Persuader - Norrmalm</title>
+        <description>The Persuader - Norrmalm</description>
+      </video>
+      <video duration="322" embed="true" src="https://www.youtube.com/watch?v=DubEDc1qvF8">
+        <title>The Persuader - Gamla Stan</title>
+        <description>The Persuader - Gamla Stan</description>
+      </video>
+    </videos>
+    <companies>
+      <company>
+        <id>271046</id>
+        <name>The Globe Studios</name>
+        <catno/>
+        <entity_type>23</entity_type>
+        <entity_type_name>Recorded At</entity_type_name>
+        <resource_url>https://api.discogs.com/labels/271046</resource_url>
+      </company>
+      <company>
+        <id>56025</id>
+        <name>MPO</name>
+        <catno/>
+        <entity_type>17</entity_type>
+        <entity_type_name>Pressed By</entity_type_name>
+        <resource_url>https://api.discogs.com/labels/56025</resource_url>
+      </company>
+    </companies>
+  </release>
+</releases>

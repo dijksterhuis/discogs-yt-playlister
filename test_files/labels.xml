@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<labels>
+  <label>
+    <images>
+      <image height="24" type="primary" uri="" uri150="" width="132"/>
+      <image height="126" type="secondary" uri="" uri150="" width="587"/>
+      <image height="196" type="secondary" uri="" uri150="" width="600"/>
+      <image height="121" type="secondary" uri="" uri150="" width="275"/>
+      <image height="720" type="secondary" uri="" uri150="" width="382"/>
+      <image height="398" type="secondary" uri="" uri150="" width="500"/>
+      <image height="189" type="secondary" uri="" uri150="" width="600"/>
+    </images>
+    <id>1</id>
+    <name>Planet E</name>
+    <contactinfo>Planet E Communications&#xD;P.O. Box 27218&#xD;
+Detroit, Michigan, MI 48227&#xD;
+USA&#xD;
+&#xD;
+Phone: +1 313 874 8729&#xD;
+Fax: +1 313 874 8732&#xD;
+Email: info@Planet-e.net</contactinfo>
+    <profile>[a=Carl Craig]'s classic techno label founded in 1991.&#xD;
+&#xD;
+On at least 1 release, Planet E is listed as publisher.</profile>
+    <data_quality>Correct</data_quality>
+    <urls>
+      <url>http://planet-e.net/</url>
+      <url>http://planetecommunications.bandcamp.com/</url>
+      <url>http://www.discogs.com/user/planetedetroit</url>
+      <url>https://www.facebook.com/planetedetroit</url>
+      <url>https://www.flickr.com/photos/planetedetroit</url>
+      <url>https://plus.google.com/100841702106447505236</url>
+      <url>https://myspace.com/planetecom</url>
+      <url>https://myspace.com/planetedetroit</url>
+      <url>https://soundcloud.com/planetedetroit</url>
+      <url>https://twitter.com/planetedetroit</url>
+      <url>https://vimeo.com/user1265384</url>
+      <url>https://www.youtube.com/user/planetedetroit</url>
+      <url>https://en.wikipedia.org/wiki/Planet_E_Communications</url>
+    </urls>
+    <sublabels>
+      <label>Antidote (4)</label>
+      <label>Community Projects</label>
+      <label>Guilty Pleasures</label>
+      <label>I Ner Zon Sounds</label>
+      <label>Planet E Communications</label>
+      <label>Planet E Communications, Inc.</label>
+      <label>TWPENTY</label>
+    </sublabels>
+  </label>
+</labels>
