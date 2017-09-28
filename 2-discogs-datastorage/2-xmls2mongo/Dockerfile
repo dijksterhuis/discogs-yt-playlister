@@ -6,10 +6,10 @@ LABEL author="michael robeson (Dijksterhuis)" \
       purpose="Insert enties from json discogs files into mongodb" \
       version="0.0.3"
 
-RUN mkdir /home/jsons
+RUN mkdir /home/xmls
 
-COPY import_jsons.py /home
-RUN chmod u+x /home/import_jsons.py
+COPY *.py /home/
+RUN chmod a+x /home/*.py
 
-RUN pip install --upgrade pymongo argparse
+RUN pip install --upgrade pymongo argparse xmltodict
 WORKDIR /home

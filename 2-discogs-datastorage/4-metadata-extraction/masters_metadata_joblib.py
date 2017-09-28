@@ -94,7 +94,7 @@ def main(args):
 
 	try:
 		with Parallel(n_jobs=2) as parallel:
-		joblib version - to test!
+		#joblib version - to test!
 		r_io_list = Parallel(n_jobs=2,verbose=5)(delayed(r.sadd)(tag + ':' + key, value) \
 					for tag,key,value in multi_tier_generator(masters,metadata_tags) )
 		print('not added',r_io_list.count(0) )

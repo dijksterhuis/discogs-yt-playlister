@@ -5,4 +5,4 @@ docker run -it --rm \
     -w /home/ \
     --name xml2json \
     discogs-xml2json:0.0.4 \
-    /bin/ash -c 'find /home/xmls -name \*.xml -print -exec /home/convert_xmls.py {} --verbose \;'
+    /bin/ash -c 'rm /home/jsons/* ; find /home/xmls -name \*.xml -print -exec /home/convert_xmls.py {} --verbose \;'

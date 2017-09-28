@@ -1,9 +1,7 @@
 ## Discogs DB Dataget
-
-========================================================================
-
+------------------------------------------------------------------------
+------------------------------------------------------------------------
 ### 1-discogs-dataget
-
 ------------------------------------------------------------------------
 
 ##### 1-downloads  - 0.0.4
@@ -22,8 +20,11 @@
 - Can do, leaving a build folder for it in case
 - But the 1-downloads method of curl piped to gzip seems sensible
 
-##### 3-xmltojson - 0.0.4
+##### 3-xmltojson - 0.0.4 - DEPRECIATED
 
+- No point storing the jsons if they're accesible from mongo
+  - Loading files into python requires a lot of memeory and io
+  - Extracting from mongo is much less resource intensive
 - Takes the xml files in discogs-db-xmls docker volume
 - Converts to json using https://github.com/philipmat/discogs-xml2db
   - N.B. THIS IS HACKY!
@@ -34,17 +35,15 @@
     - Needs to be fixed - raise an issue on github?
   
 
-========================================================================
-
+------------------------------------------------------------------------
 ### 2-discogs-datastorage
-
 ------------------------------------------------------------------------
 
 ##### 1-mongo
 
 - a mongo db instance for storing jsons files (is this needed?)
 
-##### 2-mongo-load - 0.0.3
+##### 2-xmls2mongo
 
 - Take the files from discogs-db-jsons
 - Parses as and loads one by one using pymongo import
@@ -64,9 +63,7 @@
     - multiple threads with a list comp
     - should be faster, but memory intensive? could be a resource error
 
-========================================================================
-
-
+------------------------------------------------------------------------
 ### 3-discogs-site
 ------------------------------------------------------------------------
 
@@ -77,9 +74,9 @@
 - tester to get some video files
 - should be used for the webpage logic
 
-========================================================================
-
+------------------------------------------------------------------------
 #### JSON notes
+------------------------------------------------------------------------
 
 ##### Masters
 - Main release refers to the "main" release for the master in the releases json data.

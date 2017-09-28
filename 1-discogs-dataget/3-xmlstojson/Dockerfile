@@ -15,7 +15,7 @@ RUN mkdir /home/xmls
 RUN mkdir /home/jsons
 
 # python script
-COPY convert_xmls.py /home
-RUN chmod a+x /home/convert_xmls.py
+COPY *.py /home/
+RUN chmod a+x /home/*.py
 
 WORKDIR /home/
