@@ -216,9 +216,11 @@ def main(args):
 	# is there a way to make this more dynamic?
 	# argparse inputs?
 	
-	r = redis.Redis(host='redis-metadata-master-ids',port='6379')
-	r_buff = redis.Redis(host='redis-buffer-metadata-unique',port='6379')
-	if r.ping() is not True or r_buff.ping() is not True:
+	r_attrs_id = redis.Redis(host='redis-metadata-master-ids',port='6379')
+	r_unique_attrs = redis.Redis(host='redis-buffer-metadata-unique',port='6379')
+	r_videos = redis.Redis(host='redis-videos-masters',port='6379')
+	
+	if r_attrs_id.ping() is not True or r_unique_attrs.ping() is not True:
 		print('Could not connect to one of the Redis dbs, quitting')
 		#os.EX_NOHOST
 		exit(404)
@@ -231,7 +233,7 @@ def main(args):
 	
 	metadata_tags = ['genre','style','year','id','@src']
 	masters = masters_coll.find()
-	r_added , r_ignored , new_attrs = [0]*3
+	r_added , r_ignored , new_attrs, r_videos_added, r_videos_ignored = [0]*5
 	
 	prints('There are currently '+ str(masters_coll.count()) +' documents in the '+db_dict['coll']+' collection')
 	
@@ -261,12 +263,14 @@ def main(args):
 		# ---- pipeline redis set adds
 		# WAY more efficient!
 		
-		redis_ops, pipe = list(), r.pipeline()
+		redis_attr_ops, redis_video_ops, pipe = list(),list(), r.pipeline()
 		
 		for key,item in redis_add_attributes_gen(metadata_results_dict):
-			redis_ops.append( r.sadd( key+':'+item,discogs_id ) )
-			new_attrs += r_buff.sadd('unique:'+key,item)
-
+			redis_attr_ops.append( r_attrs_id.sadd( key+':'+item,discogs_id ) )
+			new_attrs += r_unique_attrs.sadd('unique:'+key,item)
+			
+		redis_video_ops = [r_videos.sadd('videos:'+discogs_id,video) for video in videos]
+		
 		pipe.execute()
 
 		# ---- collect some garbage
@@ -276,15 +280,16 @@ def main(args):
 		
 		# ---- update master_id counters for added to redis (or not)
 		
-		r_added += redis_ops.count(1)
-		r_ignored += redis_ops.count(0)
+		r_added += redis_attr_ops.count(1)
+		r_ignored += redis_attr_ops.count(0)
+		r_videos_added += redis_video_ops.count(1)
+		r_videos_ignored += redis_video_ops.count(1)
 		
 		# ---- print information to stdout
 		
 		console.write( \
-			'\r++ {} processed of {} records -- {} added, {} ignore ++'.format( \
-			idx,masters_coll.count(),r_added,r_ignored \
-			))
+			'\r++ {} of {} -- attrs {} add, {} ign -- vid {} add, {} ign -- {} new attrs ++'.format( \
+			idx, masters_coll.count(), r_added, r_ignored, r_videos_added, r_videos_ignored, new_attrs ))
 		console.flush()
 		
 	prints('\nParsing complete!')

@@ -51,17 +51,20 @@
 ##### 3- redis-metadata-ids
 
 - sets up a persistant (append file) redis instance for master ids by tags
+- TODO - add a new redis db for all unique tags for loading into the site
 
 ##### 4-metadata-extraction - testing
 
 - extract tags, videos and master ids to load into the redis metadata db
-- have two versions:
-  - base:
-    - processes with single thread
-    - will be slow, but releiable?
+- have two versions, both need testing and comparing against each other:
+  - recursive:
+    - takes around 1 hour to complete
+    - recurses through the json objects looking for tags
+    - is slow, but will ALWAYS find the tags if it exists
   - joblib:
     - multiple threads with a list comp
     - should be faster, but memory intensive? could be a resource error
+    - TODO - NEED to implement the recursive stuff for this
 
 ------------------------------------------------------------------------
 ### 3-discogs-site
