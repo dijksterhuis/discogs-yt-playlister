@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  
+{% block head %}
+
+<title>
+  {{Page_Name}}
+</title>
+
+{% endblock %}
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<style>
+
+body {
+    background-color: rgb(20,20,20);
+}
+
+h1 {
+    color: white;
+}
+
+h2 {
+    color: white;
+}
+h3 {
+    color: white;
+}
+h4 {
+    color: white;
+}
+
+p {
+    color: white;
+}
+
+li {
+    color: white;
+}
+
+table {
+    color: white;
+}
+
+
+#navmenu ul 
+{
+  background: grey; 
+  margin: 10px; 
+  padding: 10px; 
+	list-style-type: none;
+  list-style-image: none; 
+}
+
+#navmenu li {display: inline; padding: 10px 75px 5px 20px}
+#navmenu a {text-decoration:none; color: white; }
+#navmenu a:hover {color: orange;}
+
+.btn-lg 
+  {
+  background-color: white;
+  color: blue;
+  border-color: none;
+  border-radius: 5px;
+  font-size: xx-large;
+  }
+
+.btn-block 
+  {
+  background-color: white;
+  color: blue;
+  border-color: none;
+  border-radius: 5px;
+  font-size: xx-large;
+  }
+
+.btn-default 
+  {
+  background-color: grey;
+  color: white;
+  border-color: none;
+  border-radius: 0px;
+  font-size: x-large;
+  }
+  
+.btn-default2 
+  {
+  background-color: grey;
+  size: large;
+  color: white;
+  border-color: none;
+  border-radius: 0px;
+  font-size: large;
+  }
+
+  .btn-watch 
+    {
+    background-color: black;
+    size: large;
+    color: white;
+    border-color: none;
+    border-radius: 0px;
+    font-size: large;
+    }
+
+#cat-vid-container 
+  {
+  background-color: white;
+  color: blue;
+  border-color: none;
+  border-radius: 5px;
+  padding: 10px 75px 5px 20px;
+  }
+
+a {color: lightblue}
+
+</style>
+
+<link rel="apple-touch-icon" sizes="57x57" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/favicon-16x16.png">
+<link rel="manifest" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+</head>
+
+<body>
+
+  <div class="container">
+    <!-- child template -->
+    {% block content %}{% endblock %}
+  <br>
+    <!-- errors -->
+    {% if error %}
+    <p class="error"><strong>Error:</strong> {{ error }}</p>
+    {% endif %}
+  </div>
+  
+</body>
+
+</html>

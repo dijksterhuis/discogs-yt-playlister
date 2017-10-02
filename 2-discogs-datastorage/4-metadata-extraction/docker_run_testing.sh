@@ -2,9 +2,8 @@
 docker run -it --rm \
     -v metadata-extraction-logs:/logging \
     --name discogs-metadataextraction-base \
-    --link redis-metadata-master-ids \
-    --link discogs-mongo \
-    masters-metadata-extraction:testing \
+    --network perm-metadata-stores \
+    dijksterhuis/masters-metadata-extraction:testing \
     /bin/ash -c '/home/masters_metadata_recursive.py /home/jsons/discogs_20170901_masters.json --verbose'
 
 #docker run -it --rm \

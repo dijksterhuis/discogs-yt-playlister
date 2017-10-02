@@ -7,6 +7,36 @@ from datetime import datetime as dt
 """
 os import used for error codes on exits - could be useful for handling data problems at docker run time
 see here: https://docs.python.org/2/library/os.html#process-management
+
+
+TODO:
+
+- PARAMETERIZE THIS?
+- What code can be refactored?
+	- What about otehr data files?
+	- What can be reused from here for those files?
+	- GENERATORS...?!?!
+- Get artist names and ids?
+- Get video TITLES:
+	- Need to change the generator logic then...
+	- Introduce a list of objects generator?
+	- Will be needed for artists stuff too...
+- Data quality > Accepted? - Year 0 problem
+- This month's updates:
+	- For 'new releases' filter
+	- Only see stuff from the last month data dump
+	- More redis instances... *sigh*
+	- Add to main db, if added
+- Changes to masters:
+	- Data CAN change
+	- Especially with newer releases
+	- How to ensure proper update of sets?
+	- Popping of old meta:tag index values?
+	- Or copy entire db, reload entre thing, then redirect to updated version, flush old?
+- Discogs links:
+	- Add ALL links to discogs pages in youtube playlist description?
+	- How about creating user lists alongside the playlists?
+
 """
 
 def prints(string):
@@ -113,9 +143,6 @@ def recursive_gen(in_json,tag,rec_counter):
 	
 	rec_counter += 1
 	
-	#if rec_counter > 200:
-	#	pass
-	
 	# ---- we found the item(s) we're looking for!
 	
 	if type(in_json) is dict and tag in in_json.keys():
@@ -181,23 +208,49 @@ def waiter(masters_coll,mins_to_wait=10):
 		prints('Need to wait for more data in mongo db... Waiting for 60 seconds')
 		time.sleep(60)
 	
+def redis_connections_check(conn_dict,connections):
+	
+	"""
+	redis_conn_dict = ( \
+			{'host':'redis-metadata-master-ids','port':6379} \
+			, {'host':'redis-metadata-unique','port':6380} \
+			, {'host':'redis-videos-masters','port':6381} \
+			)
+	"""
+	
+	connections_check = [connection.ping() for connection in connections]
+	
+	if False in connections_check:
+		print('Could not connect to one of the Redis dbs, quitting')
+		for idx,conn_str in enumerate(conn_dict):
+			print( 'Server ' + str(idx+1) + ' of ' + str(len(conn_dict)) \
+					+ ' host: ' + conn_dict['host'] + ' port: ' + conn_dict['port'] \
+					+ ' connected: ' + connections_check[idx] \
+					)
+		#os.EX_NOHOST
+		exit()
+	else:
+		prints('Redis servers pinged successfully!')
+		return True
+	
 def main(args):
 	
 	"""
 	1. Open a redis connection
-	2. Open the masters file
-	3. Parse through the file getting required bits
+	2. Open connection to masters collection
+	3. Parse through the collection getting required bits
 	4. Add the required lists to redis
 	
 	TODO
-	1 - Change filepaths - jsons + loggin
-	2 - How to handle data that only needs to be updated?
-	3 - Change redis server connection string
-	4 - secure redis?!
+	- see above... plus:
+	- How to handle data that only needs to be updated?
+	- Change redis server connection string
+	- secure redis?!
 	"""
 
-	prints('Script executing')
 	starttime = dt.now()
+
+	# ------------------------------------------
 
 	prints('Setting up Mongo connection')
 	
@@ -205,42 +258,44 @@ def main(args):
 	# is there a way to make this more dynamic?
 	# argparse inputs?
 	
-	db_dict = {'host' : 'discogs-mongo', 'port': 27017 , 'db' : 'discogs' , 'coll' : 'masters'}
-	masters_coll = mongo_cli(db_dict)
-	prints('Mongo collection created')
+	mongo_conn_dict = {'host' : 'mongo-discogs', 'port': 27017 , 'db' : 'discogs' , 'coll' : 'masters'}
+	masters_coll = mongo_cli( mongo_conn_dict )
+	prints('Connected to Mongo & /discogs/masters collection created!')
 	
 	prints('Setting up Redis connections')
 	
 	# ---- Set up the redis db connections
-	# TODO! This should really use the database pooling method
-	# is there a way to make this more dynamic?
-	# argparse inputs?
+	# now using container networking, so port mappings not required
+	# networking provides different ips, rather than ports
+
+	redis_conn_dict = ( \
+			{'host':'redis-metadata-master-ids','port':6379} \
+			, {'host':'redis-metadata-unique','port':6379} \
+			, {'host':'redis-videos-masters','port':6379} \
+			)
+			
+	r_attrs_id, r_unique_attrs, r_videos = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]
 	
-	r_attrs_id = redis.Redis(host='redis-metadata-master-ids',port='6379')
-	r_unique_attrs = redis.Redis(host='redis-buffer-metadata-unique',port='6379')
-	r_videos = redis.Redis(host='redis-videos-masters',port='6379')
+	redis_connections_check(redis_conn_dict,[r_attrs_id, r_unique_attrs, r_videos])
+
+	# ------------------------------------------
 	
-	if r_attrs_id.ping() is not True or r_unique_attrs.ping() is not True:
-		print('Could not connect to one of the Redis dbs, quitting')
-		#os.EX_NOHOST
-		exit(404)
-		
-	prints('Redis servers pinged successfully!')
-	
-	prints('Running through generator function')
+	prints('Running through masters documents...')
 	
 	# ---- variable set up
 	
 	metadata_tags = ['genre','style','year','id','@src']
 	masters = masters_coll.find()
-	r_added , r_ignored , new_attrs, r_videos_added, r_videos_ignored = [0]*5
+	r_attrs_added , r_attrs_ignored , new_attrs, r_videos_added, r_videos_ignored = [0]*5
 	
-	prints('There are currently '+ str(masters_coll.count()) +' documents in the '+db_dict['coll']+' collection')
+	prints('There are currently '+ str(masters_coll.count()) +' documents in the '+mongo_conn_dict['coll']+' collection')
 	
 	# ---- wait until there are enough records (100k minimum)
 	# redis might overtake the mongo inserts otherwise
 	
 	waiter(masters_coll)
+	
+	# ------------------------------------------
 	
 	# ---- iterate through documents in mongo collection
 	
@@ -255,15 +310,18 @@ def main(args):
 				metadata_results_dict[tag].append(value)
 		
 		# ---- seperate out the id and video links
-		# TODO - want video titles too??!?
+		# TODO - want video titles too ('title')??!?
+		# BUT... 'title' of release is also 'title'
 				
-		discogs_id = metadata_results_dict.pop('id')[0]
-		videos = metadata_results_dict.pop('@src') # TODO !!
+		discogs_id, videos = metadata_results_dict.pop('id')[0], metadata_results_dict.pop('@src')
+		
+		# ------------------------------------------
 		
 		# ---- pipeline redis set adds
 		# WAY more efficient!
+		# TODO but does it work with different instances?
 		
-		redis_attr_ops, redis_video_ops, pipe = list(),list(), r.pipeline()
+		redis_attr_ops, redis_video_ops, pipe = list(),list(), r_attrs_id.pipeline()
 		
 		for key,item in redis_add_attributes_gen(metadata_results_dict):
 			redis_attr_ops.append( r_attrs_id.sadd( key+':'+item,discogs_id ) )
@@ -272,25 +330,24 @@ def main(args):
 		redis_video_ops = [r_videos.sadd('videos:'+discogs_id,video) for video in videos]
 		
 		pipe.execute()
-
-		# ---- collect some garbage
-		# TODO should I bother?
 		
-		#del metadata_results_dict
+		# ------------------------------------------
 		
 		# ---- update master_id counters for added to redis (or not)
 		
-		r_added += redis_attr_ops.count(1)
-		r_ignored += redis_attr_ops.count(0)
+		r_attrs_added += redis_attr_ops.count(1)
+		r_attrs_ignored += redis_attr_ops.count(0)
 		r_videos_added += redis_video_ops.count(1)
-		r_videos_ignored += redis_video_ops.count(1)
+		r_videos_ignored += redis_video_ops.count(0)
 		
 		# ---- print information to stdout
 		
 		console.write( \
 			'\r++ {} of {} -- attrs {} add, {} ign -- vid {} add, {} ign -- {} new attrs ++'.format( \
-			idx, masters_coll.count(), r_added, r_ignored, r_videos_added, r_videos_ignored, new_attrs ))
+			idx+1, masters_coll.count(), r_attrs_added, r_attrs_ignored, r_videos_added, r_videos_ignored, new_attrs ))
 		console.flush()
+	
+	# ------------------------------------------
 		
 	prints('\nParsing complete!')
 	elapsed_time = dt.now() - starttime
