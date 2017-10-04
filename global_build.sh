@@ -1,5 +1,4 @@
 #!/bin/bash
-$1
 
 echo 'path: '$1
 

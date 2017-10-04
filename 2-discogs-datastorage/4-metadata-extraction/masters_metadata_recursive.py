@@ -1,13 +1,12 @@
 #!/usr/local/bin/python
-import json, argparse, redis, os, pymongo
-from joblib import Parallel,delayed
+import json, argparse, redis, os, pymongo, time
 from sys import stdout as console
 from sys import exit
 from datetime import datetime as dt
+
 """
 os import used for error codes on exits - could be useful for handling data problems at docker run time
 see here: https://docs.python.org/2/library/os.html#process-management
-
 
 TODO:
 
@@ -74,6 +73,7 @@ def unknown_err(e):
 	print(e)
 	exit()
 
+# depreciated:
 def multi_tier_generator(masters_file,tags):
 	
 	"""
@@ -191,6 +191,7 @@ def redis_add_attributes_gen(my_dict):
 	So need logic to handle that
 	(genre/year NOT stored as lists)
 	"""
+	
 	for key in my_dict:
 		for dict_item in my_dict[key]:
 			if type(dict_item) is list:
@@ -199,15 +200,27 @@ def redis_add_attributes_gen(my_dict):
 			else:
 				yield key, dict_item
 
-def waiter(masters_coll,mins_to_wait=10):
-	waiting_counter = 0
-	while masters_coll.count() < 100000:
-		if waiting_counter > mins_to_wait:
-			prints("Been waiting for 10 minutes, exiting with an error code")
-			exit(404)
-		prints('Need to wait for more data in mongo db... Waiting for 60 seconds')
-		time.sleep(60)
-	
+def waiter(masters_coll):
+
+	prints('Checking if mongo is being updated, give me 30 seconds...')
+
+	count_1 = masters_coll.count()
+	time.sleep(30)
+	count_2 = masters_coll.count()
+
+	if count_2 != count_1:
+		prints('Seems that mongo is being updated, entering a waiting routine...')
+		waiting_count = 0
+		while (count_2 != count_1):
+			if (waiting_counter % 5) == 0:
+				prints('Mongo still updating. Waiting. Waited for ' + str(waiting_count) + ' minutes')
+			count_1 = masters_coll.count()
+			time.sleep(60)
+			count_2 = masters_coll.count()
+			waiting_count += 1
+	else:
+		prints('Seems that mongo is not being updated, continuing...')
+
 def redis_connections_check(conn_dict,connections):
 	
 	"""
@@ -232,6 +245,52 @@ def redis_connections_check(conn_dict,connections):
 	else:
 		prints('Redis servers pinged successfully!')
 		return True
+
+def star_dict_unpack(**argdict):
+	return(argdict)
+
+def sets_ign_logging(dictionary, discogs_id):
+	for key,values in dictionary.items():
+		if 0 in values or values is 0:
+			t = dt.now().strftime('%Y%m%d-%H-%M-%S')
+			with open('/logging/'+str(key)+'_ign_log'+t+'.txt','a') as f:
+				f.write(discogs_id +'\n')
+
+def hashes_ign_logging(dictionary, discogs_id):
+	for key,values in dictionary.items():
+		if values is False:
+			t = dt.now().strftime('%Y%m%d-%H-%M-%S')
+			with open('/logging/'+str(key)+'_ign_log'+t+'.txt','a') as f:
+				f.write(discogs_id +'\n')
+
+def hash_stats_gen(redis_hash_ops_results):
+	for key, value in redis_hash_ops_results.items():
+		if type(value) is list:
+			for v in value:
+				if v is True:
+					yield (key, 'add')
+				else:
+					yield (key, 'ign')
+		else:
+			if value is True:
+				yield (key, 'add')
+			elif value is False:
+				yield (key, 'ign')
+
+def sets_stats_gen(redis_set_ops_results):
+	for key in redis_set_ops_results.keys():
+		for t in [('add',1), ('ign',0)]:
+			yield (key, t[0], t[1])
+
+def console_printer_gen(dictionary):
+	for key_1,values in dictionary.items():
+		for key_2,value in values.items():
+			yield value
+
+def console_string_gen(dictionary):
+	for key_1,values in dictionary.items():
+		key_2,key_3 = values.keys()
+		yield (key_1,key_2,key_3)
 	
 def main(args):
 	
@@ -244,107 +303,169 @@ def main(args):
 	TODO
 	- see above... plus:
 	- How to handle data that only needs to be updated?
-	- Change redis server connection string
 	- secure redis?!
+	- sorted sets?
+	- lexographical indexes?
 	"""
 
 	starttime = dt.now()
 
 	# ------------------------------------------
-
+	# --- SET UP DATABASE CONNECTIONS & RUNTIME VARIABLES
+	
 	prints('Setting up Mongo connection')
 	
-	# ---- Set up mongo db connection
-	# is there a way to make this more dynamic?
-	# argparse inputs?
+	# - Set up mongo db connection
+	# TODO - make 'coll' dynamic ?
 	
 	mongo_conn_dict = {'host' : 'mongo-discogs', 'port': 27017 , 'db' : 'discogs' , 'coll' : 'masters'}
 	masters_coll = mongo_cli( mongo_conn_dict )
-	prints('Connected to Mongo & /discogs/masters collection created!')
+	prints('Connected to Mongo & /discogs/masters collection')
 	
 	prints('Setting up Redis connections')
 	
-	# ---- Set up the redis db connections
-	# now using container networking, so port mappings not required
-	# networking provides different ips, rather than ports
+	# - Set up the redis db connections
 
 	redis_conn_dict = ( \
-			{'host':'redis-metadata-master-ids','port':6379} \
-			, {'host':'redis-metadata-unique','port':6379} \
-			, {'host':'redis-videos-masters','port':6379} \
+			{ 'host' : 'redis-metadata-master-ids' , 'port' : 6379 } \
+			, { 'host' : 'redis-metadata-unique' , 'port' : 6379 } \
+			, { 'host' : 'redis-videos-masters' , 'port' : 6379 } \
+			, { 'host' : 'redis-artists-masters' , 'port' : 6379 } \
+			, { 'host' : 'redis-artists-search' , 'port' : 6379 } \
+			, { 'host' : 'redis-releasetitle-masters' , 'port' : 6379 } \
 			)
 			
-	r_attrs_id, r_unique_attrs, r_videos = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]
-	
-	redis_connections_check(redis_conn_dict,[r_attrs_id, r_unique_attrs, r_videos])
-
-	# ------------------------------------------
+	hosts = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]
+	r_attrs_id, r_unique_attrs, r_videos_masters, r_artists_masters, r_artist_search, r_reltitle_masters = hosts
+	redis_connections_check(redis_conn_dict,hosts)
 	
 	prints('Running through masters documents...')
 	
-	# ---- variable set up
+	# - variable set up
+	# @src is video link tag
+	# name is artist name tag
+	# title is video title
+	# release-title is release title
+	# item_id is the master id
+	# artist_id is the artist_id
 	
-	metadata_tags = ['genre','style','year','id','@src']
-	masters = masters_coll.find()
-	r_attrs_added , r_attrs_ignored , new_attrs, r_videos_added, r_videos_ignored = [0]*5
+	metadata_tags = ['genre','style','year','release-title','item_id','@src','title','artist_id','name','role']
+	stats_keys = ['attr','vid','art-mast','art-sear','rel-title']
+	insert_stats = { key : {'add' : 0 , 'ign' : 0} for key in stats_keys }
+	new_attrs , empty_video_master = 0, 0
 	
 	prints('There are currently '+ str(masters_coll.count()) +' documents in the '+mongo_conn_dict['coll']+' collection')
 	
-	# ---- wait until there are enough records (100k minimum)
-	# redis might overtake the mongo inserts otherwise
+	# - wait until mongo has stopped updating to perform inserts
 	
 	waiter(masters_coll)
 	
 	# ------------------------------------------
+	# --- START PROCESSING MONGO DOCUMENTS
 	
-	# ---- iterate through documents in mongo collection
+	masters = masters_coll.find()
 	
 	for idx, master in enumerate(masters):
 		
-		metadata_results_dict = { i : [] for i in metadata_tags}
+		results_dict = { i : [] for i in metadata_tags}
+		redis_hash_ops_results, redis_set_ops_results = dict(), {'attr':[]}
 		
-		# ---- recurse through each document, find the required tags
+		# - recursively traverse through each document, find all the required tags and their values
 		
 		for tag in metadata_tags:
 			for value in recursive_gen(master,tag,0):
-				metadata_results_dict[tag].append(value)
+				results_dict[tag].append(value)
 		
-		# ---- seperate out the id and video links
-		# TODO - want video titles too ('title')??!?
-		# BUT... 'title' of release is also 'title'
-				
-		discogs_id, videos = metadata_results_dict.pop('id')[0], metadata_results_dict.pop('@src')
+		# - skip if no video links - no point processing
+		
+		if len(results_dict['@src']) == 0:
+			empty_video_master += 1
+			pass
+		
+		# - seperate out the id, video links/titles and artist names/ids
+		
+		discogs_id , release_title = results_dict.pop('item_id')[0] , results_dict.pop('release-title')[0]
+		videos_dict = {'title' : results_dict.pop('title') ,'url' : results_dict.pop('@src') }
+		artists_dict = {'name': results_dict.pop('name'), 'artist_id': results_dict.pop('artist_id'), 'role': results_dict.pop('role')}
 		
 		# ------------------------------------------
+		# --- REDIS OPERATIONS
+		# N.B. minimise non-redis ops between pipeline commands
 		
-		# ---- pipeline redis set adds
-		# WAY more efficient!
-		# TODO but does it work with different instances?
+		""" TODO - Change to zadds? (sorted set based on number of videos? )
+		# 1. Can be used to filter queries (only include masters with > 5 videos)
+		# 2. Query results will be ordered
+		# 3. https://redis.io/topics/indexes !!!!
+		# - Lexigraphical indexes!
+		# - Walking graphs!
+		# - Multi-dimensional graphs!
 		
-		redis_attr_ops, redis_video_ops, pipe = list(),list(), r_attrs_id.pipeline()
+		# - ZADD key [NX|XX] [CH] [INCR] score member [score member ...]
+		# - https://redis.io/commands/zadd
+		"""
 		
-		for key,item in redis_add_attributes_gen(metadata_results_dict):
-			redis_attr_ops.append( r_attrs_id.sadd( key+':'+item,discogs_id ) )
+		# - set up pipelines for all hosts
+		
+		pipelines = [ i.pipeline() for i in hosts]
+		
+		# -- Sorted sets
+		
+		# - redis sadd genre / style / year attributes per master id
+		
+		for key,item in redis_add_attributes_gen(results_dict):
+			redis_set_ops_results['attr'].append( r_attrs_id.sadd( key+':'+item,discogs_id ) )
 			new_attrs += r_unique_attrs.sadd('unique:'+key,item)
-			
-		redis_video_ops = [r_videos.sadd('videos:'+discogs_id,video) for video in videos]
 		
-		pipe.execute()
+		# - add the release titles and artist names by master ids
+		
+		redis_set_ops_results['rel-title'] = [ r_reltitle_masters.sadd( release_title , discogs_id ) ]
+		redis_set_ops_results['art-sear'] = [ r_artist_search.sadd( name , discogs_id ) for name in enumerate( artists_dict['name'] ) ]
+		
+		# -- Hashes
+		
+		# - videos have a title and a url - so they want to be hashes
+		# - artists have more info, may be useful for later queries (not a priority now though)
+		
+		redis_hash_ops_results['vid'] = r_videos_masters.hmset( discogs_id , videos_dict )
+		redis_hash_ops_results['art-mast'] = [ r_artists_masters.hmset( discogs_id , \
+			 											{ \
+															'name:'+str(idx) : name \
+															, 'artist_id:'+str(idx) : artists_dict['artist_id'][idx] \
+															, 'role:'+str(idx) : artists_dict['role'][idx] \
+														} ) \
+													for idx, name in enumerate( artists_dict['name'] ) \
+												]
+		
+		# - execute above redis ops for all hosts
+		
+		execs = [ i.execute() for i in pipelines]
 		
 		# ------------------------------------------
+		# --- STATS AND LOGGING
 		
-		# ---- update master_id counters for added to redis (or not)
+		# - log any master ids that have been ignored
 		
-		r_attrs_added += redis_attr_ops.count(1)
-		r_attrs_ignored += redis_attr_ops.count(0)
-		r_videos_added += redis_video_ops.count(1)
-		r_videos_ignored += redis_video_ops.count(0)
+		sets_ign_logging( redis_set_ops_results, discogs_id )
+		hashes_ign_logging( redis_hash_ops_results, discogs_id )
 		
-		# ---- print information to stdout
+		# - update stats dictionary for added to redis (or not)
 		
-		console.write( \
-			'\r++ {} of {} -- attrs {} add, {} ign -- vid {} add, {} ign -- {} new attrs ++'.format( \
-			idx+1, masters_coll.count(), r_attrs_added, r_attrs_ignored, r_videos_added, r_videos_ignored, new_attrs ))
+		for key, result, value in sets_stats_gen( redis_set_ops_results ):
+			insert_stats[ key ][ result ] += redis_set_ops_results[ key ].count( value )
+		
+		for key, result in hash_stats_gen( redis_hash_ops_results ):
+			insert_stats[ key ][ result ] += 1
+		
+		# - print information to stdout
+		
+		stats_str = ''.join( [ \
+				'\r+ {}/{} - {} new attrs - empt vid {} - ' \
+				,' - '.join([key_1+''.join([' {} '+key_2+' {} '+key_3]) for key_1,key_2,key_3 in console_string_gen(insert_stats)]) \
+				,' +' ])
+		
+		console.write(stats_str.format( idx+1 , masters_coll.count() , new_attrs, empty_video_master \
+										, *[value for value in console_printer_gen(insert_stats)] \
+										))
 		console.flush()
 	
 	# ------------------------------------------

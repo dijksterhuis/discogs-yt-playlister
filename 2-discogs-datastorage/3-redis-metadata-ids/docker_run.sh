@@ -15,8 +15,26 @@ docker run -d --rm -p 6380:6379 \
                 redis:alpine redis-server --appendonly yes
 
 docker run -d --rm -p 6381:6379 \
-    -v redis-videos-by-id:/data \
+    -v redis-videos-masters:/data \
         --name redis-videos-masters \
+            --network perm-metadata-stores \
+                redis:alpine redis-server --appendonly yes
+
+docker run -d --rm -p 6382:6379 \
+    -v redis-artists-masters:/data \
+        --name redis-artists-masters \
+            --network perm-metadata-stores \
+                redis:alpine redis-server --appendonly yes
+
+docker run -d --rm -p 6383:6379 \
+    -v redis-artists-search:/data \
+        --name redis-artists-search \
+            --network perm-metadata-stores \
+                redis:alpine redis-server --appendonly yes
+
+docker run -d --rm -p 6384:6379 \
+    -v redis-releasetitle-masters:/data \
+        --name redis-releasetitle-masters \
             --network perm-metadata-stores \
                 redis:alpine redis-server --appendonly yes
 
