@@ -5,6 +5,29 @@ import json, os, datetime, time, redis, werkzeug, requests, flask
 
 # TODO - pip install flask-httpauth
 
+"""
+https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
+"""
+
+
+app = Flask(__name__)
+auth = HTTPBasicAuth()
+
+redis_conn_dict = ( \
+		{ 'host' : 'redis-metadata-master-ids' , 'port' : 6379 } \
+		, { 'host' : 'redis-metadata-unique' , 'port' : 6379 } \
+		, { 'host' : 'redis-videos-masters' , 'port' : 6379 } \
+		, { 'host' : 'redis-artists-masters' , 'port' : 6379 } \
+		, { 'host' : 'redis-artists-search' , 'port' : 6379 } \
+		, { 'host' : 'redis-releasetitle-masters' , 'port' : 6379 } \
+		)
+
+hosts = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]
+redis_connections_check(redis_conn_dict,hosts)
+
+global r_attrs_id, r_unique_attrs, r_videos_masters, r_artists_masters, r_artist_search, r_reltitle_masters
+r_attrs_id, r_unique_attrs, r_videos_masters, r_artists_masters, r_artist_search, r_reltitle_masters = hosts
+
 def redis_connections_check(conn_dict,connections):
 	
 	"""
@@ -33,42 +56,27 @@ def redis_connections_check(conn_dict,connections):
 def get_redis_metadata(redis_instance,key_string):
 	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
 
-app = Flask(__name__)
-
-auth = HTTPBasicAuth()
-
-redis_conn_dict = ( \
-		{ 'host' : 'redis-metadata-master-ids' , 'port' : 6379 } \
-		, { 'host' : 'redis-metadata-unique' , 'port' : 6379 } \
-		, { 'host' : 'redis-videos-masters' , 'port' : 6379 } \
-		, { 'host' : 'redis-artists-masters' , 'port' : 6379 } \
-		, { 'host' : 'redis-artists-search' , 'port' : 6379 } \
-		, { 'host' : 'redis-releasetitle-masters' , 'port' : 6379 } \
-		)
-
-hosts = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]
-
-redis_connections_check(redis_conn_dict,hosts)
-
-r_attrs_id, r_unique_attrs, r_videos_masters, r_artists_masters, r_artist_search, r_reltitle_masters = hosts
-
-
 @auth.get_password
 def get_password(username):
     if username == 'miguel':
         return 'python'
     return None
 
+@auth.error_handler
+def unauthorized():
+    return make_response(jsonify({'error': 'Unauthorized access'}), 401)
+
 @app.route('/am_i_alive', methods=['GET'])
 def check_if_alive():
 	return jsonify({'status': 'yes! I am!' })
 
 @app.route('/wide-query', methods=['POST'])
+@auth.login_required
 def run_query():
 	if not request.json:
 		abort(400)
 	else:		
-		query_dict = dict(request.json)
+		query_dict = json.loads(request.json)
 		
 		"""
 		query_dict for wide -- {'year': [], 'genre': [], 'style': ['Big Band']}
@@ -102,6 +110,7 @@ def run_query():
 		return jsonify(videos_dict), 201
 
 @app.route('/artists-query', methods=['POST'])
+@auth.login_required
 def run_query():
 	if not request.json:
 		abort(400)

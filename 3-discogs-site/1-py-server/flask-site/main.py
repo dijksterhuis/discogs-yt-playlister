@@ -23,7 +23,7 @@ def get_redis_metadata(redis_instance,key_string):
 @app.route('/',methods=['GET','POST'])
 #@login_required
 #@subscription_required
-def films_cat():
+def wide_query():
 	
 	if request.method == 'GET':
 		print('GET')
@@ -32,17 +32,13 @@ def films_cat():
 		
 		for key in unique_params:
 			unique_params[key].sort()
-		
-		#y = get_redis_metadata(r_unique,'unique:year')
-		#g = get_redis_metadata(r_unique,'unique:genre')
-		#s = get_redis_metadata(r_unique,'unique:style')
-		#y.sort()
-		#g.sort()
-		#s.sort()
-		
-		print(unique_params)
-		return render_template('/query-form.html',years=unique_params['year'],genres=unique_params['genre'],styles=unique_params['style'])
-		
+
+		return render_template( \
+								'/query-form.html'\
+								, years=unique_params['year'] \
+								, genres=unique_params['genre'] \
+								, styles=unique_params['style'] \
+							)
 	
 	## These can be big queries, so we want post requests, rather than a get rest API
 	
@@ -63,7 +59,6 @@ def films_cat():
 		
 		print('getting: ',form_dict)
 		
-		
 		###### TODO - This need to be more elegant
 		# ---- logic to ignore selecting "Full" parameter selections 
 		# ---- (they don't matter)
@@ -76,6 +71,12 @@ def films_cat():
 				query_dict[key] = False
 			else:
 				query_dict[key] = True
+		
+		# - rest api version
+		
+		#res = requests.post('api address to go here', json = query_dict )
+		#print('server response:', res.text)
+		#all_links = res.json()
 		
 		time_dict[1] = ('prepare_query_time' , datetime.datetime.now())
 		

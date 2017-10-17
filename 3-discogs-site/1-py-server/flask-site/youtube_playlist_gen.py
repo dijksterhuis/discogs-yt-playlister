@@ -21,7 +21,7 @@ from oauth2client.tools import argparser, run_flow
 #   https://developers.google.com/youtube/v3/guides/authentication
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-CLIENT_SECRETS_FILE = "/Users/Mike/Code/1-builds/discogs-yt-playlister/3-discogs-site/1-py-server/flask-site/client_secrets_2.json"
+CLIENT_SECRETS_FILE = "client_secrets_2.json"
 #client id 990384453863-6kv23ugnmnbuhn9dhu9ttskv6k3uddjl.apps.googleusercontent.com
 #client secret q5liOeAcqWC0cZmdhnBN1SoU
 API_KEY='AIzaSyAog7D-3NzUup-htavTel_vI0U0bSP7zJo'
@@ -41,8 +41,8 @@ with information from the {{ Cloud Console }}
 
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-""" % os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                   CLIENT_SECRETS_FILE))
+""" % os.path.abspath(os.path.join(os.path.dirname(__file__),CLIENT_SECRETS_FILE))
+
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.

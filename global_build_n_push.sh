@@ -16,5 +16,8 @@ echo 'build context: ' $(pwd)
 echo '+++---+++---+++---+++---+++---+++---+++'
 echo 'BUILDING......'
 docker build --no-cache -t $name:$tag "$1"/
-echo 'Build command executed...'
+echo '+++---+++---+++---+++---+++---+++---+++'
+echo 'PUSHING......'
+docker push $name:$tag
+echo 'Build and push commands executed...'
 echo '+++---+++---+++---+++---+++---+++---+++'
