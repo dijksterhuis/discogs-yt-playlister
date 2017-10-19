@@ -2,14 +2,41 @@
 
 # ------------------------------------------------------------------
 ###### redis-hash-ids
-# relevant search data for all files
+### N.B. Cannot store multiple videos in hash values --- single attributes
+# relevant search hashes for all files
 # to be used for autocomplete / searching
 ## hash index: id type (release ?, label, master, artist)
 ## fields: name (value: James Holden) , id (value: 119429)
 
+#docker run -d --rm -p 6379:6379 \
+#    -v redis-hash-ids:/data \
+#        --name redis-hash-ids \
+#            --network redis-querying \
+#                redis:alpine redis-server --appendonly yes
+
+# ------------------------------------------------------------------
+###### redis-masters-ids
+# relevant search sets for master release titles
+# to be used for autocomplete / searching
+## keys: release-title
+## values: master-id
+
 docker run -d --rm -p 6379:6379 \
-    -v redis-hash-ids:/data \
-        --name redis-hash-ids \
+    -v redis-masters-ids:/data \
+        --name redis-masters-ids \
+            --network redis-querying \
+                redis:alpine redis-server --appendonly yes
+
+# ------------------------------------------------------------------
+###### redis-artists-ids
+# relevant search sets for master artists
+# to be used for autocomplete / searching
+## keys: artist-name
+## values: artist-id
+
+docker run -d --rm -p 6378:6379 \
+    -v redis-artists-ids:/data \
+        --name redis-artists-ids \
             --network redis-querying \
                 redis:alpine redis-server --appendonly yes
 

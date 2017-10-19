@@ -1,18 +1,18 @@
 #!/bin/bash
-docker run -it --rm \
+
+container_name='discogs-metadata-extract'
+container_command='/home/insert_metadata_masters_v2_sets_only.py --verbose'
+
+docker stop $container_name
+docker rm $container_name
+
+docker run -di --rm \
     -v metadata-extraction-logs:/logging \
-    --name discogs-metadataextraction-base \
-    --network perm-metadata-stores \
-    --link mongo-discogs \
-    dijksterhuis/redis-hash-id-inserts:dev \
-    /bin/ash -c '/home/insert_metadata_recursive.py --verbose'
+    --name $container_name \
+    dijksterhuis/redis-database-inserts:dev /bin/ash
 
-## TODO mongos......
+docker network connect discogs-mongo-api $container_name
+docker network connect redis-querying $container_name
+docker network connect perm-metadata-stores $container_name
 
-#docker run -it --rm \
-#    -v discogs-jsons:/home/jsons \
-#    -v metadata-extraction-logs:/logging \
-#    --name discogs-metadataextraction-joblib \
-#    --link redis-metadata-master-ids \
-#    masters-metadata-extraction:testing \
-#    /bin/ash -c '/home/masters_metadata_joblib.py /home/jsons/discogs_20170901_masters.json --verbose'
+docker exec -it $container_name /bin/ash -c $container_command
