@@ -28,9 +28,7 @@ find $dl -name \*.xml -print -exec mv {} "$olddl" \;
 # Curl and gzip decompress each new file
 #### curl fileurl | gunzip -d > test.xml
 
-# TODO releases
-
-for type in artists labels masters ; \
+for type in artists labels masters releases; \
 	do \
         infile="discogs_"$yearmonth"01_"$type".xml.gz"
         outfile=$dl"discogs_"$yearmonth"01_"$type".xml"
