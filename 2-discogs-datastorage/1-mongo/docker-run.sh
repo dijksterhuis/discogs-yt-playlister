@@ -1,16 +1,29 @@
 #!/bin/bash
-#docker run -dt --restart=always -p 28002:27017 --name discogs-mongo -v discogs-jsons-conf:/home -v discogs-jsons-db:/data/db mongo:3.2
-#docker run -dt --restart=always -p 90:8080 --name discogs-mongo-rest --link discogs-mongo:mongodb softinstigate/restheart:3.0.3
 
-docker run -dt --restart=always -p 28002:27017 \
-    -v discogs-jsons-conf:/home \
-        -v discogs-jsons-db:/data/db \
-            --network perm-metadata-stores \
-            --network mongo-json-access \
-                --name mongo-discogs \
+#docker run -dt --restart=always \
+#    -v discogs-labels-mongo-conf:/home \
+#        -v discogs-labels-mongo-data:/data/db \
+#            --network discogs-mongo \
+#                --name mongo-discogs-labels \
+#                    mongo
+
+#docker run -dt --restart=always \
+#    -v discogs-artists-mongo-conf:/home \
+#        -v discogs-artists-mongo-data:/data/db \
+#            --network discogs-mongo \
+#                --name mongo-discogs-artists \
+#                    mongo
+
+docker run -dt --restart=always \
+    -v discogs-masters-mongo-conf:/home \
+        -v discogs-masters-mongo-data:/data/db \
+            --network discogs-mongo \
+                --name mongo-discogs-masters \
                     mongo
 
-#docker run -dt --restart=always -p 90:8080 \
-#    --name restheart-mongo-discogs \
-#        --link mongo-discogs \
-#            softinstigate/restheart
+docker run -dt --restart=always \
+    -v discogs-releases-mongo-conf:/home \
+        -v discogs-releases-mongo-data:/data/db \
+            --network discogs-mongo \
+                --name mongo-discogs-releases \
+                    mongo

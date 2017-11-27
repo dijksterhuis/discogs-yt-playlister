@@ -5,5 +5,5 @@ docker run -it --rm \
     --network mongo-json-access \
     --name discogs-pymongoimport \
     dijksterhuis/discogs-pymongoimport:0.0.3 \
-    /bin/ash -c '/home/convert_xmls.py /home/xmls/discogs_20170901_masters.xml --verbose'
-#    /bin/bash -c 'find /home/xmls -name \*.xml -exec /home/convert_xmls.py {} \;'
+    /bin/bash -c 'find /home/xmls -name \*.xml -exec /home/convert_xmls_2.py {} \;'
+#     /bin/ash -c '/home/convert_xmls.py /home/xmls/discogs_20170901_masters.xml --verbose'
