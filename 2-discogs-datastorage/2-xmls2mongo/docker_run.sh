@@ -1,8 +1,7 @@
 #!/bin/bash
 docker run -it --rm \
     -v discogs-xmls:/home/xmls \
-    --link mongo-discogs \
-    --network mongo-json-access \
+    --network discogs-mongo \
     --name discogs-pymongoimport \
     dijksterhuis/discogs-pymongoimport:0.1.0 \
     /bin/bash -c 'find /home/xmls -name \*.xml -exec /home/convert_xmls_2.py {} \;'
