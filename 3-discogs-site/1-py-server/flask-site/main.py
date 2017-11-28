@@ -32,18 +32,13 @@ def wide_query():
 		
 		for key in unique_params:
 			unique_params[key].sort()
-
-		return render_template( \
-								'/query-form.html'\
-								, years=unique_params['year'] \
-								, genres=unique_params['genre'] \
-								, styles=unique_params['style'] \
-							)
+			
+		return render_template( '/query-form.html', years=unique_params['year'], genres=unique_params['genre'], styles=unique_params['style'] )
 	
 	## These can be big queries, so we want post requests, rather than a get rest API
 	
 	elif request.method == 'POST':
-			
+		
 		max_dict = { 'max_'+tag : len(get_redis_metadata(r_unique,'unique:'+tag)) for tag in ['year','genre','style']}
 		print(max_dict)
 		
