@@ -11,7 +11,7 @@
 docker run -d --rm -p 6379:6379 \
     -v redis-hash-ids:/data \
         --name redis-hash-ids \
-            --network redis-querying \
+            --network discogs-redis-querying \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -24,7 +24,7 @@ docker run -d --rm -p 6379:6379 \
 #docker run -d --rm -p 6379:6379 \
 #    -v redis-masters-ids:/data \
 #        --name redis-masters-ids \
-#            --network redis-querying \
+#            --network discogs-redis-querying \
 #                redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -37,7 +37,7 @@ docker run -d --rm -p 6379:6379 \
 #docker run -d --rm -p 6378:6379 \
 #    -v redis-artists-ids:/data \
 #        --name redis-artists-ids \
-#            --network redis-querying \
+#            --network discogs-redis-querying \
 #                redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -50,7 +50,7 @@ docker run -d --rm -p 6379:6379 \
 docker run -d --rm -p 6380:6379 \
     -v redis-metadata-filtering:/data \
         --name redis-metadata-filtering \
-            --network redis-querying \
+            --network discogs-redis-querying \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -63,7 +63,7 @@ docker run -d --rm -p 6380:6379 \
 docker run -d --rm -p 6381:6379 \
     -v redis-unique-tags:/data \
         --name redis-metadata-unique \
-            --network perm-metadata-stores \
+            --network discogs-perm-metadata-stores \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -75,7 +75,7 @@ docker run -d --rm -p 6381:6379 \
 docker run -d --rm -p 6382:6379 \
     -v redis-videos-masters:/data \
         --name redis-videos-masters \
-            --network perm-metadata-stores \
+            --network discogs-perm-metadata-stores \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -86,7 +86,7 @@ docker run -d --rm -p 6382:6379 \
 docker run -d --rm -p 6383:6379 \
     -v redis-session-query-cache:/data \
         --name redis-query-cache \
-            --network redis-caches \
+            --network discogs-redis-caches \
                 redis:alpine redis-server
 
 # buffer dbs - storing session data
