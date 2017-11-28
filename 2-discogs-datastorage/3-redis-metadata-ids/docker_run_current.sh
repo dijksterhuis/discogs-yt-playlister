@@ -75,7 +75,7 @@ docker run -d --rm -p 7002:6379 \
 docker run -d --rm -p 7003:6379 \
     -v redis-videos-masters:/data \
         --name redis-videos-masters \
-            --network discogs-metadata-stores \
+            --network discogs-redis-querying \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
