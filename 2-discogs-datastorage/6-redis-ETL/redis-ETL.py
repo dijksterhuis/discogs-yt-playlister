@@ -295,6 +295,7 @@ def main(args):
 		# index: id type (release ?, label, master, artist)
 		# fields: name (value: James Holden) , id (value: 119429)
 		# TODO Lables - needs the releases mongo collection
+		# TODO Artist as a hash cannot store the master ids...! > needs a set. will be same issue for labels.
 
 		#redis_hash_ops_results['hash-labels'] = r_hash_id.hmset('label' ,{'label-id' : TODO ,'label-name' : TODO })		
 		redis_hash_ops_results['hash-release'] = r_hash_id.hmset('release' ,{'master-id' : discogs_id,'release-title' : release_title })
