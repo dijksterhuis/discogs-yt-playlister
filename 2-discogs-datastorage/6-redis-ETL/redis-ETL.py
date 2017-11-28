@@ -254,14 +254,14 @@ def sets_ign_logging(dictionary, discogs_id):
 		if 0 in values or values is 0:
 			t = dt.now().strftime('%Y%m%d-%H-%M-%S')
 			with open('/logging/'+str(key)+'_ign_log'+t+'.txt','a') as f:
-				f.write(discogs_id +'\n')
+				f.write(str(discogs_id) +'\n')
 
 def hashes_ign_logging(dictionary, discogs_id):
 	for key,values in dictionary.items():
 		if values is False:
 			t = dt.now().strftime('%Y%m%d-%H-%M-%S')
 			with open('/logging/'+str(key)+'_ign_log'+t+'.txt','a') as f:
-				f.write(discogs_id +'\n')
+				f.write(str(discogs_id) +'\n')
 
 def hash_stats_gen(redis_hash_ops_results):
 	for key, value in redis_hash_ops_results.items():
@@ -361,12 +361,6 @@ def main(args):
 		
 		# - recursively traverse through each document, find all the required tags and their values
 		
-		#for tag in metadata_tags:
-		#	for value in recursive_gen(master,tag,0):
-		#		results_dict[tag].append(value)
-		
-		# testing!
-		
 		results_dict = { tag : [ value for value in recursive_gen(master,tag,0) ] for tag in metadata_tags}
 				
 		# - skip if no video links - no point processing
@@ -377,12 +371,13 @@ def main(args):
 		
 		# - seperate out the id, video links/titles and artist names/ids
 		
-		print('\n',results_dict,'\n')
-		
 		discogs_id , release_title = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0]
 		videos_dict = {'video_title' : results_dict.pop('video_title') ,'video_url' : results_dict.pop('video_url') }
 		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
-						
+		
+		print('\n',results_dict,'\n')
+		print('\n',videos_dict,'\n')
+				
 		# -- REDIS OPERATIONS --------------------------
 		
 		pipelines = [ i.pipeline() for i in hosts]
