@@ -267,7 +267,7 @@ def main(args):
 		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
 		
 		# - skip if no video links - no point processing
-		if len(video_url) == 0:
+		if len(video_urls) == 0:
 			empty_video_master += 1
 			pass
 		
