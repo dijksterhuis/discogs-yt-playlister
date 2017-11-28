@@ -344,7 +344,7 @@ def main(args):
 	metadata_tags = [ 'genre' ,'style' ,'year' ,'release_title' ,'masters_id' ,'video_url' ,'video_title' ,'artist_id' ,'artist_name' ,'artist_role' ]
 	stats_keys = ['hash-release','hash-artist','meta_filt','meta-uniq','vids']
 	insert_stats = { key : {'add' : 0 , 'ign' : 0} for key in stats_keys }
-	new_attrs , empty_video_master = 0, 0
+	new_attrs , empty_video_master, vids_added = 0, 0, 0
 	dataset = mongo_masters_collection.find()
 	
 	print('There are currently '+ str(mongo_masters_collection.count()) +' documents in the '+mongo_masters_conn_dict['coll']+' collection')
@@ -357,7 +357,7 @@ def main(args):
 	for idx, master in enumerate(dataset):
 		
 		#results_dict = { i : [] for i in metadata_tags}
-		redis_hash_ops_results, redis_set_ops_results = dict(), {'meta_filt':[]}
+		redis_hash_ops_results, redis_set_ops_results = dict(), {'meta_filt':[] }
 		
 		# - recursively traverse through each document, find all the required tags and their values
 		
@@ -374,9 +374,6 @@ def main(args):
 		discogs_id , release_title = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0]
 		videos_dict = {'video_title' : results_dict.pop('video_title') ,'video_url' : results_dict.pop('video_url') }
 		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
-		
-		print('\n',results_dict,'\n')
-		print('\n',videos_dict,'\n')
 				
 		# -- REDIS OPERATIONS --------------------------
 		
@@ -391,8 +388,8 @@ def main(args):
 		for key,item in redis_add_attributes_gen(results_dict):
 			redis_set_ops_results['meta_filt'].append( r_meta_filter.sadd( key+':'+item,discogs_id ) )
 			new_attrs += r_meta_unique.sadd('unique:'+key,item)
-		for video_name, video_url in videos_dict.items():
-			redis_hash_ops_results['vids'] = r_videos.sadd( discogs_id , video_url )
+		for video_url in videos_dict['video_url']:
+			vids_added += r_videos.sadd( discogs_id , video_url )
 			
 		# ---- Hashes
 		
@@ -426,8 +423,8 @@ def main(args):
 		# - print information to stdout
 		# stats_str is fun!
 		
-		stats_str = ''.join( [ '\r+ {}/{} - {} new attrs - empt vid {} - ' ,' - '.join([key_1+''.join([' {} '+key_2+' {} '+key_3]) for key_1,key_2,key_3 in console_string_gen(insert_stats)]) ,' +' ])
-		console.write(stats_str.format( idx+1, mongo_masters_collection.count(), new_attrs, empty_video_master, *[value for value in console_printer_gen(insert_stats)] ))
+		stats_str = ''.join( [ '\r+ {}/{} - {} new attrs - empt vid {} - added vid {} - ' ,' - '.join([key_1+''.join([' {} '+key_2+' {} '+key_3]) for key_1,key_2,key_3 in console_string_gen(insert_stats)]) ,' +' ])
+		console.write(stats_str.format( idx+1, mongo_masters_collection.count(), new_attrs, empty_video_master, vids_added, *[value for value in console_printer_gen(insert_stats)] ))
 		console.flush()
 	# ------------------------------------------
 	print('\nParsing complete!')
