@@ -377,6 +377,8 @@ def main(args):
 		
 		# - seperate out the id, video links/titles and artist names/ids
 		
+		print('\n',results_dict,'\n')
+		
 		discogs_id , release_title = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0]
 		videos_dict = {'video_title' : results_dict.pop('video_title') ,'video_url' : results_dict.pop('video_url') }
 		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
