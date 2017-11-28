@@ -38,9 +38,9 @@ TODO:
 
 """
 
-def print_verbose(string):
-	if verbose_bool is True:
-		print(string)
+#def print(string):
+#	if verbose_bool is True:
+#		print(string)
 
 def io_err(e):
 	print("Error: can't find file or read data")
@@ -202,24 +202,24 @@ def redis_add_attributes_gen(my_dict):
 
 def waiter(masters_coll):
 
-	print_verbose('Checking if mongo is being updated, give me 30 seconds...')
+	print('Checking if mongo is being updated, give me 30 seconds...')
 
 	count_1 = masters_coll.count()
 	time.sleep(30)
 	count_2 = masters_coll.count()
 
 	if count_2 != count_1:
-		print_verbose('Seems that mongo is being updated, entering a waiting routine...')
+		print('Seems that mongo is being updated, entering a waiting routine...')
 		waiting_count = 0
 		while (count_2 != count_1):
 			if (waiting_counter % 5) == 0:
-				print_verbose('Mongo still updating. Waiting. Waited for ' + str(waiting_count) + ' minutes')
+				print('Mongo still updating. Waiting. Waited for ' + str(waiting_count) + ' minutes')
 			count_1 = masters_coll.count()
 			time.sleep(60)
 			count_2 = masters_coll.count()
 			waiting_count += 1
 	else:
-		print_verbose('Seems that mongo is not being updated, continuing...')
+		print('Seems that mongo is not being updated, continuing...')
 
 def redis_connections_check(conn_dict,connections):
 	
@@ -243,7 +243,7 @@ def redis_connections_check(conn_dict,connections):
 		#os.EX_NOHOST
 		exit()
 	else:
-		print_verbose('Redis servers pinged successfully!')
+		print('Redis servers pinged successfully!')
 		return True
 
 def star_dict_unpack(**argdict):
@@ -308,7 +308,7 @@ def main(args):
 	# -- SET UP DATABASE CONNECTIONS & RUNTIME VARIABLES ---
 	
 	# - Set up the redis db connections
-	print_verbose('Setting up Redis connections')
+	print('Setting up Redis connections')
 	redis_conn_dict = ( \
 							{ 'host' : 'redis-hash-ids' , 'port' : 6379 } \
 							, { 'host' : 'redis-metadata-filtering' , 'port' : 6379 } \
@@ -322,14 +322,14 @@ def main(args):
 	
 	# - Set up mongo db connections
 	
-	print_verbose('Setting up Mongo connection')
+	print('Setting up Mongo connection')
 	
 	mongo_masters_conn_dict = { 'host' : 'mongo-discogs-masters' , 'port': 27017 , 'db' : 'discogs' , 'coll' : 'masters' }
 	mongo_releases_conn_dict = { 'host' : 'mongo-discogs-releases' , 'port': 27017 , 'db' : 'discogs' , 'coll' : 'releases' }
 						
 	mongo_masters_collection = mongo_cli( mongo_masters_conn_dict )
-	print_verbose('Connected to Mongo host: ' + mongo_masters_conn_dict['host'])
-	print_verbose('Connected to Mongo collection: ' + mongo_masters_conn_dict['coll'])
+	print('Connected to Mongo host: ' + mongo_masters_conn_dict['host'])
+	print('Connected to Mongo collection: ' + mongo_masters_conn_dict['coll'])
 	
 	# - variable set up
 	# @src is video link tag
@@ -345,8 +345,8 @@ def main(args):
 	new_attrs , empty_video_master = 0, 0
 	dataset = mongo_masters_collection.find()
 	
-	print_verbose('There are currently '+ str(mongo_masters_collection.count()) +' documents in the '+mongo_masters_conn_dict['coll']+' collection')
-	print_verbose('Iterating through documents...')
+	print('There are currently '+ str(mongo_masters_collection.count()) +' documents in the '+mongo_masters_conn_dict['coll']+' collection')
+	print('Iterating through documents...')
 	# - wait until mongo has stopped updating to perform inserts
 	
 	#waiter(mongo_masters_collection)
@@ -431,9 +431,9 @@ def main(args):
 		console.write(stats_str.format( idx+1, mongo_masters_collection.count(), new_attrs, empty_video_master, *[value for value in console_printer_gen(insert_stats)] ))
 		console.flush()
 	# ------------------------------------------
-	print_verbose('\nParsing complete!')
+	print('\nParsing complete!')
 	elapsed_time = dt.now() - starttime
-	print_verbose('time taken (mins): '+str(elapsed_time.total_seconds()//60))
+	print('time taken (mins): '+str(elapsed_time.total_seconds()//60))
 		
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="Get data from mongo master collection and load into redis")
