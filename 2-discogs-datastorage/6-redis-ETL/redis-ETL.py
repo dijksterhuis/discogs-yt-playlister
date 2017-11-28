@@ -288,7 +288,7 @@ def main(args):
 			#new_attrs += r_meta_unique.sadd('unique:'+key,item)
 		for video_url in videos_dict['video_url']:
 			redis_set_ops_results['vids'].append( r_videos.sadd( discogs_id , video_url ) )
-			
+		print(redis_set_ops_results['vids'])
 		# ---- Hashes
 		
 		# - insert an entity's searchable hash data
