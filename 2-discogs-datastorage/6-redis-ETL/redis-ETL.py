@@ -282,6 +282,7 @@ def main(args):
 		# 3. video url data
 		
 		for key,item in redis_add_attributes_gen(results_dict):
+			print(key,item,discogs_id)
 			redis_set_ops_results['meta_filt'].append( r_meta_filter.sadd( key+':'+item,discogs_id ) )
 			redis_set_ops_results['new_attrs'].append( r_meta_unique.sadd('unique:'+key,item) )
 			#new_attrs += r_meta_unique.sadd('unique:'+key,item)
