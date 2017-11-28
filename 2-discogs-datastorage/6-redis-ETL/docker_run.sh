@@ -1,6 +1,6 @@
 #!/bin/bash
 
-image='dijksterhuis/redis-database-inserts:dev2'
+image='dijksterhuis/redis-database-inserts:0.1.0'
 container_name='discogs-metadata-extract'
 container_command='/home/redis-ETL.py --verbose'
 networks='discogs-mongo discogs-redis-querying discogs-metadata-stores'
