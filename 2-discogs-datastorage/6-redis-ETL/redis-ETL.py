@@ -242,7 +242,7 @@ def main(args):
 	# - variable set up
 	
 	metadata_tags = [ 'genre' ,'style' ,'year' ,'release_title' ,'masters_id' ,'video_url', 'artist_name' ] # ,'video_title' ,'artist_id' , ,'artist_role'
-	stats_keys = ['meta_filt','meta-uniq','vids','new_attrs','artist','release'] # 'hash-release','hash-artist',
+	stats_keys = ['meta_filt','vids','new_attrs','artist','release'] # 'hash-release','hash-artist',
 	insert_stats = { key : {'add' : 0 , 'ign' : 0} for key in stats_keys }
 	empty_video_master = 0
 	dataset = mongo_masters_collection.find()
