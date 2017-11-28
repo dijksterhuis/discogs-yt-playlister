@@ -5,13 +5,13 @@
 ### N.B. Cannot store multiple videos in hash values --- single attributes
 # relevant search hashes for all files
 # to be used for autocomplete / searching
-## hash index: id type (release ?, label, master, artist)
+## hash index: id type (release ?, label, master ?, artist)
 ## fields: name (value: James Holden) , id (value: 119429)
 
-#docker run -d --rm -p 6379:6379 \
+#docker run -d --rm -p 7000:6379 \
 #    -v redis-hash-ids:/data \
 #        --name redis-hash-ids \
-#            --network redis-querying \
+#            --network discogs-redis-querying \
 #                redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -21,10 +21,10 @@
 ## keys: release-title
 ## values: master-id
 
-docker run -d --rm -p 6379:6379 \
+docker run -d --rm -p 7006:6379 \
     -v redis-masters-ids:/data \
         --name redis-masters-ids \
-            --network redis-querying \
+            --network discogs-redis-querying \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -34,10 +34,10 @@ docker run -d --rm -p 6379:6379 \
 ## keys: artist-name
 ## values: artist-id
 
-docker run -d --rm -p 6378:6379 \
+docker run -d --rm -p 7005:6379 \
     -v redis-artists-ids:/data \
         --name redis-artists-ids \
-            --network redis-querying \
+            --network discogs-redis-querying \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -45,48 +45,48 @@ docker run -d --rm -p 6378:6379 \
 # sets of ids with year, genre, style etc. tags as indexes
 # to be used for filtering searches / searching for all data
 # pulled from master file only!
+# TODO release date (from releases)
 
-docker run -d --rm -p 6380:6379 \
+docker run -d --rm -p 7001:6379 \
     -v redis-metadata-filtering:/data \
         --name redis-metadata-filtering \
-            --network redis-querying \
+            --network discogs-redis-querying \
                 redis:alpine redis-server --appendonly yes
-
 
 # ------------------------------------------------------------------
 ###### redis-metadata-unique
 # for year, genre, style etc. tags to be pulled onto the site
 # to be used for filtering searches / searching for all data
 # pulled from master file only
+# TODO release date (from releases)
 
-docker run -d --rm -p 6381:6379 \
+docker run -d --rm -p 7002:6379 \
     -v redis-unique-tags:/data \
         --name redis-metadata-unique \
-            --network perm-metadata-stores \
+            --network discogs-metadata-stores \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
-###### redis-videos-masters
-# video urls and name by master id
+###### redis-video-id-urls
+# video urls by master id
 # the actual urls to be sent through the youtube API
-## hash index: id (29048)
-## fields: name (A Break In The Clouds) , url (value: http://www.youtube.com/etc.etc.)
+## key: master-id , values: urls (http://www.youtube.com/etc.etc.)
 
-docker run -d --rm -p 6382:6379 \
+docker run -d --rm -p 7003:6379 \
     -v redis-videos-masters:/data \
-        --name redis-videos-masters \
-            --network perm-metadata-stores \
+        --name redis-video-id-urls \
+            --network discogs-redis-querying \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
 ###### redis-query-cache
-# store the temp results that a user has confirmed for query
+# store the session results that a user has confirmed for query
 # store video ids as sets per user session (delete key once sent to youtube)
 
-docker run -d --rm -p 6383:6379 \
+docker run -d --rm -p 7004:6379 \
     -v redis-session-query-cache:/data \
         --name redis-query-cache \
-            --network redis-caches \
+            --network discogs-redis-caches \
                 redis:alpine redis-server
 
 # buffer dbs - storing session data

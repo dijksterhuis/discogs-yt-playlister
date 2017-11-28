@@ -4,7 +4,7 @@ LABEL author="michael robeson (Dijksterhuis)" \
       project="discogs playlister" \
       name="discogs-pymongoimport" \
       purpose="Insert enties from json discogs files into mongodb" \
-      version="0.0.3"
+      version="0.0.5"
 
 RUN mkdir /home/xmls
 
