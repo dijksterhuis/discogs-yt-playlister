@@ -12,6 +12,8 @@ docker run -di --rm \
 
 for network in $networks; do docker network connect $network $container_name ; done
 
+echo 'Container connected to networks: '$networks
+
 docker exec -it $container_name /bin/ash -c $container_command
 
 docker stop $container_name
