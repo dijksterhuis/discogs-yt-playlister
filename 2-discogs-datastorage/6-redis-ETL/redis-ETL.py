@@ -224,7 +224,7 @@ def main(args):
 	
 	# - Set up the redis db connections
 	print('Setting up Redis connections')
-	redis_conns = ( ('redis-metadata-filtering',6379) , ('redis-metadata-unique',6379) , ('redis-video-id-urls',6379) , ('redis-artists-ids', 6379) ('redis-masters-ids', 6379) )
+	redis_conns = ( ('redis-metadata-filtering',6379), ('redis-metadata-unique',6379), ('redis-video-id-urls',6379), ('redis-artists-ids', 6379),  ('redis-masters-ids', 6379) )
 	# ('redis-hash-ids',6379) ,
 	hosts = [redis.Redis( host=h, port=p ) for h,p in redis_conns]
 	r_meta_filter, r_meta_unique, r_videos, r_artists, r_releases = hosts
