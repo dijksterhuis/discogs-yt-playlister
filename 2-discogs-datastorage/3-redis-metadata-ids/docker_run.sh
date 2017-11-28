@@ -8,11 +8,11 @@
 ## hash index: id type (release ?, label, master ?, artist)
 ## fields: name (value: James Holden) , id (value: 119429)
 
-docker run -d --rm -p 7000:6379 \
-    -v redis-hash-ids:/data \
-        --name redis-hash-ids \
-            --network discogs-redis-querying \
-                redis:alpine redis-server --appendonly yes
+#docker run -d --rm -p 7000:6379 \
+#    -v redis-hash-ids:/data \
+#        --name redis-hash-ids \
+#            --network discogs-redis-querying \
+#                redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
 ###### redis-masters-ids
@@ -21,11 +21,11 @@ docker run -d --rm -p 7000:6379 \
 ## keys: release-title
 ## values: master-id
 
-#docker run -d --rm -p 6379:6379 \
-#    -v redis-masters-ids:/data \
-#        --name redis-masters-ids \
-#            --network discogs-redis-querying \
-#                redis:alpine redis-server --appendonly yes
+docker run -d --rm -p 7006:6379 \
+    -v redis-masters-ids:/data \
+        --name redis-masters-ids \
+            --network discogs-redis-querying \
+                redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
 ###### redis-artists-ids
@@ -34,11 +34,11 @@ docker run -d --rm -p 7000:6379 \
 ## keys: artist-name
 ## values: artist-id
 
-#docker run -d --rm -p 6378:6379 \
-#    -v redis-artists-ids:/data \
-#        --name redis-artists-ids \
-#            --network discogs-redis-querying \
-#                redis:alpine redis-server --appendonly yes
+docker run -d --rm -p 7005:6379 \
+    -v redis-artists-ids:/data \
+        --name redis-artists-ids \
+            --network discogs-redis-querying \
+                redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
 ###### redis-metadata-filtering

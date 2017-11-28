@@ -224,9 +224,10 @@ def main(args):
 	
 	# - Set up the redis db connections
 	print('Setting up Redis connections')
-	redis_conns = ( ( 'redis-hash-ids' , 6379 ) , ( 'redis-metadata-filtering' , 6379 ) , ( 'redis-metadata-unique' , 6379 ) , ( 'redis-video-id-urls' , 6379 ) )
+	redis_conns = ( ('redis-metadata-filtering',6379) , ('redis-metadata-unique',6379) , ('redis-video-id-urls',6379) , ('redis-artists-ids', 6379) ('redis-masters-ids', 6379) )
+	# ('redis-hash-ids',6379) ,
 	hosts = [redis.Redis( host=h, port=p ) for h,p in redis_conns]
-	r_hash_id, r_meta_filter, r_meta_unique, r_videos = hosts
+	r_meta_filter, r_meta_unique, r_videos, r_artists, r_releases = hosts
 	redis_connections_check(redis_conns,hosts)
 	
 	# - Set up mongo db connections
@@ -240,10 +241,10 @@ def main(args):
 	
 	# - variable set up
 	
-	metadata_tags = [ 'genre' ,'style' ,'year' ,'release_title' ,'masters_id' ,'video_url' ,'video_title' ,'artist_id' ,'artist_name' ,'artist_role' ]
-	stats_keys = ['hash-release','hash-artist','meta_filt','meta-uniq','vids','new_attrs']
+	metadata_tags = [ 'genre' ,'style' ,'year' ,'release_title' ,'masters_id' ,'video_url', 'artist_name' ] # ,'video_title' ,'artist_id' , ,'artist_role'
+	stats_keys = ['meta_filt','meta-uniq','vids','new_attrs','artist','release'] # 'hash-release','hash-artist',
 	insert_stats = { key : {'add' : 0 , 'ign' : 0} for key in stats_keys }
-	new_attrs , empty_video_master, vids_added = 0, 0, 0
+	empty_video_master = 0
 	dataset = mongo_masters_collection.find()
 	
 	print('There are currently '+ str(mongo_masters_collection.count()) +' documents in the '+mongo_masters_conn_dict['coll']+' collection')
@@ -256,15 +257,13 @@ def main(args):
 	# -- START PROCESSING MONGO DOCUMENTS --------------
 	for idx, master in enumerate(dataset):
 		
-		#results_dict = { i : [] for i in metadata_tags}
-		redis_hash_ops_results, redis_set_ops_results = dict(), {'meta_filt':[], 'vids' : [] , 'new_attrs' :[] }
+		redis_hash_ops_results, redis_set_ops_results = dict(), {'meta_filt':[], 'vids' : [] , 'new_attrs' :[],'artist':[],'release':[] }
 		
 		# - recursively traverse through each document, find all the required tags and their values
-		results_dict = { tag : [ value for value in recursive_gen(master,tag,0) ] for tag in metadata_tags}
-		
 		# - seperate out the id, video links/titles and artist names/ids
-		discogs_id , release_title, video_urls = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0], results_dict.pop('video_url')
-		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
+		results_dict = { tag : [ value for value in recursive_gen(master,tag,0) ] for tag in metadata_tags}
+		discogs_id , release_title, video_urls, artist_names = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0], results_dict.pop('video_url'), results_dict.pop('artist_name')
+		#artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
 		
 		# - skip if no video links - no point processing
 		if len(video_urls) == 0:
@@ -281,13 +280,14 @@ def main(args):
 		# 2. unique attributes cache
 		# 3. video url data
 		
+		redis_set_ops_results['release'].append( r_releases.sadd( release_title , discogs_id ) )
 		for key,item in redis_add_attributes_gen(results_dict):
-			print(key,item,discogs_id)
 			redis_set_ops_results['meta_filt'].append( r_meta_filter.sadd( key+':'+item,discogs_id ) )
 			redis_set_ops_results['new_attrs'].append( r_meta_unique.sadd('unique:'+key,item) )
-			#new_attrs += r_meta_unique.sadd('unique:'+key,item)
 		for video_url in video_urls:
 			redis_set_ops_results['vids'].append( r_videos.sadd( discogs_id , video_url ) )
+		for artist in artist_names:
+			redis_set_ops_results['artist'].append( r_artists.sadd( artist , discogs_id ) )
 		
 		# ---- Hashes
 		
@@ -296,11 +296,11 @@ def main(args):
 		# fields: name (value: James Holden) , id (value: 119429)
 		# TODO Lables - needs the releases mongo collection
 		# TODO Artist as a hash cannot store the master ids...! > needs a set. will be same issue for labels.
-
+		#
 		#redis_hash_ops_results['hash-labels'] = r_hash_id.hmset('label' ,{'label-id' : TODO ,'label-name' : TODO })		
-		redis_hash_ops_results['hash-release'] = r_hash_id.hmset('release' ,{'master-id' : discogs_id,'release-title' : release_title })
-		redis_hash_ops_results['hash-artist'] = [ r_hash_id.hmset( 'artist' , { 'artist-name' :  artists_dict['artist_name'][idx] , 'artist-id' :  artists_dict['artist_id'][idx] } ) \
-													for idx, a in enumerate( artists_dict['artist_name']) ]
+		#redis_hash_ops_results['hash-release'] = r_hash_id.hmset('release' ,{'master-id' : discogs_id,'release-title' : release_title })
+		#redis_hash_ops_results['hash-artist'] = [ r_hash_id.hmset( 'artist' , { 'artist-name' :  artists_dict['artist_name'][idx] , 'artist-id' :  artists_dict['artist_id'][idx] } ) \
+		#											for idx, a in enumerate( artists_dict['artist_name']) ]
 		
 		execs = [ i.execute() for i in pipelines]
 		
@@ -308,7 +308,7 @@ def main(args):
 		# - log any master ids that have been ignored
 		
 		sets_ign_logging( redis_set_ops_results, discogs_id )
-		hashes_ign_logging( redis_hash_ops_results, discogs_id )
+		#hashes_ign_logging( redis_hash_ops_results, discogs_id )
 		
 		# - update stats dicts (added or not)
 		# 1. set ops
@@ -316,14 +316,14 @@ def main(args):
 		
 		for key, result, value in sets_stats_gen( redis_set_ops_results ):
 			insert_stats[ key ][ result ] += redis_set_ops_results[ key ].count( value )
-		for key, result in hash_stats_gen( redis_hash_ops_results ):
-			insert_stats[ key ][ result ] += 1
+		#for key, result in hash_stats_gen( redis_hash_ops_results ):
+		#	insert_stats[ key ][ result ] += 1
 			
 		# - print information to stdout
 		# stats_str is fun!
 		
 		stats_str = ''.join( [ '\r+ {}/{} - empt vid {} - ' ,' - '.join([key_1+''.join([' {} '+key_2+' {} '+key_3]) for key_1,key_2,key_3 in console_string_gen(insert_stats)]) ,' +' ])
-		console.write(stats_str.format( idx+1, mongo_masters_collection.count(), new_attrs, empty_video_master, vids_added, *[value for value in console_printer_gen(insert_stats)] ))
+		console.write(stats_str.format( idx+1, mongo_masters_collection.count(), empty_video_master, *[value for value in console_printer_gen(insert_stats)] ))
 		console.flush()
 		
 	# ------------------------------------------
