@@ -9,6 +9,7 @@ os import used for error codes on exits - could be useful for handling data prob
 see here: https://docs.python.org/2/library/os.html#process-management
 
 TODO:
+- UPDATE COMMENTS!!!
 
 - PARAMETERIZE THIS?
 - What code can be refactored?
@@ -38,92 +39,6 @@ TODO:
 
 """
 
-#def print(string):
-#	if verbose_bool is True:
-#		print(string)
-
-def io_err(e):
-	print("Error: can't find file or read data")
-	print(e)
-	#os.EX_NOINPUT
-	exit(66)
-
-def mem_err(e):
-	print("Memory Error!")
-	print(e)
-	exit()
-
-def ass_err(e):
-	print('File has a length <= 0')
-	print(e)
-	exit()
-
-def key_err(e):
-	print("There was a key error...")
-	print(e)
-	exit()
-
-def index_err(e):
-	print("There was a indexing error...")
-	print(e)
-	exit()
-
-def unknown_err(e):
-	print("An un-classified (non-captured exception) was raised, check traceback!")
-	print(e)
-	exit()
-
-# depreciated:
-def multi_tier_generator(masters_file,tags):
-	
-	"""
-	DEPRECIATED!
-	
-	Description + Pseudocode to go here...
-	TODO
-	Change log file paths (currently for local dev work)
-	Description + Pseudocode
-	"""
-	
-	with open('/logging/processed_ids.txt','a') as std_logs:
-		with open('/logging/novalues_logfile.txt','a') as novalue_logs:
-			#assert (total > 0),"File shouldn't have length 0"
-			#total = len(masters_file)
-			
-			for idx, master_obj in enumerate(masters_file):
-				for tag in tags:
-					
-					logs_string = 'file_idx|'+str(idx)+'|search_term|' + str(tag) + '|masterid|' + str(key) +'\n' 
-					
-					# ---- first tier
-					if tag in master_obj.keys():
-						yield ( tag , master_obj[ tag ] , master_obj["@id"] )
-					
-					# ---- second/third tier objects (nested)
-					elif tag + 's' in master_obj.keys():
-						for nested_obj in list(master_obj[ tag + 's' ].values() ):
-
-							# ---- third tier objects (nested) - videos usually							
-							if tag == 'video':
-								for video_idx, video in enumerate(nested_obj):
-									yield ( tag , master_obj["@id"] , video['@src'] )
-
-							# ---- second/tier objects (nested)						
-							else:
-								yield ( tag , nested_obj , master_obj["@id"] )
-					
-					# ---- missing values & general process logging
-					else:
-						novalue_logs.write(logs_string)
-						pass
-					
-					std_logs.write(logs_string)
-					
-					# ---- print process status info
-					if verbose_bool is True:
-						console.write("\r{} of {} -- ".format(idx+1, total))
-						console.flush()
-		
 def mongo_cli(db_dict):
 	m = pymongo.MongoClient(db_dict['host'],db_dict['port'])
 	db = m[db_dict['db']]
@@ -309,37 +224,21 @@ def main(args):
 	
 	# - Set up the redis db connections
 	print('Setting up Redis connections')
-	redis_conn_dict = ( \
-							{ 'host' : 'redis-hash-ids' , 'port' : 6379 } \
-							, { 'host' : 'redis-metadata-filtering' , 'port' : 6379 } \
-							, { 'host' : 'redis-metadata-unique' , 'port' : 6379 } \
-							, { 'host' : 'redis-video-id-urls' , 'port' : 6379 } \
-						)
-	
-	hosts = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]
+	redis_conns = ( ( 'redis-hash-ids' , 6379 ) , ( 'redis-metadata-filtering' , 6379 ) , ( 'redis-metadata-unique' , 6379 ) , ( 'redis-video-id-urls' , 6379 ) )
+	hosts = [redis.Redis( host=h, port=p ) for h,p in redis_conns]
 	r_hash_id, r_meta_filter, r_meta_unique, r_videos = hosts
-	print(redis_conn_dict)
-	print(hosts)
-	redis_connections_check(redis_conn_dict,hosts)
+	redis_connections_check(redis_conns,hosts)
 	
 	# - Set up mongo db connections
 	
 	print('Setting up Mongo connection')
-	
 	mongo_masters_conn_dict = { 'host' : 'mongo-discogs-masters' , 'port': 27017 , 'db' : 'discogs' , 'coll' : 'masters' }
 	mongo_releases_conn_dict = { 'host' : 'mongo-discogs-releases' , 'port': 27017 , 'db' : 'discogs' , 'coll' : 'releases' }
-						
 	mongo_masters_collection = mongo_cli( mongo_masters_conn_dict )
 	print('Connected to Mongo host: ' + mongo_masters_conn_dict['host'])
 	print('Connected to Mongo collection: ' + mongo_masters_conn_dict['coll'])
 	
 	# - variable set up
-	# @src is video link tag
-	# name is artist name tag
-	# title is video title
-	# release-title is release title
-	# item_id is the master id
-	# artist_id is the artist_id
 	
 	metadata_tags = [ 'genre' ,'style' ,'year' ,'release_title' ,'masters_id' ,'video_url' ,'video_title' ,'artist_id' ,'artist_name' ,'artist_role' ]
 	stats_keys = ['hash-release','hash-artist','meta_filt','meta-uniq','vids']
@@ -349,6 +248,7 @@ def main(args):
 	
 	print('There are currently '+ str(mongo_masters_collection.count()) +' documents in the '+mongo_masters_conn_dict['coll']+' collection')
 	print('Iterating through documents...')
+	
 	# - wait until mongo has stopped updating to perform inserts
 	
 	#waiter(mongo_masters_collection)
@@ -357,20 +257,17 @@ def main(args):
 	for idx, master in enumerate(dataset):
 		
 		#results_dict = { i : [] for i in metadata_tags}
-		redis_hash_ops_results, redis_set_ops_results = dict(), {'meta_filt':[] }
+		redis_hash_ops_results, redis_set_ops_results = dict(), {'meta_filt':[], 'vids' : [] , 'new_attrs' :[] }
 		
 		# - recursively traverse through each document, find all the required tags and their values
-		
 		results_dict = { tag : [ value for value in recursive_gen(master,tag,0) ] for tag in metadata_tags}
-				
-		# - skip if no video links - no point processing
 		
+		# - skip if no video links - no point processing
 		if len(results_dict['video_url']) == 0:
 			empty_video_master += 1
 			pass
 		
 		# - seperate out the id, video links/titles and artist names/ids
-		
 		discogs_id , release_title = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0]
 		videos_dict = {'video_title' : results_dict.pop('video_title') ,'video_url' : results_dict.pop('video_url') }
 		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
@@ -387,9 +284,10 @@ def main(args):
 		
 		for key,item in redis_add_attributes_gen(results_dict):
 			redis_set_ops_results['meta_filt'].append( r_meta_filter.sadd( key+':'+item,discogs_id ) )
-			new_attrs += r_meta_unique.sadd('unique:'+key,item)
+			redis_set_ops_results['new_attrs'].append( r_meta_unique.sadd('unique:'+key,item) )
+			#new_attrs += r_meta_unique.sadd('unique:'+key,item)
 		for video_url in videos_dict['video_url']:
-			vids_added += r_videos.sadd( discogs_id , video_url )
+			redis_set_ops_results['vids'].append( r_videos.sadd( discogs_id , video_url ) )
 			
 		# ---- Hashes
 		
@@ -423,9 +321,10 @@ def main(args):
 		# - print information to stdout
 		# stats_str is fun!
 		
-		stats_str = ''.join( [ '\r+ {}/{} - {} new attrs - empt vid {} - added vid {} - ' ,' - '.join([key_1+''.join([' {} '+key_2+' {} '+key_3]) for key_1,key_2,key_3 in console_string_gen(insert_stats)]) ,' +' ])
+		stats_str = ''.join( [ '\r+ {}/{} - empt vid {} - ' ,' - '.join([key_1+''.join([' {} '+key_2+' {} '+key_3]) for key_1,key_2,key_3 in console_string_gen(insert_stats)]) ,' +' ])
 		console.write(stats_str.format( idx+1, mongo_masters_collection.count(), new_attrs, empty_video_master, vids_added, *[value for value in console_printer_gen(insert_stats)] ))
 		console.flush()
+		
 	# ------------------------------------------
 	print('\nParsing complete!')
 	elapsed_time = dt.now() - starttime
