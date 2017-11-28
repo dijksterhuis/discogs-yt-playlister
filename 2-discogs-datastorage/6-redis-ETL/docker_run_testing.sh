@@ -5,7 +5,7 @@ container_name='discogs-metadata-extract'
 container_command='/home/redis-ETL.py --verbose'
 networks='discogs-mongo discogs-redis-querying discogs-metadata-stores'
 
-docker run -i --rm \
+docker run -di --rm \
     -v metadata-extraction-logs:/logging \
     --name $container_name \
     $image /bin/ash
