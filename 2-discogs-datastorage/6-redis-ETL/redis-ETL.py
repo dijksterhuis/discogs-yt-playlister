@@ -310,10 +310,10 @@ def main(args):
 	# - Set up the redis db connections
 	print_verbose('Setting up Redis connections')
 	redis_conn_dict = ( \
-							{ 'host' : 'redis-hash-ids' , 'port' : 6379 } \
-							, { 'host' : 'redis-metadata-filtering' , 'port' : 6379 } \
-							, { 'host' : 'redis-metadata-unique' , 'port' : 6379 } \
-							, { 'host' : 'redis-video-id-urls' , 'port' : 6379 } \
+							{ 'host' : 'redis-hash-ids' , 'port' : 7000 } \
+							, { 'host' : 'redis-metadata-filtering' , 'port' : 7001 } \
+							, { 'host' : 'redis-metadata-unique' , 'port' : 7002 } \
+							, { 'host' : 'redis-video-id-urls' , 'port' : 7003 } \
 						)
 	
 	hosts = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]

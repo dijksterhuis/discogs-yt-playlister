@@ -8,7 +8,7 @@
 ## hash index: id type (release ?, label, master ?, artist)
 ## fields: name (value: James Holden) , id (value: 119429)
 
-docker run -d --rm -p 6379:6379 \
+docker run -d --rm -p 7000:6379 \
     -v redis-hash-ids:/data \
         --name redis-hash-ids \
             --network discogs-redis-querying \
@@ -47,7 +47,7 @@ docker run -d --rm -p 6379:6379 \
 # pulled from master file only!
 # TODO release date (from releases)
 
-docker run -d --rm -p 6380:6379 \
+docker run -d --rm -p 7001:6379 \
     -v redis-metadata-filtering:/data \
         --name redis-metadata-filtering \
             --network discogs-redis-querying \
@@ -60,10 +60,10 @@ docker run -d --rm -p 6380:6379 \
 # pulled from master file only
 # TODO release date (from releases)
 
-docker run -d --rm -p 6381:6379 \
+docker run -d --rm -p 7002:6379 \
     -v redis-unique-tags:/data \
         --name redis-metadata-unique \
-            --network discogs-perm-metadata-stores \
+            --network discogs-metadata-stores \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -72,10 +72,10 @@ docker run -d --rm -p 6381:6379 \
 # the actual urls to be sent through the youtube API
 ## key: master-id , values: urls (http://www.youtube.com/etc.etc.)
 
-docker run -d --rm -p 6382:6379 \
+docker run -d --rm -p 7003:6379 \
     -v redis-videos-masters:/data \
         --name redis-videos-masters \
-            --network discogs-perm-metadata-stores \
+            --network discogs-metadata-stores \
                 redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
@@ -83,7 +83,7 @@ docker run -d --rm -p 6382:6379 \
 # store the session results that a user has confirmed for query
 # store video ids as sets per user session (delete key once sent to youtube)
 
-docker run -d --rm -p 6383:6379 \
+docker run -d --rm -p 7004:6379 \
     -v redis-session-query-cache:/data \
         --name redis-query-cache \
             --network discogs-redis-caches \
