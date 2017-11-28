@@ -315,9 +315,11 @@ def main(args):
 							, { 'host' : 'redis-metadata-unique' , 'port' : 6379 } \
 							, { 'host' : 'redis-video-id-urls' , 'port' : 6379 } \
 						)
-	print(redis_conn_dict)
+	
 	hosts = [redis.Redis( host=conn['host'], port=conn['port'] ) for conn in redis_conn_dict]
 	r_hash_id, r_meta_filter, r_meta_unique, r_videos = hosts
+	print(redis_conn_dict)
+	print(hosts)
 	redis_connections_check(redis_conn_dict,hosts)
 	
 	# - Set up mongo db connections
