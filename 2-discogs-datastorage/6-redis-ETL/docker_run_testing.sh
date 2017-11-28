@@ -1,9 +1,9 @@
 #!/bin/bash
 
-image='dijksterhuis/redis-database-inserts:dev'
+image='dijksterhuis/redis-database-inserts:dev2'
 container_name='discogs-metadata-extract'
-container_command='/home/insert_metadata_masters_v2_sets_only.py --verbose'
-networks='discogs-mongo-api redis-querying perm-metadata-stores'
+container_command='/home/redis-ETL.py --verbose'
+networks='discogs-mongo redis-querying perm-metadata-stores'
 
 docker run -di --rm \
     -v metadata-extraction-logs:/logging \
