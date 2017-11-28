@@ -14,6 +14,6 @@ for network in $networks; do docker network connect $network $container_name ; d
 
 echo 'Container connected to networks: '$networks
 
-docker exec -it $container_name /bin/ash -c $container_command
+docker exec -i $container_name /bin/ash -c $container_command
 
 docker stop $container_name ; docker rm $container_name
