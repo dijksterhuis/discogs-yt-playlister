@@ -262,16 +262,15 @@ def main(args):
 		# - recursively traverse through each document, find all the required tags and their values
 		results_dict = { tag : [ value for value in recursive_gen(master,tag,0) ] for tag in metadata_tags}
 		
+		# - seperate out the id, video links/titles and artist names/ids
+		discogs_id , release_title, video_urls = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0], results_dict.pop('video_url')
+		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
+		
 		# - skip if no video links - no point processing
-		if len(results_dict['video_url']) == 0:
+		if len(video_url) == 0:
 			empty_video_master += 1
 			pass
 		
-		# - seperate out the id, video links/titles and artist names/ids
-		discogs_id , release_title = results_dict.pop('masters_id')[0] , results_dict.pop('release_title')[0]
-		videos_dict = {'video_title' : results_dict.pop('video_title') ,'video_url' : results_dict.pop('video_url') }
-		artists_dict = { 'artist_name': results_dict.pop('artist_name'), 'artist_id': results_dict.pop('artist_id'), 'artist_role': results_dict.pop('artist_role') }
-				
 		# -- REDIS OPERATIONS --------------------------
 		
 		pipelines = [ i.pipeline() for i in hosts]
@@ -286,9 +285,9 @@ def main(args):
 			redis_set_ops_results['meta_filt'].append( r_meta_filter.sadd( key+':'+item,discogs_id ) )
 			redis_set_ops_results['new_attrs'].append( r_meta_unique.sadd('unique:'+key,item) )
 			#new_attrs += r_meta_unique.sadd('unique:'+key,item)
-		for video_url in videos_dict['video_url']:
+		for video_url in video_urls:
 			redis_set_ops_results['vids'].append( r_videos.sadd( discogs_id , video_url ) )
-		print(redis_set_ops_results['vids'])
+		
 		# ---- Hashes
 		
 		# - insert an entity's searchable hash data
