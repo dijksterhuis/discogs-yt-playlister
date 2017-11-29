@@ -27,7 +27,7 @@ def wide_query():
 	
 	if request.method == 'GET':
 		print('GET')
-		
+		r_unique = redis.Redis(host='redis-metadata-unique',port=6379)
 		unique_params = { tag : get_redis_metadata(r_unique,'unique:'+tag) for tag in ['year','genre','style']}
 		
 		for key in unique_params:

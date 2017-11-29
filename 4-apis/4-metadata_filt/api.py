@@ -31,11 +31,11 @@ class search_releases(Resource):
 		return make_response('TODO', 200)
 
 class get_id(Resource):
-	def get(self, release_name):
+	def post(self):
 		start_time = datetime.datetime.now()
-		r_masters = redis.Redis('redis-masters-ids','6379')
+		r = redis.Redis('redis-metadata-filtering','6379')
 		try:
-			r_videos.ping()
+			r.ping()
 		except:
 			return make_response('Database connectivity issues', 500)
 		release_id = r_masters.smembers( release_name )
