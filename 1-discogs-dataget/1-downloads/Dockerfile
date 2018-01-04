@@ -3,7 +3,7 @@ LABEL author="michael robeson (Dijksterhuis)" \
       project="discogs playlister" \
       name="discogs-db-dls" \
       purpose="Download the latest discogs db xmls" \
-      version="0.0.4"
+      version="0.0.5"
 
 RUN apk update && apk upgrade && apk add --no-cache curl
 
@@ -14,3 +14,4 @@ COPY download_xmls.sh /home
 RUN chmod a+x /home/download_xmls.sh
 
 WORKDIR /home
+CMD ['/bin/ash','-c','./download_xmls.sh']

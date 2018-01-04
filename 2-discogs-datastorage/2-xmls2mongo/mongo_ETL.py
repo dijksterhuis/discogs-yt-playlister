@@ -1,8 +1,35 @@
-#!/usr/local/bin/python
+#!/usr/bin/python
 
 import xmltodict, json, argparse, re, os
 from sys import stdout as console
 import pymongo
+
+"""
+TODO
+1. Data files don't necessarily upload on 01 of month.
+	input: /home/xmls/discogs_20170901_masters.xml
+	expected output: masters
+	line affected: collection_choice = infile.split('01_')[1].split('.xml')[0]
+	solution: Need to do some form of regex that matches the numbers from 20170101_ and splits
+2. Is all the relases data covered?
+3. If the releases file, only keep certain elements to save memory usage (mongo eats it up on my 16GB box)
+(This needs checking!)
+	- release id
+	- release title
+	- main_release
+	- label id
+	- release date
+	- companies - id, entity type / desc ?
+	- extra artists ?
+	- artists ?
+	- country ?
+"""
+
+def s(string):
+	"""
+	I like saving space across my screen
+	"""
+	return str(string)
 
 def print_verbose(string):
 	"""
@@ -33,11 +60,13 @@ def mongo_cli(db_dict):
 	mongo = pymongo.MongoClient(db_dict['host'],db_dict['port'])
 	db = mongo[db_dict['db']]
 	collection = db[db_dict['coll']]
-	#db.profiles.create_index([(collection_choice + '_id', pymongo.ASCENDING )],name= collection_choice + '_id',unique=True)
-	#indexes = sorted(list(db.profiles.index_information()))
+	if mongo_indexing == True:
+		db.profiles.create_index([(collection_choice+'_id',pymongo.ASCENDING )],name=collection_choice+'_id',unique=True)
+		indexes = sorted(list(db.profiles.index_information()))
+	else:
+		indexes = "No Indexes created"
 	ping_result = mongo[db_dict['db']].command('ping')
-	#return (collection , indexes , ping_result )
-	return (collection , ping_result )
+	return (collection , indexes , ping_result )
 
 def recursive_elements(element,keys_tuple,new_key,start_counter=0):
 	"""
@@ -46,6 +75,8 @@ def recursive_elements(element,keys_tuple,new_key,start_counter=0):
 	- If a key does not exist:
 		- drop down into element level through recursion
 		- check if it exists on later levels
+	- If a key does exist:
+		- Pop the value into the element dict under new_key
 	"""
 	
 	# -- if current element is a list, then we need to iterate over it and perform recursion again
@@ -96,25 +127,23 @@ def handle_elements(path, element):
 	"""
 	Streaming of the xml file
 	1. Run thorugh each xml entry, reading as two ordered dicts (path and element)
-	2. If it exists, add the 'path' id key (masters id) to the element dict
-	3. If it exists, change the 'title' element key to release-title
-		(there are 2x title keys in the data - release and video)
-	4. Add to relevant mongo db collection
-	5. Logging (ids written to file + console counter)
-	TODO
-	- Fix release-title to be release_title
+	2. If it exists, add the 'path' id key (e.g. masters id) to the element dict
+	3. Drop keys that aren't required
+	4a. Recursively parse the nested dictionary and flatten it
+	4b. Change the nested key names to flattened key names using the 'changes' tuple array below
+	5. Add to relevant mongo db collection
+	6. Logging (ids written to file + console counter)
 	"""
 	
 	if type(element) is None or element is None:
-		print('\nNo data in an xml element!!\n')
+		print('\nNo data in xml element!!\n')
 
 	elif None not in path[1]:
 		# ---- Add id attribute of streamed entry to element dict
 		if 'id' in path[1][1].keys():
-			element[ str(collection_choice) + '_id' ] = int(path[1][1]['id'])
+			element[ s(collection_choice) + '_id' ] = int(path[1][1]['id'])
 	elif 'id' in element.keys():
-		element[ str(collection_choice) + '_id' ] = int(element.pop('id'))
-	
+		element[ s(collection_choice) + '_id' ] = int(element.pop('id'))
 	
 	# remove non-useful elements (if they exist)
 	# e.g. get rid of images and tracks data, we don't need it
@@ -139,20 +168,8 @@ def handle_elements(path, element):
 			element.pop(key)
 	
 	# ---- Change titles of elements to more useful names for redis load recursive searching
-	
-	# MASTERS AND RELEASES DONE.... 
-	# TODO doesn't look like all releases data is covered
-	# TODO - if the releases file, only keep specified elements:
-	############ - release id
-	############ - release title
-	############ - main_release
-	############ - label id
-	############ - release date
-	############ - companies - id, entity type / desc ?
-	############ - extra artists ?
-	############ - artists ?
-	############ - country ?
-	
+	# please note that any elements from keys_to_drop will not be looked for in the recursive searching
+	# (the keys are kept in the changes array for reference purposes / should the keys_to_drop need to change)
 	changes = [ \
 				(('title',) , 'release_title') \
 				, (('urls',) , 'artist_urls')
@@ -163,7 +180,6 @@ def handle_elements(path, element):
 				, (('members', 'name' ) , 'member_name') \
 				, (('aliases', 'name') , 'alias_name') \
 				, (('artist_urls', 'url') , 'artist_url') \
-				, (('namevariations', 'name') , 'namevar_name') \
 				, (('sublabels', 'label') , 'sublabel_name') \
 				, (('artists', 'artist','id' ) , 'artist_id') \
 				, (('artists', 'artist', 'name' ) , 'artist_name') \
@@ -177,6 +193,16 @@ def handle_elements(path, element):
 				, (('extraartists', 'artist', 'join' ) , 'extra_artist_join') \
 				, (('extraartists', 'artist', 'role' ) , 'extra_artist_role') \
 				, (('extraartists', 'artist', 'anv' ) , 'extra_artist_anv') \
+				, (('labels', 'label', 'id' ) , 'label_id') \
+				, (('videos', 'video', 'title' ) , 'video_title') \
+				, (('videos', 'video', 'description' ) , 'video_desc') \
+				, (('videos', 'video', '@duration' ) , 'video_duration') \
+				, (('videos', 'video', '@src' ) , 'video_url') \
+				, (('videos', 'video', '@embed' ) , 'video_embedded') \
+				, (('labels', 'label', '@catno' ) , 'label_catno') \
+				, (('labels', 'label', '@id' ) , 'label_id') \
+				, (('labels', 'label', '@name' ) , 'label_name') \
+				, (('namevariations', 'name') , 'namevar_name') \
 				, (('companies', 'company', 'id' ) , 'company_id') \
 				, (('companies', 'company', 'name' ) , 'company_name') \
 				, (('images', 'image', '@uri' ) , 'image_url') \
@@ -184,33 +210,26 @@ def handle_elements(path, element):
 				, (('images', 'image', '@width' ) , 'image_width') \
 				, (('images', 'image', '@height' ) , 'image_height') \
 				, (('images', 'image', '@uri150' ) , 'image_url_150') \
-				, (('labels', 'label', 'id' ) , 'label_id') \
 				, (('tracks', 'track', 'title' ) , 'track_title') \
 				, (('tracks', 'track', 'duration' ) , 'track_duration') \
 				, (('tracklist', 'track', 'position' ) , 'tracklist_position') \
 				, (('tracklist', 'track', 'title' ) , 'tracklist_title') \
 				, (('tracklist', 'track', 'duration' ) , 'tracklist_duration') \
-				, (('videos', 'video', 'title' ) , 'video_title') \
-				, (('videos', 'video', 'description' ) , 'video_desc') \
-				, (('videos', 'video', '@duration' ) , 'video_duration') \
-				, (('videos', 'video', '@src' ) , 'video_url') \
-				, (('videos', 'video', '@embed' ) , 'video_embedded') \
 				, (('identifiers', 'identifier', '@description' ) , 'identifier_desc') \
 				, (('identifiers', 'identifier', '@type' ) , 'identifier_type') \
 				, (('identifiers', 'identifier', '@value' ) , 'identifier_value') \
-				, (('labels', 'label', '@catno' ) , 'label_catno') \
-				, (('labels', 'label', '@id' ) , 'label_id') \
-				, (('labels', 'label', '@name' ) , 'label_name') \
 				, (('formats', 'format', '@name' ) , 'format_name') \
 				, (('formats', 'format', '@qt' ) , 'format_quantity') \
 				, (('formats', 'format', '@text' ) , 'format_text') \
 				, (('formats', 'format', 'descriptions', 'description' ) , 'format_descriptors') \
 			]
-
+			
 	correct_changes_per_iter, skipped_keys_per_iter = 0,0
 	for idx,pair in enumerate(changes):
 		key_address, key_change_value = pair
-		if key_address[0] not in element.keys():
+		if key_address[0] in keys_to_drop:
+			pass
+		elif key_address[0] not in element.keys():
 			pass
 		else:
 			for k in recursive_elements(element,key_address,key_change_value):
@@ -240,49 +259,50 @@ def handle_elements(path, element):
 	
 def main(args):
 	"""
-	Parse a given xml file with xmltodict and insert entries to a mongo database collection
-	TODO: 
-	1. PARAMETERIZE!!!
-		- Need to change the collection + file based on file names
-		- re.search or a pre-defined list (only ever 4 files...?)
+	Parse a list of xml files with xmltodict and insert entries to a mongo database collection
 	"""
+	for infile in args.inputfiles:
+		# directory structure is /home/{filetype}s/{filename}.{extension}
 	
-	# directory structure is /home/{filetype}s/{filename}.{extension}
+		global counter, correct_changes, skipped_keys, duplicate_keys, collection_choice, mongo_collection
+		counter, correct_changes, skipped_keys, duplicate_keys = 1,0,0,0
 	
-	global counter, correct_changes, skipped_keys, duplicate_keys, collection_choice, mongo_collection
-	counter, correct_changes, skipped_keys, duplicate_keys = 1,0,0,0
+		# ---- This is hacky! but it works for 01 files currently...
+		# from: /home/xmls/discogs_20170901_masters.xml
+		# to: masters
 	
-	# ---- This is hacky!!
-	# from: /home/xmls/discogs_20170901_masters.xml
-	# to: masters
+		collection_choice = infile.split('01_')[1].split('.xml')[0]
 	
-	collection_choice = args.inputfile[0].split('01_')[1].split('.xml')[0]
-	
-	db_dict = { \
-				'host' : 'mongo-discogs-'+str(collection_choice) \
-				, 'port': 27017 \
-				, 'db' : 'discogs' \
-				, 'coll' : str(collection_choice) \
-			}
+		db_dict = { \
+					'host' : 'mongo-discogs-'+s(collection_choice) \
+					, 'port': 27017 \
+					, 'db' : 'discogs' \
+					, 'coll' : s(collection_choice) \
+				}
 			
-	#mongo_collection, indexes, ping_result = mongo_cli(db_dict)
-	mongo_collection, ping_result = mongo_cli(db_dict)
-	
-	print('mongo connection: ', db_dict)
-	print('mongo connection ping result: ', ping_result)
-	#print('mongo indexes: ', indexes)
-	
-	with open(args.inputfile[0],'rb') as infile:
+		mongo_collection, indexes, ping_result = mongo_cli(db_dict)
+		print('\nmongo conn: ', db_dict,'\nmongo conn ping t/f: ', ping_result,'\nmongo indexes: ', indexes)
 		
-		print_verbose('\nParsing ' + str(args.inputfile[0]) + ' with xmltodict - writing to mongo collection: ' + str(db_dict['coll']))
-		xmltodict.parse(infile,item_depth=2,process_namespaces=True,item_callback=handle_elements)
-		print_verbose('\nWritten to mongo collection: '+str(db_dict['coll']))
+		with open(infile,'rb') as f_in_xml:
+			print_verbose('\nParsing '+s(f_in_xml)+' with xmltodict - writing to mongo collection: '+s(db_dict['coll']))
+			xmltodict.parse(infile,item_depth=2,process_namespaces=True,item_callback=handle_elements)
+			print_verbose('\nWritten to mongo collection: '+s(db_dict['coll']))
 	
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="XML to JSON file converter")	
-	parser.add_argument('inputfile',type=str,nargs=1)
-	parser.add_argument('--verbose',action='store_true')
+	parser.add_argument('inputfiles',type=str,nargs='+',dest='inputfiles',help="Names of discogs xml files to process")
+	parser.add_argument('--verbose',action='store_true',help="Print output verbosely")
+	parser.add_argument('--indexing',action='store_true',help="Create mongo indexes on concatenation of collection_name & _id")
 	args = parser.parse_args()
-	global verbose_bool
-	verbose_bool = args.verbose
+	
+	# Checks on argparse inputs
+	if len(args.inputfiles) < 1:
+		print("No input files given")
+		exit()
+	
+	# set up initial global variables
+	global verbose_bool, mongo_indexing
+	verbose_bool,mongo_indexing = args.verbose, args.indexing
+	
+	# RUNTIME!
 	main(args)
