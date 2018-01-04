@@ -82,12 +82,15 @@ def wide_query():
 		
 		print('master ids gotten')
 		
+		print('cardinalities: ', scards_dict)
+		
 		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
 		intersections = set.intersection(*master_ids_dict.values())
 		
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
+		
 		videos_pipe = redis_host('redis-video-id-urls').pipeline()
 		for i in intersections:
 			links = get_redis_values(redis_host('redis-video-id-urls'),str(i.decode('utf-8')))
