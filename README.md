@@ -14,6 +14,9 @@ Basic premise:
 7. Perform OAuth connection for User session to Youtube
 8. Send video urls to Youtube to create a provate playlist for user
 
+Originally this was meant to be prototyped with Redis, but I ended up having so much fun with it I fell into the Redis rabbit hole. For a final production version of the webapp, a SQL/Hadoop system needs to be implemented.
+
+Redis performed MUCH faster than MongoDB on benchmark tests (redis circa 2 seconds with intersections in python between 3 redis dbs, MongoDB minimum 5 seconds, depending on size of query)
 
 TODOs:
 - Data is initially kept in mongo DB instances for redundancy purposes. This data dump files can be quite big. This may change in future (Added processing steps which don't otherwise add much use).
@@ -89,6 +92,7 @@ TODOs:
   - However, number of Redis instances is increasing dramatically... Redis is fast, but maybe Hadoop/SQL is the best choice?
 
 TODO:
+- Redis autocomplete - ZSORE logic w/ pipelining, will this function correctly?
 - Change to a SQL or Hadoop DB location? Redis is getting complicated with the number of DBs
 
 ### 3-discogs-site

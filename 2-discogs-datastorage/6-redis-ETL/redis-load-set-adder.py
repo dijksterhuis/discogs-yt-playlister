@@ -132,7 +132,7 @@ def main(args):
 			# TODO sorted sets logic for autocomplete searches...
 			if run_type == 'simple_set':
 				
-				# ---- Simple set inserts release_title : masters_id
+				# ---- Simple set inserts e.g. release_title : masters_id
 				
 				redis_conn.sadd( inserts[r_key] , inserts[r_value] )
 				
@@ -144,7 +144,20 @@ def main(args):
 				
 				for key,item in redis_add_attributes_gen(inserts[r_key]):
 					redis_conn.sadd( key+':'+item, inserts[r_value] )
-		
+					
+			elif run_type == 'autocomplete':
+				
+				# ---- autocomplete redis logic e.g. artist-name : ( Holden , 5 )
+				# TODO TEST PIPELINING - will if ZSCORE logic work here?
+				# ZSCORE returns None if members doesn't exist in set
+				# Set initial score to 1, increment for each additional occurance
+				# This will rank release titles (for example) by number of occurances
+				# More common names then turn up higher in the autocomplete searches
+				
+				if zscore( r_value, inserts[r_value] ) == None:
+					redis_con.zadd( r_value, inserts[r_value], 0)
+				else:
+					redis_con.zincrby( r_value, inserts[r_value], amount = 1)
 		# ---- stats
 		
 		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
