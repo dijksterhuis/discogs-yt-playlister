@@ -26,49 +26,36 @@ def mongo_cli(db_dict):
 def recursive_gen(in_json,tag,rec_counter):
 	
 	"""
-	Looking for tags: @src, genre, style, year
+	Looking for tags: @src, genre, style, year, artist_id etc.
 	"""
-	
-	#if type(in_json) is dict:
-	#	print(0,tag,rec_counter,in_json.keys())
-	#else:
-	#	print(0,tag,rec_counter,in_json)
+	# -- we've gone down one level of nesting / recursion
 	
 	rec_counter += 1
 	
-	# ---- we found the item(s) we're looking for!
+	# -- we found the item(s) we're looking for!
 	
 	if type(in_json) is dict and tag in in_json.keys():
-		#print(1,tag, in_json[tag],rec_counter)
 		yield in_json[tag]
-
-	# ---- if it's a string 
-	# ---- then we're at the bottom of the json object
+		
+	# -- else then we're at the bottom of the json object, skip
 	
 	elif type(in_json) is str: pass
 	
-	# ---- if it's a list (probably videos) 
-	# ---- we need to iterate over the list elements
+	# if list, we need to iterate over the list elements and redo recursion
 	
 	elif type(in_json) is list:
-		#print(3,in_json,rec_counter)
 		for list_item in in_json:
-			#print('3a',list_item,rec_counter)
 			for value in recursive_gen(list_item,tag,rec_counter):
-				#print('3b',tag,value,rec_counter)
 				yield value
 	
-	# ---- we haven't found the item(s) we're looking for
-	# ---- but we've got another nested object to search through
+	# -- no found key, another level we can go to
 	
 	elif type(in_json) is dict:
 		for key in in_json:
 			for value in recursive_gen(in_json[key],tag,rec_counter):
-				#print(4,tag,value,rec_counter)
 				yield value
-
-	# ---- else this is not useful data, ignore
-	# ---- TODO what actually gets outputted here?
+				
+	# ---- nothing found, ignore
 	
 	else: pass
 
@@ -87,6 +74,7 @@ def redis_add_attributes_gen(my_dict):
 				for item in dict_item:
 					yield key, item
 			else: yield key, dict_item
+				
 
 def get_values(metadata_tags,document):
 	for tag in metadata_tags:
@@ -113,6 +101,7 @@ def main(args):
 	starttime = dt.now()
 	
 	# ---- set up redis connection
+	
 	print_verbose( ['Setting up Redis Connection to: ', redis_conn_host] )
 	redis_conn = redis.Redis( host=redis_conn_host, port=6379 )
 	print_verbose( ['Redis connection ping result: ', redis_conn.ping()] )
@@ -121,6 +110,7 @@ def main(args):
 	r_pipeline = redis_conn.pipeline()
 	
 	# ---- set up mongo connection
+	
 	print_verbose( ['Setting up Mongo DB connection to: ', mongo_conn_host] )
 	mongo_conn_dict = { 'host' : 'mongo-discogs-' + mongo_conn_host, 'port' : 27017, 'db' : 'discogs', 'coll' : mongo_conn_host }
 	mongo_conn = mongo_cli( mongo_conn_dict )
@@ -128,20 +118,35 @@ def main(args):
 	
 	print('DB connections set up, beginning data extraction...\n')
 	
-	# ---- get the required data from mongo collection
+	# ---- iterate over mongodb documents
+	
 	for idx, document in enumerate( dataset ):
+		
 		metadata_tags = [ r_key, r_value ]
 		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
+		
 		# ---- add to redis
+		
 		if inserts[r_value] == None: pass
 		else:
+			# TODO sorted sets logic for autocomplete searches...
 			if run_type == 'simple_set':
+				
+				# ---- Simple set inserts release_title : masters_id
+				
 				redis_conn.sadd( inserts[r_key] , inserts[r_value] )
+				
 			elif run_type == 'meta_filt_set':
-				for key,item in redis_add_attributes_gen(inserts):
+				
+				# ---- N.B. inserts[r_key] is passed here instead of inserts
+				# to extract each genre/style/year/reldate as keys for redis
+				# rather than the list of them
+				
+				for key,item in redis_add_attributes_gen(inserts[r_key]):
 					redis_conn.sadd( key+':'+item, inserts[r_value] )
 		
 		# ---- stats
+		
 		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
 		console.flush()
 	
@@ -152,20 +157,25 @@ def main(args):
 	
 	# ---- print stats
 	
+	elapsed_time, redis_additions = dt.now() - starttime, redis_conn.dbsize() - init_redis_dbsize
 	print('\nExtraction complete!')
-	print( str(redis_conn.dbsize() - init_redis_dbsize) + ' keys were added to the' + redis_conn_host + 'Redis DB')
-	elapsed_time = dt.now() - starttime
-	print('Time taken (mins): '+str(elapsed_time.total_seconds()//60))
+	print_verbose( str(redis_additions) + ' keys were added to the ' + redis_conn_host + ' Redis DB')
+	print_verbose('Time taken (mins): ' + str(elapsed_time.total_seconds()//60) )
 
 if __name__ == '__main__':
+	
 	parser = argparse.ArgumentParser(description="REDIS *SET* INSERTS: Get data from a Mongo collection and load into a Redis instance")
+	
 	parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_filt_set'])
 	parser.add_argument('mongo_connection_host',type=str,nargs=1,choices=['masters','labels','releases','artists'])
 	parser.add_argument('redis_connection_host',type=str,nargs=1)
 	parser.add_argument('redis_key',type=str,nargs=1)
 	parser.add_argument('redis_value',type=str,nargs=1)
 	parser.add_argument('--verbose','-v',action='store_true')
+	
 	args = parser.parse_args()
+	
 	global verbose_bool
 	verbose_bool = args.verbose
+	
 	main(args)
