@@ -100,7 +100,7 @@ def main(args):
 	# ---- set up redis connection
 	print_verbose('Setting up Redis Connection to: ',args.redis_connection_host)
 	redis_conn = redis.Redis(host=args.redis_connection_host, port=6379)
-	print_verbose('Redis connection ping result: 'redis_conn.ping())
+	print_verbose('Redis connection ping result: ',redis_conn.ping())
 	print_verbose('Setting up Redis Pipeline.')
 	r_pipeline = redis_conn.pipeline()
 	entries_added_to_redis = 0
