@@ -23,13 +23,13 @@ TODOs:
 #### 1-downloads  - 0.0.5
 - Only needs to run once a month to get new files (DB exports uplaoded monthly - usually 1st of month)
 - Does the following actions:
-  - Curls the required files (uploaded in a "discogs\_"$yearmonth"01\_"$filename".xml.gz" format) from discogs data dump site
+  - Curls the required files (uploaded in a `"discogs\_"$yearmonth"01\_"$filename".xml.gz"` format) from discogs data dump site
   - Pipe curl output to gzip
-  - Write xml to disk (docker volume discogs-db-xmls)
+  - Write xml to disk (docker volume `discogs-db-xmls`)
 - Dockerfile has a CMD command as of version 0.0.5
 
 TODOs:
-- download\_xmls.sh: What if the data is not uploaded on the 01 of the month? It isn't always!
+- `download\_xmls.sh`: What if the data is not uploaded on the 01 of the month? It isn't always!
   - Run a batch job every day checking for a file?
   - No xml file exists, quit, else download?
   - Need to look at curl usage/html response from incorrect address...
@@ -55,22 +55,22 @@ TODOs:
 None! Yay!
 
 #### 2-xmls2mongo
-- Take the files from discogs-db-xmls
-- Parses xmls with xmltodict python library
-- Loads each document (entity) using pymongo import
+- Take the files from `discogs-db-xmls`
+- Parses xmls with `xmltodict` python library
+- Loads each document (entity) using `pymongo` import
 - Lots of ETL going on here - flattening the nested dictionaries & renaming keys mostly
-- docker\_run.sh file is set up with a CMD so is executable
+- `docker\_run.sh` file is set up with a `CMD` so is executable
 
 TODOs:
-- Dockerfile: Create an entrypoint so can test different ETL scripts 
-- Dockerfile: Docker build-then-run script so don't have to keep changing this file - how to do version number? Jenkins?
-- mongo_ETL.py: Data files don't necessarily upload on 01 of month.
-  - input: /home/xmls/discogs_20170901_masters.xml
-  - expected output: masters
-  - line affected: collection_choice = infile.split('01_')[1].split('.xml')[0]
-  - solution: Need to do some form of regex that matches the numbers from 20170101_ and splits
-- mongo_ETL.py: Is all the releases data covered?
-- mongo_ETL.py: If the releases file, only keep certain elements to save memory usage (mongo eats it up on my 16GB box) (This needs checking!):
+- `Dockerfile`: Create an entrypoint so can test different ETL scripts 
+- `Dockerfile`: Docker `build-then-run.sh` script so don't have to keep changing this file - how to do version number? Jenkins?
+- `mongo_ETL.py`: Data files don't necessarily upload on `01` of month.
+  - input: `/home/xmls/discogs_20170901_masters.xml`
+  - expected output: `masters`
+  - line affected: `collection_choice = infile.split('01_')[1].split('.xml')[0]`
+  - solution: Need to do some form of regex that matches the numbers from `20170101_` and splits
+- `mongo_ETL.py`: Is all the releases data covered?
+- `mongo_ETL.py`: If the releases file, only keep certain elements to save memory usage (mongo eats it up on my 16GB box) (This needs checking!):
   - release id
   - release title
   - main_release
