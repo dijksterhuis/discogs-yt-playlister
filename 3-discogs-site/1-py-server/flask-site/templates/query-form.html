@@ -4,25 +4,38 @@
 <h2>Please try a query</h2>
 <br>
 <form style="height: 100%; width: 100%" method="POST" accept-charset="UTF-8">
+  <fieldset>
+    Max Videos to Return:
+    <input type="number" name="query:max_results"> <br>
+  </fieldset>
+  <fieldset>
+    Artist Name:
+    <input type="search" name="search:artist_name"> <br>
+    Release Name:
+    <input type="search" name="search:release_name"> <br>
+    Label Name:
+    <input type="search" name="search:label_name"> <br>
+  </fieldset>
+  <br>
+  <fieldset>
+    <select multiple id="Years" name="query:year" size="20" style="width: 100px">
+      {% for year in years %}
+       <option value="{{year}}">{{year}}</option>
+      {% endfor %}
+    </select> 
   
-  <select multiple id="Years" name="query:year" size="20" style="width: 100px">
-    {% for year in years %}
-     <option value="{{year}}">{{year}}</option>
-    {% endfor %}
-  </select> 
+    <select multiple id="Genres" name="query:genre" size="20" style="width: 200px">
+      {% for genre in genres %}
+       <option value="{{genre}}">{{genre}}</option>
+      {% endfor %}
+    </select>
   
-  <select multiple id="Genres" name="query:genre" size="20" style="width: 200px">
-    {% for genre in genres %}
-     <option value="{{genre}}">{{genre}}</option>
-    {% endfor %}
-  </select>
-  
-  <select multiple id="Styles" name="query:style" size="20" style="width: 300px">
-    {% for style in styles %}
-     <option value="{{style}}">{{style}}</option>
-    {% endfor %}
-  </select>
-  
+    <select multiple id="Styles" name="query:style" size="20" style="width: 300px">
+      {% for style in styles %}
+       <option value="{{style}}">{{style}}</option>
+      {% endfor %}
+    </select>
+  </fieldset>
 <input class="btn btn-default" type="submit" value="Get Results">
 </form>
 

@@ -10,7 +10,7 @@ RUN mkdir /home/data/
 #COPY flask-site/ /home/site/
 #RUN chmod u+x /home/*.py
 RUN apk update ; apk add wget unzip
-RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O /home/ngrok-stable-linux-amd64.zip
-RUN unzip ./ngrok-stable-linux-amd64.zip
+#RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O /home/ngrok-stable-linux-amd64.zip
+#RUN unzip ./ngrok-stable-linux-amd64.zip
 RUN pip install --upgrade flask requests joblib redis pymongo werkzeug google-api-python-client httplib2
 WORKDIR /home
