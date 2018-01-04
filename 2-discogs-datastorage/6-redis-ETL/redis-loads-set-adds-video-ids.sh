@@ -3,7 +3,7 @@
 image='dijksterhuis/redis-database-inserts:modularised-0.1'
 container_name='redis-loads-video-urls'
 container_command='./redis-load-set-adder.py'
-container_args='masters redis-video-id-urls masters_id video_url'
+container_args='simple_set masters redis-video-id-urls masters_id video_url'
 networks='discogs-redis-site-queries discogs-mongo'
 
 docker run -di \

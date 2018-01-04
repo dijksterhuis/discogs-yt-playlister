@@ -64,35 +64,32 @@ None! Yay!
 TODOs:
 - `Dockerfile`: Create an entrypoint so can test different ETL scripts 
 - `Dockerfile`: Docker `build-then-run.sh` script so don't have to keep changing this file - how to do version number? Jenkins?
+- `mongo_ETL.py`: Database name should be something relevant to file's date information e.g. `179` for `20170901`
+  - How would this be accessed by things like the redis-loads?
 - `mongo_ETL.py`: Data files don't necessarily upload on `01` of month.
   - input: `/home/xmls/discogs_20170901_masters.xml`
   - expected output: `masters`
   - line affected: `collection_choice = infile.split('01_')[1].split('.xml')[0]`
   - solution: Need to do some form of regex that matches the numbers from `20170101_` and splits
-- `mongo_ETL.py`: Is all the releases data covered?
-- `mongo_ETL.py`: If the releases file, only keep certain elements to save memory usage (mongo eats it up on my 16GB box) (This needs checking!):
-  - release id
-  - release title
-  - main_release
-  - label id
-  - release date
-  - companies - id, entity type / desc ?
-  - extra artists ?
-  - artists ?
-  - country ?
+- DONE > `mongo_ETL.py`: Is all the releases data covered?
+- DONE > `mongo_ETL.py`: If the releases file, only keep certain elements to save memory usage (mongo eats it up on my 16GB box)
 
 #### 3- redis-metadata-ids
 - sets up redis instances for caches, hashes, queryable data and site metadata
 
 TODOs:
-- AUTOMATE!!!
+- AUTOMATE! Get Jenkins on the go.
 
 #### 6- redis-ETL
-The big bonanza... Take necessary data from mongo db collections, import into redis instances.
-Lots going on here... TO UPDATE...
+- Take necessary data from mongo db collections, import into redis instances.
+- This has been modularised
+  - Previously there was one big python ETL script that took 2 hours to run
+  - Now there are more `docker_run.sh` scripts w/ argument inputs
+  - Run time is much less, code is cleaner
+  - However, number of Redis instances is increasing dramatically... Redis is fast, but maybe Hadoop/SQL is the best choice?
 
 TODO:
-- THERE MUST BE AN EASIER WAY!
+- Change to a SQL or Hadoop DB location? Redis is getting complicated with the number of DBs
 
 ### 3-discogs-site
 #### 1-get-metadata-redis
@@ -105,6 +102,9 @@ TODO:
 - So could be argued that it should live on the hadoop ecosystem
 - Possible to parse xml files with Apache Pig
 
+TODO:
+- Existing data already lives in a convenient format in Mongo instances
+  - Can Hadoop pull data from Mongo? Apparantly yes https://stackoverflow.com/questions/32043696/how-to-stream-data-from-mongodb-to-hadoop
 
 ## UI notes
 ### Filters

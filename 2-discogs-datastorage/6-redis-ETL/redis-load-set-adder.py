@@ -105,8 +105,8 @@ def main(args):
 	5. Stats print out
 	"""
 	
-	redis_conn_host, mongo_conn_host, r_key, r_value = \
-		 	args.redis_connection_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
+	run_type, redis_conn_host, mongo_conn_host, r_key, r_value = \
+		 	args.run_type[0], args.redis_connection_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
 	
 	print('\nSetting up database connections.')
 	
@@ -134,7 +134,12 @@ def main(args):
 		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
 		# ---- add to redis
 		if inserts[r_value] == None: pass
-		else: redis_conn.sadd( inserts[r_key] , inserts[r_value] )
+		else:
+			if run_type == 'simple_set':
+				redis_conn.sadd( inserts[r_key] , inserts[r_value] )
+			elif run_type == 'meta_filt_set':
+				for key,item in redis_add_attributes_gen(inserts):
+					redis_conn.sadd( key+':'+item, inserts[r_value] )
 		
 		# ---- stats
 		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
@@ -154,6 +159,7 @@ def main(args):
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="REDIS *SET* INSERTS: Get data from a Mongo collection and load into a Redis instance")
+	parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_filt_set'])
 	parser.add_argument('mongo_connection_host',type=str,nargs=1,choices=['masters','labels','releases','artists'])
 	parser.add_argument('redis_connection_host',type=str,nargs=1)
 	parser.add_argument('redis_key',type=str,nargs=1)
