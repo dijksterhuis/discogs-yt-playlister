@@ -9,4 +9,3 @@ COPY redis-load*.py /home/
 RUN chmod u+x /home/*.py
 RUN pip install --upgrade argparse redis pymongo
 WORKDIR /home
-CMD ['./redis-load-set-adder.py']
