@@ -22,6 +22,9 @@ app = Flask(__name__)
 #r_unique_style = redis.Redis(host='redis-metadata-unique-style',port=6379)
 #r_unique_genre = redis.Redis(host='redis-metadata-unique-genre',port=6379)
 
+def redis_host(value):
+	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
+
 def get_redis_keys(redis_instance):
 	return [i.decode('utf-8') for i in list(redis_instance.keys())]
 
@@ -39,7 +42,7 @@ def wide_query():
 		
 		# reldate?
 		unique_params = { \
-								tag : get_redis_keys(redis.Redis(host='redis-metadata-unique-'+tag,port=6379)) \
+								tag : get_redis_keys(redis_host(tag)) \
 									for tag in ['year','genre','style'] \
 						}
 		
@@ -54,122 +57,62 @@ def wide_query():
 	## These can be big queries, so we want post requests, rather than a get rest API
 	
 	elif request.method == 'POST':
-			
-		max_dict = { \
-						'max_'+tag : len(get_redis_values(redis.Redis(host='redis-metadata-unique-'+tag,port=6379),tag)) \
-						for tag in ['year','genre','style']\
-					}
-					
-		print(max_dict)
 		
 		print('POST')
 		
 		time_dict = { 0: ('start_time',datetime.datetime.now() ) } 
+		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
 		
-		form_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
-		
-		#years = request.form.getlist('queryYear')
-		#genres = request.form.getlist('queryGenre')
-		#styles = request.form.getlist('queryStyle')
+		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
 		
 		print('getting: ',form_dict)
 		
-		###### TODO - This need to be more elegant
-		# ---- logic to ignore selecting "Full" parameter selections 
-		# ---- (they don't matter)
+		scards_dict, master_ids_dict, all_links = dict(), dict(), list()
 		
-		query_dict = dict()
+		# get master IDs for wide filters
 		
-		print('qdict:\n\n',query_dict)
-		
-		for key,value in form_dict.items():
-			if len(value) == max_dict['max_'+key] or len(value) == 0:
-				print('not gonna bother looking at '+key+' data')
-				query_dict[key] = False
+		for key in wide_query_dict.keys():
+			if len(wide_query_dict[key]) == 0: pass
 			else:
-				query_dict[key] = True
+				p = redis_host(key).pipeline()
+				for value in wide_query_dict[key]:
+					scards_dict[key] = sum([ redis_host(key).scard(value) for value in wide_query_dict[key] ])
+					master_ids_dict[key] = set.union(*[ redis_host(key).smembers(value) for value in wide_query_dict[key] ])
+				p.execute()
 		
-		# - rest api version
+		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
-		#res = requests.post('api address to go here', json = query_dict )
-		#print('server response:', res.text)
-		#all_links = res.json()
+		intersections = set.intersection(*master_ids_dict.values())
 		
-		time_dict[1] = ('prepare_query_time' , datetime.datetime.now())
-		
-		# ---- Redis ops to get all the relevant master release ids for chosen filters
-		# - get sets for each filter parameter value (can be multiple choices)
-		# - Union the results for each parameter
-		# - Intersect the results
-		# ---- TODO
-		# - This takes around 5 seconds for a larger query (2015-2017, electronic, acid)
-		# - How could these be reduced? Sorting the sets in redis?
-		
-		cards_dict = dict()
-		
-		#totals_pipe = r_masters.pipeline()
-		#
-		#for key,value in query_dict.items():
-		#	if value is True:
-		#		cards_dict[key] = sum([r_masters.scard(key+':'+i) for i in form_dict[key] ])
-		#
-		#totals_pipe.execute()
-		
-		print('set cardinalities: ',cards_dict)
-		time_dict[2] = ('get_totals_delta' , datetime.datetime.now())
-		
-		master_ids_dict = dict()
-		
-		#masters_pipe = r_masters.pipeline()
-		#
-		#for key,value in query_dict.items():
-		#	if value is True:
-		#		master_ids_dict[key] = set.union(*[r_masters.smembers(key+':'+i) for i in form_dict[key] ])
-		
-		
-		#years_unioned = set.union(*[r_masters.smembers('year:'+i) for i in years])
-		#genre_unioned = set.union(*[r_masters.smembers('genre:'+i) for i in genres])
-		#styles_unioned = set.union(*[r_masters.smembers('style:'+i) for i in styles])
-				
-		#masters_pipe.execute()
-		
-		time_dict[3] = ('masters_query_delta' , datetime.datetime.now())
-		
-		#intersections = set.intersection(*master_ids_dict.values())
-		
-		time_dict[4] = ('intersection_time_delta' , datetime.datetime.now())
-		
-		all_links = list()
-		
-		#videos_pipe = r_videos.pipeline()
-		
-		#for i in intersections:
-		#	links = get_redis_metadata(r_videos,'videos:'+str(i.decode('utf-8')))
-		#	if len(links) == 0:
-		#		pass
-		#	elif len(links) == 1:
-		#		all_links.append(links[0])
-		#	else:
-		#		for link in links:
-		#			all_links.append(link)
-					
-		#videos_pipe.execute()
+		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
+
+		videos_pipe = redis_host('redis-video-id-urls').pipeline()
+		for i in intersections:
+			links = get_redis_values(redis_host('redis-video-id-urls'),str(i.decode('utf-8')))
+			if len(links) == 0:
+				pass
+			elif len(links) == 1:
+				all_links.append(links[0])
+			else:
+				for link in links:
+					all_links.append(link)
+		videos_pipe.execute()
 		
 		tot = len(all_links)
 		
-		#time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
-		#
-		#print('\ntimings: key, time since start, time since last op, str_key')
-		#for time_key,time_value in time_dict.items():
-		#	if time_key is 0:
-		#		print(time_key  , 0 , 0  , time_value[0] )
-		#	else:
-		#		from_start = time_value[1] - time_dict[0][1]
-		#		from_last_op = time_value[1] - time_dict[time_key-1][1]
-		#		print(time_key , from_start , from_last_op , time_value[0] )
-		#total_time = datetime.datetime.now() - time_dict[0][1]
-		#print('\ntotaltime',total_time.total_seconds())
-		#print('\n')
+		time_dict[4] = ('videos_time_delta' , datetime.datetime.now())
+		
+		print('\ntimings: key, time since start, time since last op, str_key')
+		for time_key,time_value in time_dict.items():
+			if time_key is 0:
+				print(time_key  , 0 , 0  , time_value[0] )
+			else:
+				from_start = time_value[1] - time_dict[0][1]
+				from_last_op = time_value[1] - time_dict[time_key-1][1]
+				print(time_key , from_start , from_last_op , time_value[0] )
+		total_time = datetime.datetime.now() - time_dict[0][1]
+		print('\ntotaltime',total_time.total_seconds())
+		print('\n')
 		return render_template('/results.html',intersex=all_links,total_count=tot)
 
 if __name__ == '__main__':
