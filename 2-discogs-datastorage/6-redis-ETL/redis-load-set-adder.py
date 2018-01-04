@@ -179,7 +179,7 @@ if __name__ == '__main__':
 	
 	parser = argparse.ArgumentParser(description="REDIS *SET* INSERTS: Get data from a Mongo collection and load into a Redis instance")
 	
-	parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_filt_set'])
+	parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_filt_set','autocomplete'])
 	parser.add_argument('mongo_connection_host',type=str,nargs=1,choices=['masters','labels','releases','artists'])
 	parser.add_argument('redis_connection_host',type=str,nargs=1)
 	parser.add_argument('redis_key',type=str,nargs=1)
