@@ -108,22 +108,23 @@ def main(args):
 	starttime = dt.now()
 	
 	# ---- set up redis connection
-	print_verbose(['Setting up Redis Connection to: ',args.redis_connection_host])
-	redis_conn = redis.Redis(host=args.redis_connection_host, port=6379)
+	print_verbose(['Setting up Redis Connection to: ',args.redis_connection_host[0]])
+	redis_conn = redis.Redis(host=args.redis_connection_host[0], port=6379)
 	print_verbose(['Redis connection ping result: ',redis_conn.ping()])
 	print_verbose('Setting up Redis Pipeline.')
 	r_pipeline = redis_conn.pipeline()
 	entries_added_to_redis = 0
 	
 	# ---- set up mongo connection
-	print_verbose(['Setting up Mongo DB connection to: ',args.mongo_connection_host])
-	mongo_conn_dict = {'host':'mongo-discogs-'+args.mongo_connection_host,'port':27017,'db':'discogs','coll':args.mongo_connection_host}
+	print_verbose(['Setting up Mongo DB connection to: ',args.mongo_connection_host[0]])
+	mongo_conn_dict = \
+		 {'host':'mongo-discogs-'+args.mongo_connection_host[0],'port':27017,'db':'discogs','coll':args.mongo_connection_host[0]}
 	mongo_conn = mongo_cli( mongo_conn_dict )
 	dataset = mongo_conn.find()
 	
 	# ---- get the required data from mongo collection
 	for idx, document in enumerate(dataset):
-		metadata_tags = [args.redis_key , args.redis_value ]
+		metadata_tags = [args.redis_key[0] , args.redis_value[0] ]
 		
 		# ---- tuples can be used in dictionary construction, handy for complex if/else statements
 		# https://stackoverflow.com/a/43390527/5945794
@@ -135,7 +136,7 @@ def main(args):
 							)
 		
 		# ---- add to redis
-		entries_added_to_redis += redis_conn.sadd( inserts['release_title'] , inserts['masters_id'] )
+		entries_added_to_redis += redis_conn.sadd( inserts[args.redis_key[0]] , inserts[args.redis_value[0]] )
 		
 		# ---- stats
 		console.write( "\r{} proc / {} mongo dox - to add to redis: {}".format(idx,mongo_conn.count(),entries_added_to_redis))
