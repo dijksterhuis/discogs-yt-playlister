@@ -56,7 +56,7 @@ def wide_query():
 	elif request.method == 'POST':
 			
 		max_dict = { \
-						'max_'+tag : len(get_redis_metadata(redis.Redis(host='redis-metadata-unique-'+tag,port=6379),tag)) \
+						'max_'+tag : len(get_redis_values(redis.Redis(host='redis-metadata-unique-'+tag,port=6379),tag)) \
 						for tag in ['year','genre','style']\
 					}
 					
