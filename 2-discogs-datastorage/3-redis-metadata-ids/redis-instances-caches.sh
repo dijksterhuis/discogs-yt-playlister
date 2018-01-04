@@ -1,5 +1,7 @@
 #!/bin/bash
 
+docker network create discogs-redis-caches
+
 # ------------------------------------------------------------------
 ###### redis-query-cache
 # store the session results that a user has confirmed for query
@@ -17,5 +19,5 @@ docker run -d --rm -p 7004:6379 \
 
 docker run -d --rm -p 6400:6379 \
     -v redis-discogs-sessions:/data \
-    --name redis-discogs-sessions \
+    --name discogs-redis-caches \
     redis:alpine

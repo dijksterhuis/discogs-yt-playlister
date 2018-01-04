@@ -1,5 +1,7 @@
 #!/bin/bash
 
+docker network create discogs-metadata-stores
+
 # ------------------------------------------------------------------
 ###### redis-metadata-unique
 # for year, genre, style etc. tags to be pulled onto the site
