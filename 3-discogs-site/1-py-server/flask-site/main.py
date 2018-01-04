@@ -22,8 +22,11 @@ app = Flask(__name__)
 #r_unique_style = redis.Redis(host='redis-metadata-unique-style',port=6379)
 #r_unique_genre = redis.Redis(host='redis-metadata-unique-genre',port=6379)
 
+def get_redis_keys(redis_instance):
+	return [i.decode('utf-8') for i in list(redis_instance.keys())]
 
-def get_redis_metadata(redis_instance,key_string):
+
+def get_redis_values(redis_instance,key_string):
 	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
 
 @app.route('/',methods=['GET','POST'])
@@ -36,7 +39,7 @@ def wide_query():
 		
 		# reldate?
 		unique_params = { \
-								tag : get_redis_metadata(redis.Redis(host='redis-metadata-unique-'+tag,port=6379),tag) \
+								tag : get_redis_keys(redis.Redis(host='redis-metadata-unique-'+tag,port=6379)) \
 									for tag in ['year','genre','style'] \
 						}
 		
