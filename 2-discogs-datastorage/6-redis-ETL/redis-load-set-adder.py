@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python
 import json, argparse, redis, os, pymongo, time
 from sys import stdout as console
 from sys import exit
