@@ -59,15 +59,19 @@ input {
 }
 
 input:focus { 
-    text-align: center ; background-color: LightGray; color: black ; border-radius: 1px; outline: none; border-left: 2px solid red ;
+    text-align: center ; background-color: LightGray; color: black ; border-radius: 1px; outline: none; border-right: 1px solid red ;
 }
 
 select{
     background-color: LightGray; color: black; border-radius: 4px;
 }
 
-select:focus{
+select:focus {
     outline: none;
+}
+
+fieldset[id=selections] {
+  margin: 15px ;
 }
 
 table {
