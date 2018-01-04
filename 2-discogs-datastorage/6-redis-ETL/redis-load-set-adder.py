@@ -126,7 +126,7 @@ def main(args):
 				# rather than the list of them
 				if type(inserts[r_key]) is list:
 					for key_item in inserts[r_key]:
-						redis_conn.sadd( str(r_key)+':'+str(item), str(inserts[r_value]) )
+						redis_conn.sadd( str(r_key)+':'+str(key_item), str(inserts[r_value]) )
 				else:
 					redis_conn.sadd( str(r_key)+':'+str(inserts[r_key]), str(inserts[r_value]) )
 					
