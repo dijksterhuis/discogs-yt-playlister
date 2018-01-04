@@ -119,16 +119,16 @@ def main(args):
 				
 				redis_conn.sadd( str(inserts[r_key]) , str(inserts[r_value]) )
 				
-			elif run_type == 'meta_filt_set':
+			elif run_type == 'meta_uniq_set':
 				
 				# ---- N.B. inserts[r_key] is passed here instead of inserts
 				# to extract each genre/style/year/reldate as keys for redis
 				# rather than the list of them
 				if type(inserts[r_key]) is list:
 					for key_item in inserts[r_key]:
-						redis_conn.sadd( str(r_key)+':'+str(item), str(inserts[r_value]) )
+						redis_conn.sadd( str(key_item), str(inserts[r_value]) )
 				else:
-					redis_conn.sadd( str(r_key)+':'+str(inserts[r_key]), str(inserts[r_value]) )
+					redis_conn.sadd( str(inserts[r_key]), str(inserts[r_value]) )
 					
 			elif run_type == 'autocomplete':
 				
@@ -165,7 +165,7 @@ if __name__ == '__main__':
 	
 	parser = argparse.ArgumentParser(description="REDIS *SET* INSERTS: Get data from a Mongo collection and load into a Redis instance")
 	
-	parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_filt_set','autocomplete'])
+	parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_uniq_set','autocomplete'])
 	parser.add_argument('mongo_connection_host',type=str,nargs=1,choices=['masters','labels','releases','artists'])
 	parser.add_argument('redis_connection_host',type=str,nargs=1)
 	parser.add_argument('redis_key',type=str,nargs=1)
