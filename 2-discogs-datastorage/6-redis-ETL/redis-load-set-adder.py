@@ -128,12 +128,19 @@ def main(args):
 		
 		# ---- tuples can be used in dictionary construction, handy for complex if/else statements
 		# https://stackoverflow.com/a/43390527/5945794
-		inserts = dict( \
-							(tag, [value for value in recursive_gen(master,tag,0)] ) \
-								if len([value for value in recursive_gen(master,tag,0)]) > 1 \
-								else (tag, [value for value in recursive_gen(document,tag,0)][0]) \
-								for tag in metadata_tags \
-							)
+		inserts = dict()
+		for tag in metadata_tags:
+			if len([value for value in recursive_gen(master,tag,0)]) > 1:
+				inserts[tag] = [value for value in recursive_gen(master,tag,0)]
+			else:
+				inserts[tag] = [value for value in recursive_gen(document,tag,0)][0]
+		
+		# \
+		#				(tag, [value for value in recursive_gen(master,tag,0)] ) \
+		#					if len([value for value in recursive_gen(master,tag,0)]) > 1 \
+		#					else (tag, [value for value in recursive_gen(document,tag,0)][0]) \
+		#					for tag in metadata_tags \
+		#				)
 		
 		# ---- add to redis
 		entries_added_to_redis += redis_conn.sadd( inserts[args.redis_key[0]] , inserts[args.redis_value[0]] )
