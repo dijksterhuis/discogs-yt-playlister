@@ -72,9 +72,8 @@ def redis_add_attributes_gen(my_dict):
 		for dict_item in my_dict[key]:
 			if type(dict_item) is list:
 				for item in dict_item:
-					yield key, item
-			else: yield key, dict_item
-				
+					yield key, str(item)
+			else: yield key, str(dict_item)
 
 def get_values(metadata_tags,document):
 	for tag in metadata_tags:
@@ -123,7 +122,7 @@ def main(args):
 	for idx, document in enumerate( dataset ):
 		
 		metadata_tags = [ r_key, r_value ]
-		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
+		inserts = { str(key): str(value) for key, value in get_values( metadata_tags,document ) }
 		
 		# ---- add to redis
 		
@@ -143,12 +142,12 @@ def main(args):
 				# rather than the list of them
 				
 				for key,item in redis_add_attributes_gen(inserts[r_key]):
-					redis_conn.sadd( key+':'+item, inserts[r_value] )
+					redis_conn.sadd( key+':'+str(item), inserts[r_value] )
 					
 			elif run_type == 'autocomplete':
 				
 				# ---- autocomplete redis logic e.g. artist-name : ( Holden , 5 )
-				# TODO TEST PIPELINING - will if ZSCORE logic work here?
+				# TODO - this needs work... bigger issues to get on with...
 				# ZSCORE returns None if members doesn't exist in set
 				# Set initial score to 1, increment for each additional occurance
 				# This will rank release titles (for example) by number of occurances
