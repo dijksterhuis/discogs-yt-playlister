@@ -7,7 +7,7 @@ networks='discogs-metadata-stores discogs-redis-site-queries'
 
 docker run \
     -di --restart=always \
-    -p 80:5000 -p 4040:4040 \
+    -p 127.0.0.1:80:5000 -p 4040:4040 \
     -v $pth:/home/site \
     -w /home \
     --name $container_name \
