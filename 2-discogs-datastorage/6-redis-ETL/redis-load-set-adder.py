@@ -8,6 +8,13 @@ from datetime import datetime as dt
 TODO - docstring... (need to test first...)
 """
 
+def print_verbose(string):
+	"""
+	Print the string if verbosity (argparse arg) is true
+	"""
+	if verbose_bool is True:
+		print(string)
+
 def mongo_cli(db_dict):
 	m = pymongo.MongoClient(db_dict['host'],db_dict['port'])
 	db = m[db_dict['db']]
