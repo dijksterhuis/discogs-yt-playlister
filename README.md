@@ -23,13 +23,13 @@ TODOs:
 #### 1-downloads  - 0.0.5
 - Only needs to run once a month to get new files (DB exports uplaoded monthly - usually 1st of month)
 - Does the following actions:
-  - Curls the required files (uploaded in a `"discogs\_"$yearmonth"01\_"$filename".xml.gz"` format) from discogs data dump site
+  - Curls the required files (uploaded in a `"discogs_"$yearmonth"01_"$filename".xml.gz"` format) from discogs data dump site
   - Pipe curl output to gzip
   - Write xml to disk (docker volume `discogs-db-xmls`)
 - Dockerfile has a CMD command as of version 0.0.5
 
 TODOs:
-- `download\_xmls.sh`: What if the data is not uploaded on the 01 of the month? It isn't always!
+- `download_xmls.sh`: What if the data is not uploaded on the 01 of the month? It isn't always!
   - Run a batch job every day checking for a file?
   - No xml file exists, quit, else download?
   - Need to look at curl usage/html response from incorrect address...
@@ -59,7 +59,7 @@ None! Yay!
 - Parses xmls with `xmltodict` python library
 - Loads each document (entity) using `pymongo` import
 - Lots of ETL going on here - flattening the nested dictionaries & renaming keys mostly
-- `docker\_run.sh` file is set up with a `CMD` so is executable
+- `docker_run.sh` file is set up with a `CMD` so is executable
 
 TODOs:
 - `Dockerfile`: Create an entrypoint so can test different ETL scripts 
