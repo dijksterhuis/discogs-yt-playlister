@@ -154,10 +154,11 @@ def main(args):
 				# This will rank release titles (for example) by number of occurances
 				# More common names then turn up higher in the autocomplete searches
 				
-				if zscore( r_value, inserts[r_value] ) == None:
-					redis_con.zadd( r_value, inserts[r_value], 0)
+				if redis_conn.zscore( r_value, inserts[r_value] ) == None:
+					redis_conn.zadd( r_value, inserts[r_value], 0)
 				else:
-					redis_con.zincrby( r_value, inserts[r_value], amount = 1)
+					redis_conn.zincrby( r_value, inserts[r_value], amount = 1)
+					
 		# ---- stats
 		
 		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
