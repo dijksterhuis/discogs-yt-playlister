@@ -11,7 +11,7 @@ docker run -d --rm -p 80:5000 -p 4040:4040 \
     --name $container_name \
         $image_name":"$image_tag
 
-for net in networks ; do docker network connect $net $container_name ; done
+for net in $networks ; do docker network connect $net $container_name ; done
 
 docker exec -it $container_name /bin/ash -c "/home/site/main.py"
 docker stop $container_name; docker rm $container_name
