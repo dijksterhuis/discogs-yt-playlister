@@ -14,3 +14,4 @@ RUN apk update ; apk add wget unzip
 #RUN unzip ./ngrok-stable-linux-amd64.zip
 RUN pip install --upgrade flask requests joblib redis pymongo werkzeug google-api-python-client httplib2
 WORKDIR /home
+CMD ['/bin/ash']

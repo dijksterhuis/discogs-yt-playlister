@@ -5,7 +5,7 @@ image_tag="dev"
 container_name="pyserving-test"
 networks="discogs-metadata-stores discogs-redis-site-queries"
 
-docker run -it --rm -p 80:5000 -p 4040:4040 \
+docker run -d --rm -p 80:5000 -p 4040:4040 \
     -v $pth:/home/site \
     -w /home \
     --name $container_name \
