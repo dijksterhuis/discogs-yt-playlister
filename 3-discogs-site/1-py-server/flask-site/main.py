@@ -65,7 +65,7 @@ def wide_query():
 		
 		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
 		
-		print('getting: ',form_dict)
+		print('getting: ',wide_query_dict)
 		
 		scards_dict, master_ids_dict, all_links = dict(), dict(), list()
 		
