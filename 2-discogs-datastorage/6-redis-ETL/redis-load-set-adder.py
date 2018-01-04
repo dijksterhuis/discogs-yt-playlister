@@ -83,7 +83,7 @@ def redis_add_attributes_gen(my_dict):
 				for item in dict_item:
 					yield key, item
 			else:
-				yield key, dict_item=
+				yield key, dict_item
 
 def main(args):
 	
