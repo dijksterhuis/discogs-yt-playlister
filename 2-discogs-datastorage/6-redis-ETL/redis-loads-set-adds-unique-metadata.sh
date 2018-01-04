@@ -8,7 +8,7 @@ container_name='redis-loads-unique-'$tag \
 container_command='./redis-load-set-adder.py' \
 container_args='simple_set masters redis-metadata-unique-'$tag' '$tag' masters_id' \
 networks='discogs-metadata-stores discogs-mongo' \
-        echo $container_name ;\
+echo $container_name ; echo $image ;\
         docker run -di \
             -w /home \
             -v metadata-extraction-logs:/logging \
