@@ -59,22 +59,6 @@ def recursive_gen(in_json,tag,rec_counter):
 	
 	else: pass
 
-def redis_add_attributes_gen(my_dict):
-	
-	"""
-	Can have multiple styles
-	But only one genre or year
-	So need logic to handle that
-	(genre/year NOT stored as lists)
-	"""
-	
-	for key in my_dict:
-		for dict_item in my_dict[key]:
-			if type(dict_item) is list:
-				for item in dict_item:
-					yield key, str(item)
-			else: yield key, str(dict_item)
-
 def get_values(metadata_tags,document):
 	for tag in metadata_tags:
 		val = [value for value in recursive_gen(document,tag,0)]
@@ -122,7 +106,7 @@ def main(args):
 	for idx, document in enumerate( dataset ):
 		
 		metadata_tags = [ r_key, r_value ]
-		inserts = { str(key): str(value) for key, value in get_values( metadata_tags,document ) }
+		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
 		
 		# ---- add to redis
 		
@@ -133,16 +117,18 @@ def main(args):
 				
 				# ---- Simple set inserts e.g. release_title : masters_id
 				
-				redis_conn.sadd( inserts[r_key] , inserts[r_value] )
+				redis_conn.sadd( str(inserts[r_key]) , str(inserts[r_value]) )
 				
 			elif run_type == 'meta_filt_set':
 				
 				# ---- N.B. inserts[r_key] is passed here instead of inserts
 				# to extract each genre/style/year/reldate as keys for redis
 				# rather than the list of them
-				
-				for key,item in redis_add_attributes_gen(inserts[r_key]):
-					redis_conn.sadd( key+':'+str(item), inserts[r_value] )
+				if type(inserts[r_key]) is list:
+					for key_item in inserts[r_key]:
+						redis_conn.sadd( str(r_key)+':'+str(item), str(inserts[r_value]) )
+				else:
+					redis_conn.sadd( str(r_key)+':'+str(inserts[r_key]), str(inserts[r_value]) )
 					
 			elif run_type == 'autocomplete':
 				
