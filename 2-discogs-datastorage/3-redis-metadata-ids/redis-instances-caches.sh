@@ -7,7 +7,7 @@ docker network create discogs-redis-caches
 # store the session results that a user has confirmed for query
 # store video ids as sets per user session (delete key once sent to youtube)
 
-docker run -d --rm -p 7004:6379 \
+docker run -d --rm -p 6401:6379 \
     -v redis-session-query-cache:/data \
     --name redis-query-cache \
     --network discogs-redis-caches \

@@ -27,6 +27,18 @@ docker run -d --rm -p 7005:6379 \
     redis:alpine redis-server --appendonly yes
 
 # ------------------------------------------------------------------
+###### redis-mastersid-artistname
+# relevant search sets for checking which master releases user wants (against relevant artists)
+# to be used for autocomplete / searching
+## keys: masters_id
+## values: artist_name
+docker run -d --rm -p 7002:6379 \
+    -v redis-mastersid-artistname:/data \
+    --name redis-mastersid-artistname \
+    --network discogs-redis-site-queries \
+    redis:alpine redis-server --appendonly yes
+
+# ------------------------------------------------------------------
 ###### redis-metadata-filtering
 # sets of ids with year, genre, style etc. tags as indexes
 # to be used for filtering searches / searching for all data
