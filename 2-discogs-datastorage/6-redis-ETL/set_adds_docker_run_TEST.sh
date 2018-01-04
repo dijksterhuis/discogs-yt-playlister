@@ -2,7 +2,8 @@
 
 image='dijksterhuis/redis-database-inserts:modularised-0.1'
 container_name='discogs-testing'
-container_command='./redis-load-set-adder.py masters redis-masters-ids release_title masters_id'
+container_command='./redis-load-set-adder.py'
+container_args='masters redis-masters-ids release_title masters_id'
 networks='discogs-redis-site-queries discogs-mongo'
 
 docker run -di \
@@ -13,6 +14,6 @@ docker run -di \
 
 for network in $networks; do docker network connect $network $container_name ; echo "connected to "$network ; done
 
-docker exec -it $container_name /bin/ash -c $container_command
+docker exec -it $container_name $container_command $container_args
 
 docker stop $container_name ; docker rm $container_name

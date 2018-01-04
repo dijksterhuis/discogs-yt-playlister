@@ -142,7 +142,7 @@ def main(args):
 		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
 		
 		# ---- add to redis
-		entries_added_to_redis += redis_conn.sadd( inserts[r_key] , inserts[r_value] )
+		redis_conn.sadd( inserts[r_key] , inserts[r_value] )
 		
 		# ---- stats
 		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
