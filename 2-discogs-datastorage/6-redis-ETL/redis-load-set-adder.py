@@ -13,12 +13,15 @@ def print_verbose(string):
 	Print the string if verbosity (argparse arg) is true
 	"""
 	if verbose_bool is True:
-		print(string)
+		if type(string) is list:
+			print(*string)
+		else:
+			print(string)
 
 def mongo_cli(db_dict):
 	m = pymongo.MongoClient(db_dict['host'],db_dict['port'])
 	db = m[db_dict['db']]
-	print_verbose('Mongo connection ping result: ',db.command('ping'))
+	print_verbose(['Mongo connection ping result: ',db.command('ping')])
 	c = db[db_dict['coll']]
 	return c
 
@@ -105,15 +108,15 @@ def main(args):
 	starttime = dt.now()
 	
 	# ---- set up redis connection
-	print_verbose('Setting up Redis Connection to: ',args.redis_connection_host)
+	print_verbose(['Setting up Redis Connection to: ',args.redis_connection_host])
 	redis_conn = redis.Redis(host=args.redis_connection_host, port=6379)
-	print_verbose('Redis connection ping result: ',redis_conn.ping())
+	print_verbose(['Redis connection ping result: ',redis_conn.ping()])
 	print_verbose('Setting up Redis Pipeline.')
 	r_pipeline = redis_conn.pipeline()
 	entries_added_to_redis = 0
 	
 	# ---- set up mongo connection
-	print_verbose('Setting up Mongo DB connection to: ',args.mongo_connection_host)
+	print_verbose(['Setting up Mongo DB connection to: ',args.mongo_connection_host])
 	mongo_conn_dict = {'host':'mongo-discogs-'+args.mongo_connection_host,'port':27017,'db':'discogs','coll':args.mongo_connection_host}
 	mongo_conn = mongo_cli( mongo_conn_dict )
 	dataset = mongo_conn.find()
