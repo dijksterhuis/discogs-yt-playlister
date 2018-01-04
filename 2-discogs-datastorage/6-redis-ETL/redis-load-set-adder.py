@@ -113,42 +113,52 @@ def main(args):
 	5. Stats print out
 	"""
 	
+	redis_conn_host, mongo_conn_host, r_key, r_value = \
+		 	args.redis_connection_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
+	
+	print('\nSetting up database connections.')
+	
 	starttime = dt.now()
 	
 	# ---- set up redis connection
-	print_verbose(['Setting up Redis Connection to: ',args.redis_connection_host[0]])
-	redis_conn = redis.Redis(host=args.redis_connection_host[0], port=6379)
-	print_verbose(['Redis connection ping result: ',redis_conn.ping()])
-	print_verbose('Setting up Redis Pipeline.')
+	print_verbose( ['Setting up Redis Connection to: ', redis_conn_host] )
+	redis_conn = redis.Redis( host=redis_conn_host, port=6379 )
+	print_verbose( ['Redis connection ping result: ', redis_conn.ping()] )
+	init_redis_dbsize = redis_conn.dbsize()
+	print_verbose( 'Setting up Redis Pipeline.' )
 	r_pipeline = redis_conn.pipeline()
-	entries_added_to_redis = 0
 	
 	# ---- set up mongo connection
-	print_verbose(['Setting up Mongo DB connection to: ',args.mongo_connection_host[0]])
-	mongo_conn_dict = \
-		 {'host':'mongo-discogs-'+args.mongo_connection_host[0],'port':27017,'db':'discogs','coll':args.mongo_connection_host[0]}
+	print_verbose( ['Setting up Mongo DB connection to: ', mongo_conn_host] )
+	mongo_conn_dict = { 'host' : 'mongo-discogs-' + mongo_conn_host, 'port' : 27017, 'db' : 'discogs', 'coll' : mongo_conn_host }
 	mongo_conn = mongo_cli( mongo_conn_dict )
 	dataset = mongo_conn.find()
 	
+	print('DB connections set up, beginning data extraction...\n')
+	
 	# ---- get the required data from mongo collection
-	for idx, document in enumerate(dataset):
-		metadata_tags = [args.redis_key[0] , args.redis_value[0] ]
-		inserts = { key: value for key, value in get_values(metadata_tags,document)}
+	for idx, document in enumerate( dataset ):
+		metadata_tags = [ r_key, r_value ]
+		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
 		
 		# ---- add to redis
-		entries_added_to_redis += redis_conn.sadd( inserts[args.redis_key[0]] , inserts[args.redis_value[0]] )
+		entries_added_to_redis += redis_conn.sadd( inserts[r_key] , inserts[r_value] )
 		
 		# ---- stats
-		console.write( "\r{} proc / {} mongo dox - to add to redis: {}".format(idx,mongo_conn.count(),entries_added_to_redis))
+		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
 		console.flush()
 	
-	# ---- finish up
+	# ---- execute redis pipeline
 	
 	print_verbose('Executing redis pipeline.')
-	r_pipeline.exec()
-	print('\nParsing complete!')
+	r_pipeline.execute()
+	
+	# ---- print stats
+	
+	print('\nExtraction complete!')
+	print( str(redis_conn.dbsize() - init_redis_dbsize) + ' keys were added to the' + redis_conn_host + 'Redis DB')
 	elapsed_time = dt.now() - starttime
-	print('time taken (mins): '+str(elapsed_time.total_seconds()//60))
+	print('Time taken (mins): '+str(elapsed_time.total_seconds()//60))
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="REDIS *SET* INSERTS: Get data from a Mongo collection and load into a Redis instance")
@@ -158,7 +168,6 @@ if __name__ == '__main__':
 	parser.add_argument('redis_value',type=str,nargs=1)
 	parser.add_argument('--verbose','-v',action='store_true')
 	args = parser.parse_args()
-	print(args)
 	global verbose_bool
 	verbose_bool = args.verbose
 	main(args)
