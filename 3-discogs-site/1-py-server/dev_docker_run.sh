@@ -3,7 +3,7 @@ pth="/home/dijksterhuis/Documents/discogs-yt-playlister/3-discogs-site/1-py-serv
 image_name="dijksterhuis/discogs-flask-server"
 image_tag="dev"
 container_name="pyserving-test"
-networks="discogs-metadata-stores discogs-redis-site-queries"
+networks='discogs-metadata-stores discogs-redis-site-queries'
 
 docker run -d --rm -p 80:5000 -p 4040:4040 \
     -v $pth:/home/site \
