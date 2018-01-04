@@ -13,9 +13,15 @@ app = Flask(__name__)
 
 # app routes (pages and fucntions applied to server data etc.)
 
-r_videos = redis.Redis(host='redis-videos-masters',port=6379)
-r_unique = redis.Redis(host='redis-metadata-unique',port=6379)
-r_masters = redis.Redis(host='redis-metadata-master-ids',port=6379)
+#r_videos = redis.Redis(host='redis-videos-masters',port=6379)
+#r_unique = redis.Redis(host='redis-metadata-unique',port=6379)
+#r_masters = redis.Redis(host='redis-metadata-master-ids',port=6379)
+#
+#r_unique_reldates = redis.Redis(host='redis-metadata-unique-reldate',port=6379)
+#r_unique_year = redis.Redis(host='redis-metadata-unique-year',port=6379)
+#r_unique_style = redis.Redis(host='redis-metadata-unique-style',port=6379)
+#r_unique_genre = redis.Redis(host='redis-metadata-unique-genre',port=6379)
+
 
 def get_redis_metadata(redis_instance,key_string):
 	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
@@ -28,23 +34,29 @@ def wide_query():
 	if request.method == 'GET':
 		print('GET')
 		
-		unique_params = { tag : get_redis_metadata(r_unique,'unique:'+tag) for tag in ['year','genre','style']}
+		# reldate?
+		unique_params = { \
+								tag : get_redis_metadata(redis.Redis(host='redis-metadata-unique-'+tag,port=6379),tag) \
+									for tag in ['year','genre','style'] \
+						}
 		
 		for key in unique_params:
 			unique_params[key].sort()
-
+		
 		return render_template( \
-								'/query-form.html'\
-								, years=unique_params['year'] \
-								, genres=unique_params['genre'] \
-								, styles=unique_params['style'] \
-							)
+									'/query-form.html', years=unique_params['year'] \
+									, genres=unique_params['genre'], styles=unique_params['style'] \
+								)
 	
 	## These can be big queries, so we want post requests, rather than a get rest API
 	
 	elif request.method == 'POST':
 			
-		max_dict = { 'max_'+tag : len(get_redis_metadata(r_unique,'unique:'+tag)) for tag in ['year','genre','style']}
+		max_dict = { \
+						'max_'+tag : len(get_redis_metadata(redis.Redis(host='redis-metadata-unique-'+tag,port=6379),tag)) \
+						for tag in ['year','genre','style']\
+					}
+					
 		print(max_dict)
 		
 		print('POST')
@@ -64,6 +76,8 @@ def wide_query():
 		# ---- (they don't matter)
 		
 		query_dict = dict()
+		
+		print('qdict:\n\n',query_dict)
 		
 		for key,value in form_dict.items():
 			if len(value) == max_dict['max_'+key] or len(value) == 0:
@@ -90,69 +104,69 @@ def wide_query():
 		
 		cards_dict = dict()
 		
-		totals_pipe = r_masters.pipeline()
-		
-		for key,value in query_dict.items():
-			if value is True:
-				cards_dict[key] = sum([r_masters.scard(key+':'+i) for i in form_dict[key] ])
-		
-		totals_pipe.execute()
+		#totals_pipe = r_masters.pipeline()
+		#
+		#for key,value in query_dict.items():
+		#	if value is True:
+		#		cards_dict[key] = sum([r_masters.scard(key+':'+i) for i in form_dict[key] ])
+		#
+		#totals_pipe.execute()
 		
 		print('set cardinalities: ',cards_dict)
 		time_dict[2] = ('get_totals_delta' , datetime.datetime.now())
 		
 		master_ids_dict = dict()
 		
-		masters_pipe = r_masters.pipeline()
-		
-		for key,value in query_dict.items():
-			if value is True:
-				master_ids_dict[key] = set.union(*[r_masters.smembers(key+':'+i) for i in form_dict[key] ])
+		#masters_pipe = r_masters.pipeline()
+		#
+		#for key,value in query_dict.items():
+		#	if value is True:
+		#		master_ids_dict[key] = set.union(*[r_masters.smembers(key+':'+i) for i in form_dict[key] ])
 		
 		
 		#years_unioned = set.union(*[r_masters.smembers('year:'+i) for i in years])
 		#genre_unioned = set.union(*[r_masters.smembers('genre:'+i) for i in genres])
 		#styles_unioned = set.union(*[r_masters.smembers('style:'+i) for i in styles])
 				
-		masters_pipe.execute()
+		#masters_pipe.execute()
 		
 		time_dict[3] = ('masters_query_delta' , datetime.datetime.now())
 		
-		intersections = set.intersection(*master_ids_dict.values())
+		#intersections = set.intersection(*master_ids_dict.values())
 		
 		time_dict[4] = ('intersection_time_delta' , datetime.datetime.now())
 		
 		all_links = list()
 		
-		videos_pipe = r_videos.pipeline()
+		#videos_pipe = r_videos.pipeline()
 		
-		for i in intersections:
-			links = get_redis_metadata(r_videos,'videos:'+str(i.decode('utf-8')))
-			if len(links) == 0:
-				pass
-			elif len(links) == 1:
-				all_links.append(links[0])
-			else:
-				for link in links:
-					all_links.append(link)
+		#for i in intersections:
+		#	links = get_redis_metadata(r_videos,'videos:'+str(i.decode('utf-8')))
+		#	if len(links) == 0:
+		#		pass
+		#	elif len(links) == 1:
+		#		all_links.append(links[0])
+		#	else:
+		#		for link in links:
+		#			all_links.append(link)
 					
-		videos_pipe.execute()
+		#videos_pipe.execute()
 		
 		tot = len(all_links)
 		
-		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
-		
-		print('\ntimings: key, time since start, time since last op, str_key')
-		for time_key,time_value in time_dict.items():
-			if time_key is 0:
-				print(time_key  , 0 , 0  , time_value[0] )
-			else:
-				from_start = time_value[1] - time_dict[0][1]
-				from_last_op = time_value[1] - time_dict[time_key-1][1]
-				print(time_key , from_start , from_last_op , time_value[0] )
-		total_time = datetime.datetime.now() - time_dict[0][1]
-		print('\ntotaltime',total_time.total_seconds())
-		print('\n')
+		#time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
+		#
+		#print('\ntimings: key, time since start, time since last op, str_key')
+		#for time_key,time_value in time_dict.items():
+		#	if time_key is 0:
+		#		print(time_key  , 0 , 0  , time_value[0] )
+		#	else:
+		#		from_start = time_value[1] - time_dict[0][1]
+		#		from_last_op = time_value[1] - time_dict[time_key-1][1]
+		#		print(time_key , from_start , from_last_op , time_value[0] )
+		#total_time = datetime.datetime.now() - time_dict[0][1]
+		#print('\ntotaltime',total_time.total_seconds())
+		#print('\n')
 		return render_template('/results.html',intersex=all_links,total_count=tot)
 
 if __name__ == '__main__':
