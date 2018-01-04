@@ -50,6 +50,10 @@ li {
     color: white;
 }
 
+div[id=form_input] {
+    height: 100%; width: 100%;
+}
+
 input { 
     text-align: center ; background-color: LightGray; color: black ; border-radius: 1px ; border-style: hidden; 
 }
@@ -168,7 +172,7 @@ a {color: lightblue}
 </head>
 
 <body>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <div class="container">
     <!-- child template -->
     {% block content %}{% endblock %}
