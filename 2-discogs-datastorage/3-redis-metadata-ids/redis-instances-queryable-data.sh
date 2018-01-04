@@ -1,5 +1,7 @@
 #!/bin/bash
 
+docker network create discogs-redis-site-queries
+
 # ------------------------------------------------------------------
 ###### redis-masters-ids
 # relevant search sets for master release titles
