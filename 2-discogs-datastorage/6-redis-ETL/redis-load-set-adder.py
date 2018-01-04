@@ -13,10 +13,8 @@ def print_verbose(string):
 	Print the string if verbosity (argparse arg) is true
 	"""
 	if verbose_bool is True:
-		if type(string) is list:
-			print(*string)
-		else:
-			print(string)
+		if type(string) is list: print(*string)
+		else: print(string)
 
 def mongo_cli(db_dict):
 	m = pymongo.MongoClient(db_dict['host'],db_dict['port'])
@@ -47,9 +45,7 @@ def recursive_gen(in_json,tag,rec_counter):
 	# ---- if it's a string 
 	# ---- then we're at the bottom of the json object
 	
-	elif type(in_json) is str:
-		#print(2,in_json,rec_counter)
-		pass
+	elif type(in_json) is str: pass
 	
 	# ---- if it's a list (probably videos) 
 	# ---- we need to iterate over the list elements
@@ -74,9 +70,7 @@ def recursive_gen(in_json,tag,rec_counter):
 	# ---- else this is not useful data, ignore
 	# ---- TODO what actually gets outputted here?
 	
-	else:
-		#print(5,in_json)
-		pass
+	else: pass
 
 def redis_add_attributes_gen(my_dict):
 	
@@ -92,16 +86,14 @@ def redis_add_attributes_gen(my_dict):
 			if type(dict_item) is list:
 				for item in dict_item:
 					yield key, item
-			else:
-				yield key, dict_item
+			else: yield key, dict_item
 
 def get_values(metadata_tags,document):
 	for tag in metadata_tags:
 		val = [value for value in recursive_gen(document,tag,0)]
-		if len(val) > 1:
-			yield (tag, val)
-		else:
-			yield (tag,val[0])
+		if len(val) > 1: yield (tag, val)
+		elif len(val) == 0: yield (tag, None)
+		else: yield (tag,val[0])
 
 def main(args):
 	
@@ -140,9 +132,9 @@ def main(args):
 	for idx, document in enumerate( dataset ):
 		metadata_tags = [ r_key, r_value ]
 		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
-		
 		# ---- add to redis
-		redis_conn.sadd( inserts[r_key] , inserts[r_value] )
+		if inserts[r_value] == None: pass
+		else: redis_conn.sadd( inserts[r_key] , inserts[r_value] )
 		
 		# ---- stats
 		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
