@@ -157,6 +157,7 @@ if __name__ == '__main__':
 	parser.add_argument('redis_value',type=str,nargs=1)
 	parser.add_argument('--verbose','-v',action='store_true')
 	args = parser.parse_args()
+	print(args)
 	global verbose_bool
 	verbose_bool = args.verbose
 	main(args)
