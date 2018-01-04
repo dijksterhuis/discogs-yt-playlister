@@ -126,10 +126,9 @@ def main(args):
 				# rather than the list of them
 				if type(inserts[r_key]) is list:
 					for key_item in inserts[r_key]:
-						print('\n',str(r_key)+':'+str(key_item), str(inserts[r_value]),'\n')
-						redis_conn.sadd( str(r_key)+':'+str(key_item), str(inserts[r_value]) )
+						redis_conn.sadd( str(key_item), str(inserts[r_value]) )
 				else:
-					redis_conn.sadd( str(r_key)+':'+str(inserts[r_key]), str(inserts[r_value]) )
+					redis_conn.sadd( str(inserts[r_key]), str(inserts[r_value]) )
 					
 			elif run_type == 'autocomplete':
 				
