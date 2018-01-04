@@ -13,6 +13,6 @@ docker run -di \
 
 for network in $networks; do docker network connect $network $container_name ; echo "connected to "$network ; done
 
-docker exec -i $container_name /bin/ash -c $container_command
+docker exec -it $container_name /bin/ash -c $container_command
 
 docker stop $container_name ; docker rm $container_name

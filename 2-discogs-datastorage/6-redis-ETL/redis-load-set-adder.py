@@ -95,6 +95,14 @@ def redis_add_attributes_gen(my_dict):
 			else:
 				yield key, dict_item
 
+def get_values(metadata_tags,document):
+	for tag in metadata_tags:
+		val = [value for value in recursive_gen(document,tag,0)]
+		if len(val) > 1:
+			yield (tag, val)
+		else:
+			yield (tag,val[0])
+
 def main(args):
 	
 	"""
@@ -125,22 +133,7 @@ def main(args):
 	# ---- get the required data from mongo collection
 	for idx, document in enumerate(dataset):
 		metadata_tags = [args.redis_key[0] , args.redis_value[0] ]
-		
-		# ---- tuples can be used in dictionary construction, handy for complex if/else statements
-		# https://stackoverflow.com/a/43390527/5945794
-		inserts = dict()
-		for tag in metadata_tags:
-			if len([value for value in recursive_gen(master,tag,0)]) > 1:
-				inserts[tag] = [value for value in recursive_gen(master,tag,0)]
-			else:
-				inserts[tag] = [value for value in recursive_gen(document,tag,0)][0]
-		
-		# \
-		#				(tag, [value for value in recursive_gen(master,tag,0)] ) \
-		#					if len([value for value in recursive_gen(master,tag,0)]) > 1 \
-		#					else (tag, [value for value in recursive_gen(document,tag,0)][0]) \
-		#					for tag in metadata_tags \
-		#				)
+		inserts = { key: value for key, value in get_values(metadata_tags,document)}
 		
 		# ---- add to redis
 		entries_added_to_redis += redis_conn.sadd( inserts[args.redis_key[0]] , inserts[args.redis_value[0]] )
