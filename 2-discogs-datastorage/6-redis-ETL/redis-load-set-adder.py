@@ -34,8 +34,7 @@ def recursive_gen(in_json,tag,rec_counter):
 	
 	# -- we found the item(s) we're looking for!
 	
-	if type(in_json) is dict and tag in in_json.keys():
-		yield in_json[tag]
+	if type(in_json) is dict and tag in in_json.keys(): yield in_json[tag]
 		
 	# -- else then we're at the bottom of the json object, skip
 	
@@ -45,15 +44,13 @@ def recursive_gen(in_json,tag,rec_counter):
 	
 	elif type(in_json) is list:
 		for list_item in in_json:
-			for value in recursive_gen(list_item,tag,rec_counter):
-				yield value
+			for value in recursive_gen(list_item,tag,rec_counter): yield value
 	
 	# -- no found key, another level we can go to
 	
 	elif type(in_json) is dict:
 		for key in in_json:
-			for value in recursive_gen(in_json[key],tag,rec_counter):
-				yield value
+			for value in recursive_gen(in_json[key],tag,rec_counter): yield value
 				
 	# ---- nothing found, ignore
 	
@@ -107,16 +104,16 @@ def main(args):
 		
 		metadata_tags = [ r_key, r_value ]
 		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
-		
 		# ---- add to redis
 		
 		if inserts[r_value] == None: pass
 		else:
 			# TODO sorted sets logic for autocomplete searches...
+			# TODO can simple set and meta unique be combined? is it an either/or logic for type(inserts[r_xxx]) == list?
 			if run_type == 'simple_set':
 				
 				# ---- Simple set inserts e.g. release_title : masters_id
-				# ---- Video urls come in as lists, so have to check type
+				# ---- Video urls come in as lists, so have to fix
 				
 				if type(inserts[r_value]) is list:
 					for list_item in inserts[r_value]:
