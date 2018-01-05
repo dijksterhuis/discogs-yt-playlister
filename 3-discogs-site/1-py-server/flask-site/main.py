@@ -67,8 +67,8 @@ def wide_query():
 		release_name = request.form.getlist('search:release_name')[0]
 		label_name = request.form.getlist('search:label_name')[0]
 		
-		art_names = set(get_redis_values(redis_host('redis-artist-ids'),str(artist_name.decode('utf-8'))))
-		rel_names = set(get_redis_values(redis_host('redis-master-ids'),str(release_name.decode('utf-8'))))
+		art_names = set(get_redis_values(redis_host('redis-artist-ids'),artist_name))
+		rel_names = set(get_redis_values(redis_host('redis-master-ids'),release_name))
 		
 		print(artist_name,release_name,label_name)
 		print(art_names,rel_names)
