@@ -71,3 +71,12 @@ docker run -d --rm -p 7005:6379 \
     --name redis-metadata-filtering \
     --network discogs-redis-site-queries \
     redis:alpine redis-server --appendonly yes
+
+# ------------------------------------------------------------------
+###### redis-masterids-titles
+## key: master-id , values: master release title
+docker run -d --rm -p 7007:6379 \
+    -v redis-masterids-titles:/data \
+    --name redis-masterids-titles \
+    --network discogs-redis-site-queries \
+    redis:alpine redis-server --appendonly yes
