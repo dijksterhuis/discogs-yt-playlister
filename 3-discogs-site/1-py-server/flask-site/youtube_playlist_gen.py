@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import httplib2
 import os
 import sys
@@ -21,10 +19,7 @@ from oauth2client.tools import argparser, run_flow
 #   https://developers.google.com/youtube/v3/guides/authentication
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-CLIENT_SECRETS_FILE = "client_secrets_2.json"
-#client id 990384453863-6kv23ugnmnbuhn9dhu9ttskv6k3uddjl.apps.googleusercontent.com
-#client secret q5liOeAcqWC0cZmdhnBN1SoU
-API_KEY='AIzaSyAog7D-3NzUup-htavTel_vI0U0bSP7zJo'
+CLIENT_SECRETS_FILE = "client_secrets.json"
 
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
@@ -41,8 +36,8 @@ with information from the {{ Cloud Console }}
 
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-""" % os.path.abspath(os.path.join(os.path.dirname(__file__),CLIENT_SECRETS_FILE))
-
+""" % os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                   CLIENT_SECRETS_FILE))
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.
@@ -54,10 +49,7 @@ flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
   message=MISSING_CLIENT_SECRETS_MESSAGE,
   scope=YOUTUBE_READ_WRITE_SCOPE)
 
-print(flow)
-
-storage = Storage("oauth2.json")
-print(storage)
+storage = Storage("%s-oauth2.json" % sys.argv[0])
 credentials = storage.get()
 
 if credentials is None or credentials.invalid:
@@ -81,4 +73,4 @@ playlists_insert_response = youtube.playlists().insert(
   )
 ).execute()
 
-print("New playlist id: %s" % playlists_insert_response["id"])
+print "New playlist id: %s" % playlists_insert_response["id"]

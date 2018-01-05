@@ -94,12 +94,17 @@ def wide_query():
 		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
 		intersections = set.intersection(set(*master_ids_dict.values()))
-		unions = set.union( *[i for i in [artist_ids, release_ids, intersections] if len(i) > 0] )
-			
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
+		
+		lets_union_u = [artist_ids, release_ids, intersections]
+		if sum([len(i) for i in lets_union_u]) != 0: unions = set.union( *[i for i in  if len(i) > 0] )
+		else: return render_template('/no_results.html')
+		time_dict[4] = ('union_time_delta' , datetime.datetime.now())
+		
+		print('unions gotten')
 		print('total video links to get: ',len(unions))
-		print(unions)
+		
 		# ---- VIDEOS GET
 		
 		videos_pipe = redis_host('redis-video-id-urls').pipeline()
@@ -107,17 +112,17 @@ def wide_query():
 		# ? { link : {'id' : id, 'artist':artist,'release-title':release_title }
 		
 		for master_id in unions:
-			if type(master_id) is bytes: master_id = str(master_id.decode('utf-8'))
+			if isinstance(master_id,bytes): master_id = str(master_id.decode('utf-8'))
 			links = get_redis_values(redis_host('redis-video-id-urls'),master_id)
 			if len(links) == 0: pass
 			elif len(links) == 1 and type(links) is list: all_links.append(links[0])
-			elif type(links) is list:
+			elif isinstance(links,list):
 				for link in links: all_links.append(link)
 			else: pass
 			
 		videos_pipe.execute()
 		print('videos gotten')
-		time_dict[4] = ('videos_time_delta' , datetime.datetime.now())
+		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
 		tot = len(all_links)
 		
 		# ---- ARTIST NAME GET
@@ -135,7 +140,7 @@ def wide_query():
 		#	
 		#artist_pipe.execute()
 		#print('artists gotten')
-		#time_dict[5] = ('artists_time_delta' , datetime.dßatetime.now())
+		#time_dict[6] = ('artists_time_delta' , datetime.dßatetime.now())
 		#
 		## ---- RELEASE TITLE GET
 		#
@@ -143,7 +148,7 @@ def wide_query():
 		#titles = [ get_redis_values(redis_host('redis-masterids-titles'),str(i.decode('utf-8'))) for i in intersections]
 		#release_title_pipe.execute()
 		#print('titles gotten')
-		#time_dict[6] = ('release_names_delta' , datetime.datetime.now())
+		#time_dict[7] = ('release_names_delta' , datetime.datetime.now())
 		
 		# ---- TIMINGS TEST OUTPUT
 		
