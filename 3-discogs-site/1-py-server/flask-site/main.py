@@ -49,8 +49,8 @@ def wide_query():
 									for tag in ['year','genre','style'] \
 						}
 		
-		for key in unique_params:
-			unique_params[key].sort()
+		for key in uniq_params:
+			uniq_params[key].sort()
 		
 		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
 	
