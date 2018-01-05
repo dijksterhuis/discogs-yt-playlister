@@ -50,10 +50,37 @@ li {
     color: white;
 }
 
+div[id=form_input] {
+    height: 100%; width: 100%;
+}
+
+input { 
+    text-align: center ; background-color: LightGray; color: black ; border-radius: 1px ; border-style: hidden; 
+}
+
+input:focus { 
+    text-align: center ; background-color: LightGray; color: black ; border-radius: 1px; outline: none; border-right: 2px solid red ;
+}
+
+select{
+    background-color: LightGray; color: black; border-radius: 4px;
+}
+
+/*select:focus {
+    outline: none;
+}*/
+
+fieldset[id=selections] {
+  margin : auto ; padding: 50px ; /*margin: 30px 50px ;*/
+}
+
 table {
     color: white;
 }
 
+td{ 
+    color: white ; padding: 2px 15px;
+}
 
 #navmenu ul 
 {
@@ -88,7 +115,7 @@ table {
 
 .btn-default 
   {
-  background-color: grey;
+  background-color: Grey;
   color: white;
   border-color: none;
   border-radius: 0px;
@@ -97,16 +124,18 @@ table {
   
 .btn-default2 
   {
-  background-color: grey;
+  background-color: Grey;
   size: large;
   color: white;
+  position: absolute;
+  right: 0px;
   border-color: none;
   border-radius: 0px;
   font-size: large;
   }
 
-  .btn-watch 
-    {
+.btn-watch 
+  {
     background-color: black;
     size: large;
     color: white;
@@ -149,7 +178,7 @@ a {color: lightblue}
 </head>
 
 <body>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <div class="container">
     <!-- child template -->
     {% block content %}{% endblock %}
