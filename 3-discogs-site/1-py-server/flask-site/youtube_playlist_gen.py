@@ -124,7 +124,7 @@ def insert_videos(playlists_insert_response,video_ids):
 		#	video_id = video_id.replace('https://youtube.com/watch?v=','')
 		playlist_items_insert(\
 					youtube, { 'snippet.playlistId': pl_id, 'snippet.resourceId.kind': 'youtube#video' \
-								, 'snippet.resourceId.videoId[]': str(video_ids), 'snippet.position': '' \
+								, 'snippet.resourceId.videoId[]': str(video_ids).replace("'","").replace(" ",""), 'snippet.position': '' \
 							}, part='snippet', onBehalfOfContentOwner='' \
 					)
 
