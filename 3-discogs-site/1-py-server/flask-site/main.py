@@ -168,7 +168,7 @@ def wide_query():
 		# TODO !!!
 		session_id = 1
 		
-		redis_query_cache_adds = sum( redis_host('discogs-session-query-cache').sadd(session_id, \
+		redis_query_cache_adds = sum( [ redis_host('discogs-session-query-cache').sadd(session_id, \
 													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
 		redis_host('discogs-session-query-cache').expire(session_id,30*60)
 		
