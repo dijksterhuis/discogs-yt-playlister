@@ -49,7 +49,7 @@ flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
   message=MISSING_CLIENT_SECRETS_MESSAGE,
   scope=YOUTUBE_READ_WRITE_SCOPE)
 
-storage = Storage("oauth2.json" % sys.argv[0])
+storage = Storage("oauth2.json")
 credentials = storage.get()
 
 if credentials is None or credentials.invalid:
