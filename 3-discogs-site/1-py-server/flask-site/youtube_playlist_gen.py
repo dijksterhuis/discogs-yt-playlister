@@ -6,7 +6,8 @@
 import argparse
 import os
 
-import google.oauth2.credentials
+#import google.oauth2.credentials
+#import oauth2client
 import google_auth_oauthlib.flow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
