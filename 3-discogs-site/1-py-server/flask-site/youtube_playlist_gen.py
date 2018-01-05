@@ -73,4 +73,4 @@ playlists_insert_response = youtube.playlists().insert(
   )
 ).execute()
 
-print "New playlist id: %s" % playlists_insert_response["id"]
+print("New playlist id: %s" % playlists_insert_response["id"])
