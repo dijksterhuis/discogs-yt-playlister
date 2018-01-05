@@ -66,7 +66,7 @@ def build_resource(properties):
 				# Leave properties without values out of inserted resource.
 				if properties[p]:
 					if is_array:
-						ref[key] = properties[p].split(',')
+						ref[key] = properties[p].replace('[','')replace(']','').split(',')
 					else:
 						ref[key] = properties[p]
 			elif key not in ref:
@@ -123,7 +123,7 @@ def insert_videos(playlists_insert_response,video_ids):
 		#	video_id = video_id.replace('https://youtube.com/watch?v=','')
 		playlist_items_insert(\
 					youtube, { 'snippet.playlistId': pl_id, 'snippet.resourceId.kind': 'youtube#video' \
-								, 'snippet.resourceId.videoId[]': video_ids, 'snippet.position': '' \
+								, 'snippet.resourceId.videoId[]': str(video_ids), 'snippet.position': '' \
 							}, part='snippet', onBehalfOfContentOwner='' \
 					)
 
