@@ -116,14 +116,20 @@ def main(args):
 			if run_type == 'simple_set':
 				
 				# ---- Simple set inserts e.g. release_title : masters_id
+				# ---- Video urls come in as lists, so have to check type
 				
-				redis_conn.sadd( str(inserts[r_key]) , str(inserts[r_value]) )
+				if type(inserts[r_value]) is list:
+					for list_item in inserts[r_value]:
+						redis_conn.sadd( str(inserts[r_key]) , str(list_item) )
+				else:
+					redis_conn.sadd( str(inserts[r_key]) , str(inserts[r_value]) )
 				
 			elif run_type == 'meta_uniq_set':
 				
 				# ---- N.B. inserts[r_key] is passed here instead of inserts
 				# to extract each genre/style/year/reldate as keys for redis
 				# rather than the list of them
+				
 				if type(inserts[r_key]) is list:
 					for key_item in inserts[r_key]:
 						redis_conn.sadd( str(key_item), str(inserts[r_value]) )
