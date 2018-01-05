@@ -120,13 +120,13 @@ def insert_videos(playlists_insert_response,video_ids):
 	youtube = get_authenticated_service()
 	if len(video_ids) > 0:
 		for video_id in video_ids:
-		if 'http' in video_id or 'youtube.com' in video_id:
-			video_id = video_id.replace('https://youtube.com/watch?v=','')
-		playlist_items_insert(\
-					youtube, { 'snippet.playlistId': pl_id, 'snippet.resourceId.kind': 'youtube#video' \
-								, 'snippet.resourceId.videoId': video_id, 'snippet.position': '' \
-							}, part='snippet', onBehalfOfContentOwner='' \
-					)
+			if 'http' in video_id or 'youtube.com' in video_id:
+				video_id = video_id.replace('https://youtube.com/watch?v=','')
+			playlist_items_insert(\
+						youtube, { 'snippet.playlistId': pl_id, 'snippet.resourceId.kind': 'youtube#video' \
+									, 'snippet.resourceId.videoId': video_id, 'snippet.position': '' \
+								}, part='snippet', onBehalfOfContentOwner='' \
+						)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
