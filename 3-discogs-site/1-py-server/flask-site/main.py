@@ -107,7 +107,7 @@ def wide_query():
 		# ? { link : {'id' : id, 'artist':artist,'release-title':release_title }
 		
 		for master_id in unions:
-			if type(i) is bytes: master_id = str(master_id.decode('utf-8')
+			if type(i) is bytes: master_id = str(master_id.decode('utf-8'))
 			links = get_redis_values(redis_host('redis-video-id-urls'),master_id))
 			if len(links) == 0: pass
 			elif len(links) == 1 and type(links) is list: all_links.append(links[0])
