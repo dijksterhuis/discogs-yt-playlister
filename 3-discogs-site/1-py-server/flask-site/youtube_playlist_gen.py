@@ -95,6 +95,7 @@ def remove_empty_kwargs(**kwargs):
 def playlist_items_insert(client, properties, **kwargs):
 	# See full sample for function
 	resource = build_resource(properties)
+	print(resource)
 	# See full sample for function
 	kwargs = remove_empty_kwargs(**kwargs)
 	response = client.playlistItems().insert(body=resource,**kwargs).execute()
