@@ -135,7 +135,7 @@ if __name__ == '__main__':
 	parser.add_argument('--description', type=str, nargs=1 \
 										, default='A private playlist created with the YouTube Data API.' \
 										, help='The description of the new playlist.')
-	parser.add_argument('--video_ids', type=str, nargs='+', dest = 'video_id' \
+	parser.add_argument('--video_ids', type=str, nargs='+', dest = 'video_ids' \
 										,help='Video ID(s) to add to the playlist.')
 	args = parser.parse_args()
 	insert_videos( create_playlist(args.title,args.description), args.video_ids)
