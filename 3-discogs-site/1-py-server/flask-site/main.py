@@ -44,13 +44,8 @@ def wide_query():
 		print('GET',request)
 		
 		# reldate?
-		uniq_params = { \
-								tag : get_redis_keys(redis_meta_host(tag)) \
-									for tag in ['year','genre','style'] \
-						}
-		
-		for key in uniq_params:
-			uniq_params[key].sort()
+		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in ['year','genre','style'] }
+		for key in uniq_params: uniq_params[key].sort()
 		
 		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
 	
@@ -67,11 +62,13 @@ def wide_query():
 		release_name = request.form.getlist('search:release_name')[0]
 		label_name = request.form.getlist('search:label_name')[0]
 		
-		art_names = set(get_redis_values(redis_host('redis-artist-ids'),artist_name))
-		rel_names = set(get_redis_values(redis_host('redis-master-ids'),release_name))
+		print(artist_name,release_name,label_name)		
 		
-		print(artist_name,release_name,label_name)
-		print(art_names,rel_names)
+		artist_ids = set(get_redis_values(redis_host('redis-artists-ids'),artist_name))
+		release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
+		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
+		
+		print(artist_ids,release_ids) #, label_ids
 		
 		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
 		
@@ -96,7 +93,7 @@ def wide_query():
 		
 		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
-		intersections = set.intersection(*master_ids_dict.values(),art_names,rel_names )
+		intersections = set.intersection(*master_ids_dict.values(), artist_ids, release_ids )
 		
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
