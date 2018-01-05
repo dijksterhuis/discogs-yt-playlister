@@ -101,9 +101,11 @@ def wide_query():
 			if len(links) == 0:
 				pass
 			elif len(links) == 1:
+				print(links[0])
 				all_links.append(links[0])
 			else:
 				for link in links:
+					print(link)
 					all_links.append(link)
 		videos_pipe.execute()
 		print('videos gotten')
@@ -122,6 +124,7 @@ def wide_query():
 		total_time = datetime.datetime.now() - time_dict[0][1]
 		print('\ntotaltime',total_time.total_seconds())
 		print('\n')
+		
 		return render_template('/results.html',intersex=all_links,total_count=tot)
 
 if __name__ == '__main__':
