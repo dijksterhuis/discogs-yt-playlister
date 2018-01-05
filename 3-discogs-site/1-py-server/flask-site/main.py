@@ -172,7 +172,7 @@ def wide_query():
 													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
 		redis_host('discogs-session-query-cache').expire(session_id,30*60)
 		
-		return render_template('/results.html',intersex=all_links,total_count=tot)
+		return render_template('/added.html',intersex=all_links,total_count=tot)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug=True,port=5000)
