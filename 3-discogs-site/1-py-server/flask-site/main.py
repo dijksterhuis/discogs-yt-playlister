@@ -3,6 +3,7 @@ from flask import  Flask, render_template, redirect, url_for, request, session, 
 import json, os, datetime, time, redis
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 import werkzeug
+from youtube_playlist_gen import create_playlist, insert_videos
 
 app = Flask(__name__)
 
@@ -163,6 +164,13 @@ def wide_query():
 		total_time = datetime.datetime.now() - time_dict[0][1]
 		print('\ntotaltime',total_time.total_seconds())
 		print('\n')
+		
+		# TODO !!!
+		session_id = 1
+		
+		redis_query_cache_adds = sum( redis_host('discogs-session-query-cache').sadd(session_id, \
+													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
+		redis_host('discogs-session-query-cache').expire(session_id,30*60)
 		
 		return render_template('/results.html',intersex=all_links,total_count=tot)
 
