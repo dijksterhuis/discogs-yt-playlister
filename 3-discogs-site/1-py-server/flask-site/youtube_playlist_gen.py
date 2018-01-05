@@ -114,7 +114,7 @@ def create_playlist(pl_title,pl_description):
 		print('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
 		exit(e.resp.status)
 
-def insert_videos(playlist_insert_response,video_ids):
+def insert_videos(playlists_insert_response,video_ids):
 	pl_id = playlists_insert_response['id']
 	youtube = get_authenticated_service()
 	if len(video_ids) > 0:
