@@ -41,10 +41,10 @@ def get_redis_values(redis_instance,key_string):
 def wide_query():
 	
 	if request.method == 'GET':
-		print('GET')
+		print('GET',request)
 		
 		# reldate?
-		unique_params = { \
+		uniq_params = { \
 								tag : get_redis_keys(redis_meta_host(tag)) \
 									for tag in ['year','genre','style'] \
 						}
@@ -52,19 +52,26 @@ def wide_query():
 		for key in unique_params:
 			unique_params[key].sort()
 		
-		return render_template( \
-									'/query-form.html', years=unique_params['year'] \
-									, genres=unique_params['genre'], styles=unique_params['style'] \
-								)
+		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
 	
 	## These can be big queries, so we want post requests, rather than a get rest API
 	
 	elif request.method == 'POST':
 		
-		print('POST')
+		print('POST',request)
 		
 		time_dict = { 0: ('start_time',datetime.datetime.now() ) } 
 		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
+		
+		artist_name = request.form.getlist('search:artist_name')[0]
+		release_name = request.form.getlist('search:release_name')[0]
+		label_name = request.form.getlist('search:label_name')[0]
+		
+		art_names = set(get_redis_values(redis_host('redis-artist-ids'),str(artist_name.decode('utf-8'))))
+		rel_names = set(get_redis_values(redis_host('redis-master-ids'),str(release_name.decode('utf-8'))))
+		
+		print(artist_name,release_name,label_name)
+		print(art_names,rel_names)
 		
 		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
 		
@@ -73,15 +80,15 @@ def wide_query():
 		scards_dict, master_ids_dict, all_links = dict(), dict(), list()
 		
 		# get master IDs for wide filters
-		
-		for key in wide_query_dict.keys():
-			if len(wide_query_dict[key]) == 0: pass
-			else:
-				p = redis_meta_host(key).pipeline()
-				for value in wide_query_dict[key]:
-					scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in wide_query_dict[key] ])
-					master_ids_dict[key] = set.union(*[ redis_meta_host(key).smembers(value) for value in wide_query_dict[key] ])
-				p.execute()
+		if len(wide_query_dict.keys()) != 0:
+			for key in wide_query_dict.keys():
+				if len(wide_query_dict[key]) == 0: pass
+				else:
+					p = redis_meta_host(key).pipeline()
+					for value in wide_query_dict[key]:
+						scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in wide_query_dict[key] ])
+						master_ids_dict[key] = set.union(*[ redis_meta_host(key).smembers(value) for value in wide_query_dict[key] ])
+					p.execute()
 		
 		print('master ids gotten')
 		
@@ -89,27 +96,58 @@ def wide_query():
 		
 		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
-		intersections = set.intersection(*master_ids_dict.values())
+		intersections = set.intersection(*master_ids_dict.values(),art_names,rel_names )
 		
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
 		print('total video links to get: ',len(intersections))
 		
+		# ---- VIDEOS GET
+		
 		videos_pipe = redis_host('redis-video-id-urls').pipeline()
+		
+		# ? { link : {'id' : id, 'artist':artist,'release-title':release_title }
+		
+		
 		for i in intersections:
 			links = get_redis_values(redis_host('redis-video-id-urls'),str(i.decode('utf-8')))
-			if len(links) == 0:
-				pass
-			elif len(links) == 1:
-				all_links.append(links[0])
-			else:
-				for link in links:
-					all_links.append(link)
+			if len(links) == 0: pass
+			elif len(links) == 1 and type(links) is list: all_links.append(links[0])
+			elif type(links) is list:
+				for link in links: all_links.append(link)
+			else: pass
+			
 		videos_pipe.execute()
 		print('videos gotten')
+		time_dict[4] = ('videos_time_delta' , datetime.datetime.now())
 		tot = len(all_links)
 		
-		time_dict[4] = ('videos_time_delta' , datetime.datetime.now())
+		# ---- ARTIST NAME GET
+		#
+		#artists = list()
+		#artist_pipe = redis_host('redis-mastersid-artistname').pipeline()
+		#
+		#for i in intersections:
+		#	links = get_redis_values(redis_host('redis-mastersid-artistname'),str(i.decode('utf-8')))
+		#	if len(links) == 0: pass
+		#	elif len(links) == 1 and type(links) is list: artists.append(links[0])
+		#	elif type(links) is list:
+		#		for link in links: artists.append(link)
+		#	else: pass
+		#	
+		#artist_pipe.execute()
+		#print('artists gotten')
+		#time_dict[5] = ('artists_time_delta' , datetime.dßatetime.now())
+		#
+		## ---- RELEASE TITLE GET
+		#
+		#release_title_pipe = redis_host('redis-masterids-titles').pipeline()
+		#titles = [ get_redis_values(redis_host('redis-masterids-titles'),str(i.decode('utf-8'))) for i in intersections]
+		#release_title_pipe.execute()
+		#print('titles gotten')
+		#time_dict[6] = ('release_names_delta' , datetime.datetime.now())
+		
+		# ---- TIMINGS TEST OUTPUT
 		
 		print('\ntimings: key, time since start, time since last op, str_key')
 		for time_key,time_value in time_dict.items():
