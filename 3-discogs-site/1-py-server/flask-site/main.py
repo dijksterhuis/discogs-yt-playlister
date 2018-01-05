@@ -94,11 +94,11 @@ def wide_query():
 		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
 		intersections = set.intersection(set(*master_ids_dict.values()))
-		unions = set.unions( *[i for i in [artist_ids, release_ids, intersections] if len(i) > 0] )
+		unions = set.union( *[i for i in [artist_ids, release_ids, intersections] if len(i) > 0] )
 			
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
-		print('total video links to get: ',len(intersections))
+		print('total video links to get: ',len(unions))
 		
 		# ---- VIDEOS GET
 		
@@ -107,7 +107,7 @@ def wide_query():
 		# ? { link : {'id' : id, 'artist':artist,'release-title':release_title }
 		
 		
-		for i in intersections:
+		for i in unions:
 			links = get_redis_values(redis_host('redis-video-id-urls'),str(i.decode('utf-8')))
 			if len(links) == 0: pass
 			elif len(links) == 1 and type(links) is list: all_links.append(links[0])
