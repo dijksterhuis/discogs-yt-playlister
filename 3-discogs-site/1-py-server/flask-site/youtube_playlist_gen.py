@@ -72,5 +72,5 @@ if __name__ == '__main__':
   youtube = get_authenticated_service()
   try:
     add_playlist(youtube, args)
-  except HttpError, e:
-    print('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
+  except HttpError:
+	  print('Http error')
