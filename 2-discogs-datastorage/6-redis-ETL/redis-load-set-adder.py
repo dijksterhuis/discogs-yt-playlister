@@ -115,7 +115,7 @@ def main(args):
 				# ---- Simple set inserts e.g. release_title : masters_id
 				# ---- Video urls come in as lists, so have to fix
 				
-				if type(inserts[r_value]) is list
+				if type(inserts[r_value]) is list:
 					for list_item in inserts[r_value]:
 						redis_conn.sadd( str(inserts[r_key]) , str(list_item) )
 				else:
