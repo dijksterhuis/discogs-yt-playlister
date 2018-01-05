@@ -66,7 +66,7 @@ def build_resource(properties):
 				# Leave properties without values out of inserted resource.
 				if properties[p]:
 					if is_array:
-						ref[key] = properties[p].replace('[','')replace(']','').split(',')
+						ref[key] = properties[p].replace('[','').replace(']','').split(',')
 					else:
 						ref[key] = properties[p]
 			elif key not in ref:
