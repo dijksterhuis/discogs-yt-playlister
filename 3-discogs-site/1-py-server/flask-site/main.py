@@ -99,13 +99,12 @@ def wide_query():
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
 		print('total video links to get: ',len(unions))
-		
+		print(unions)
 		# ---- VIDEOS GET
 		
 		videos_pipe = redis_host('redis-video-id-urls').pipeline()
 		
 		# ? { link : {'id' : id, 'artist':artist,'release-title':release_title }
-		
 		
 		for i in unions:
 			links = get_redis_values(redis_host('redis-video-id-urls'),str(i.decode('utf-8')))
