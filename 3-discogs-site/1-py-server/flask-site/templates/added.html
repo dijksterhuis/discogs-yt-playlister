@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Results:</h1>
+<p>There were {{total_count}} videos found:</p>
+<p><a href='/'>Add more videos?</a>
+<br>
+  {% for result in intersex %}
+  <li><a href={{result}}>{{result}}</a>
+  {% endfor %}
+
+
+{% endblock %}
