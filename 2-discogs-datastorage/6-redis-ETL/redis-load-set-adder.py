@@ -104,20 +104,19 @@ def main(args):
 		
 		metadata_tags = [ r_key, r_value ]
 		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
-		print(inserts)
 		# ---- add to redis
 		
 		if inserts[r_value] == None: pass
 		else:
 			# TODO sorted sets logic for autocomplete searches...
+			# TODO can simple set and meta unique be combined? is it an either/or logic for type(inserts[r_xxx]) == list?
 			if run_type == 'simple_set':
 				
 				# ---- Simple set inserts e.g. release_title : masters_id
 				# ---- Video urls come in as lists, so have to fix
 				
-				if r_value == 'video_url'
+				if type(inserts[r_value]) is list
 					for list_item in inserts[r_value]:
-						print(list_item)
 						redis_conn.sadd( str(inserts[r_key]) , str(list_item) )
 				else:
 					redis_conn.sadd( str(inserts[r_key]) , str(inserts[r_value]) )
