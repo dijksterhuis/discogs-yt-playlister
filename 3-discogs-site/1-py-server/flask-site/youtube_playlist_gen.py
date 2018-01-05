@@ -58,6 +58,7 @@ if credentials is None or credentials.invalid:
 
 youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
   http=credentials.authorize(httplib2.Http()))
+print('almost there')
 
 # This code creates a new, private playlist in the authorized user's channel.
 playlists_insert_response = youtube.playlists().insert(
@@ -66,9 +67,6 @@ playlists_insert_response = youtube.playlists().insert(
     snippet=dict(
       title="Test Playlist",
       description="A private playlist created with the YouTube API v3"
-    ),
-    status=dict(
-      privacyStatus="private"
     )
   )
 ).execute()
