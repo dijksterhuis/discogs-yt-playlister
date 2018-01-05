@@ -22,8 +22,11 @@ app = Flask(__name__)
 #r_unique_style = redis.Redis(host='redis-metadata-unique-style',port=6379)
 #r_unique_genre = redis.Redis(host='redis-metadata-unique-genre',port=6379)
 
-def redis_host(value):
+def redis_meta_host(value):
 	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
+
+def redis_host(value):
+	return redis.Redis(host=value,port=6379)
 
 def get_redis_keys(redis_instance):
 	return [i.decode('utf-8') for i in list(redis_instance.keys())]
@@ -42,7 +45,7 @@ def wide_query():
 		
 		# reldate?
 		unique_params = { \
-								tag : get_redis_keys(redis_host(tag)) \
+								tag : get_redis_keys(redis_meta_host(tag)) \
 									for tag in ['year','genre','style'] \
 						}
 		
@@ -74,10 +77,10 @@ def wide_query():
 		for key in wide_query_dict.keys():
 			if len(wide_query_dict[key]) == 0: pass
 			else:
-				p = redis_host(key).pipeline()
+				p = redis_meta_host(key).pipeline()
 				for value in wide_query_dict[key]:
-					scards_dict[key] = sum([ redis_host(key).scard(value) for value in wide_query_dict[key] ])
-					master_ids_dict[key] = set.union(*[ redis_host(key).smembers(value) for value in wide_query_dict[key] ])
+					scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in wide_query_dict[key] ])
+					master_ids_dict[key] = set.union(*[ redis_meta_host(key).smembers(value) for value in wide_query_dict[key] ])
 				p.execute()
 		
 		print('master ids gotten')
