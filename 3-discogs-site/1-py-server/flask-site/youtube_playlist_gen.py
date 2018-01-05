@@ -49,7 +49,7 @@ flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
   message=MISSING_CLIENT_SECRETS_MESSAGE,
   scope=YOUTUBE_READ_WRITE_SCOPE)
 
-storage = Storage("/home/dijksterhuis/Documents/discogs-yt-playlist/3-discogs-site/1-py-server/flask-site/oauth2.json")
+storage = Storage("{}-oauth2.json" % sys.argv[0])
 credentials = storage.get()
 
 if credentials is None or credentials.invalid:
