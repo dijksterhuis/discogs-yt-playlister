@@ -93,7 +93,7 @@ def wide_query():
 		
 		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
-		intersections = set.intersection(*master_ids_dict.values())
+		intersections = set.intersection(set(*master_ids_dict.values()))
 		unions = set.unions( *[i for i in [artist_ids, release_ids, intersections] if len(i) > 0] )
 			
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
