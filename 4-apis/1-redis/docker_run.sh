@@ -6,10 +6,10 @@ image='dijksterhuis/discogs-flask-redis-api:dev'
 port_number=10000
 container_names='discogs-get-videos discogs-get-relname-id discogs-get-artname-id discogs-get-metadata-id discogs-get-metadata-unique'
 container_command='python redis_api_ids_from_names'
-port='127.0.0.1:80:5000'
 
 for container_name in $container_names ; \
     do \
+        port='127.0.0.1:'$port_number':5000' ; \
         docker rm -f $container_name ; \
         docker run -di --restart=always -p $port -v logs:/logging --name $container_name $image /bin/ash ; \
         echo $container_name' started.' ; \
