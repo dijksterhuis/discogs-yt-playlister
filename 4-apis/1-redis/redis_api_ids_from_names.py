@@ -54,8 +54,8 @@ def redis_conn_check(redis_connection_pool):
 	try:
 		redis_connection_pool.ping()
 		return True
-	except redis.exceptions.ConnectionError as e:
-		return e
+	except:
+		return ConnectionError
 
 def get_smembers(host_string, value):
 	print(value)
