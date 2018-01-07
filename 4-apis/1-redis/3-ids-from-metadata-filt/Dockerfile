@@ -6,7 +6,6 @@ LABEL author="michael robeson (Dijksterhuis)" \
       version="ids-from-metadata-filt"
 RUN mkdir /logging/
 COPY *.py /home/
-COPY ../api_build_funx.py /home/
 RUN chmod a+x /home/*.py
 RUN apk update ; apk upgrade
 RUN pip install --upgrade -r reqs.txt
