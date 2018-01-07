@@ -30,6 +30,7 @@ def alive(self):
 @use_args(METADATA_ID_ARGS,locations=('json', 'form'))
 def metadata_ids(args):
 	req_time = timer()
+	print(args)
 	result = get_metadata_ids( args['key'], args['value'] )
 	print('request time taken', req_time.time_taken() )
 	return result

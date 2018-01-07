@@ -31,11 +31,17 @@ def alive(self):
 def get_ids(args):
 	req_time = timer()
 	print(args)
-	if args['name_type'] == 'artist': result = get_smembers('redis-artists-ids', args['name'])
-	elif args['name_type'] == 'release': result = get_smembers('redis-masters-ids', args['name'])
+	
+	if args['name_type'] == 'artist':
+		result = get_smembers('redis-artists-ids', args['name'])
+		
+	elif args['name_type'] == 'release':
+		result = get_smembers('redis-masters-ids', args['name'])
+		
 	elif args['name_type'] == 'label': 
 		result = make_json_resp( {'ERROR': 'NOT IMPLEMENTED YET' } )
 		#result = get_smembers('redis-labels-ids', args['name'])
+		
 	print('request time taken', req_time.time_taken() )
 	return result
 

@@ -7,7 +7,7 @@ image='dijksterhuis/discogs-flask-redis-api:'$tag
 container_names='discogs-get-'$tag
 numb_containers=$(echo $container_names | wc -w)
 api_net='discogs-get-apis'
-redis_net='discogs-redis-site-queries'
+redis_net='discogs-metadata-stores'
 
 # container logic
 

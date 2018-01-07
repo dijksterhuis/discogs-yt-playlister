@@ -30,6 +30,7 @@ def alive(self):
 @use_args(VIDEO_ARGS,locations=('json', 'form'))
 def video_urls(args):
 	req_time = timer()
+	print(args)
 	result = get_videos( args['master_ids'] )
 	print('request time taken', req_time.time_taken() )
 	return result

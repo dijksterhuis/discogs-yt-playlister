@@ -30,6 +30,7 @@ def alive(self):
 @use_args(TAG_ARGS,locations=('json', 'form'))
 def unique_metadata(args):
 	req_time = timer()
+	print(args)
 	result = get_unique_metadata( args['tag'] )
 	print('request time taken', req_time.time_taken() )
 	return result
