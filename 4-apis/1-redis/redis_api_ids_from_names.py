@@ -126,7 +126,7 @@ def metadata_ids(query_dict):
 			
 	return make_json_resp(master_ids_dict , 200 )
 
-def get_unique_metadata(tag):
+def get_unique_metadata( tag ):
 	r = redis_meta_host(tag)
 	
 	ping_check = redis_conn_check(r)
@@ -145,6 +145,8 @@ class am_i_alive(Resource):
 class artist_name_ids(Resource):
 	def post(self):
 		req_time = timer()
+		print(request)
+		print(request.data)
 		result = get_smembers('redis-artists-ids', request.data)
 		print('request time taken', req_time.time_taken() )
 		return result
@@ -179,7 +181,7 @@ class get_metadata_ids(Resource):
 		return result
 
 class get_unique_metadata(Resource):
-	def get(self):
+	def post(self):
 		req_time = timer()
 		result = get_unique_metadata( request.data )
 		print('request time taken', req_time.time_taken() )
