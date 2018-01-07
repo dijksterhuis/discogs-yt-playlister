@@ -103,7 +103,7 @@ def wide_query():
 		
 		lets_union_u = [artist_ids, release_ids, intersections]
 		if sum([len(i) for i in lets_union_u]) != 0:
-			unions = set.union( *[set(i) for i in lets_union_u if len(i) > 0] )
+			unions = list(set.union( *[set(i) for i in lets_union_u if len(i) > 0] ))
 		else:
 			return render_template('/no_results.html')
 		time_dict[4] = ('union_time_delta' , datetime.datetime.now())
