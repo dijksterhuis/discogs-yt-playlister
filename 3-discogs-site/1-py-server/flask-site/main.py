@@ -65,24 +65,20 @@ def wide_query():
 		
 		print(artist_name,release_name,label_name)
 		
-		# -------- TODO API
-		
-		#artist_ids = set(get_redis_values(redis_host('redis-artists-ids'),artist_name))
-		#release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
-		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
+		# -------- ids from names API
 		
 		artist_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
-										, json=jsonify( {'name_type':'artist','name':artist_name} )\
+										, json= {'name_type':'artist','name':artist_name} \
 										, headers = api_call_headers \
 									)
 									
 		release_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
-										, json=jsonify( {'name_type':'release','name':release_name} )\
+										, json={'name_type':'release','name':release_name} \
 										, headers = api_call_headers \
 									)
 									
 		#label_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
-		#								, json=jsonify( {'name_type':'label','name':release_name} )\
+		#								, json={'name_type':'label','name':release_name} \
 		#								, headers = api_call_headers \
 		#							)
 		
@@ -93,7 +89,7 @@ def wide_query():
 		print('getting: ',wide_query_dict)
 		
 		if len(wide_query_dict) != 0:
-			#master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json=jsonify( wide_query_dict ), headers = api_call_headers )
+			#master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json = wide_query_dict , headers = api_call_headers )
 			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 			print('master ids gotten')
 			#intersections = set.intersection(set(*master_ids_dict.values()))
@@ -118,7 +114,7 @@ def wide_query():
 		
 		# ---- VIDEOS GET
 		
-		all_links = requests.get('http://172.23.0.4/video_urls', json=jsonify( {'master_ids': unions} ), headers = api_call_headers )
+		all_links = requests.get('http://172.23.0.4/video_urls', json= {'master_ids': unions}, headers = api_call_headers )
 			
 		print('videos gotten')
 		
