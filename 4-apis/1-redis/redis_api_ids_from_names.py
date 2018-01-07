@@ -54,7 +54,7 @@ def get_smembers(host_string, value):
 		return make_response( ping_check, 500 )
 		
 	result = get_redis_values( r , value)
-	return make_json_resp( result ), 200)
+	return make_json_resp( result , 200)
 
 def put_smembers(host_string, key, value):
 	
@@ -67,9 +67,9 @@ def put_smembers(host_string, key, value):
 	result = r.sadd(key, value)
 	
 	if result == 1:
-		return make_json_resp( {put_key:'OK'} ), 200)
+		return make_json_resp( {put_key:'OK'} , 200)
 	else:
-		return make_json_resp( {put_key:'ERROR'} ), 500)
+		return make_json_resp( {put_key:'ERROR'} , 500)
 
 def get_videos( master_ids_list ):
 	
@@ -94,7 +94,7 @@ def get_videos( master_ids_list ):
 		
 	pipe.execute()
 	
-	return make_json_resp(all_links) , 200 )
+	return make_json_resp(all_links , 200 )
 
 def metadata_ids(query_dict):
 	
@@ -122,7 +122,7 @@ def metadata_ids(query_dict):
 				
 			p.execute()
 			
-	return make_json_resp(master_ids_dict) , 200 )
+	return make_json_resp(master_ids_dict , 200 )
 
 def get_unique_metadata(tag):
 	r = redis_meta_host(tag)
@@ -132,7 +132,7 @@ def get_unique_metadata(tag):
 		return make_response( ping_check, 500 )
 	
 	metadata = get_redis_keys(r).sort()
-	return make_json_resp( metadata ) , 200)
+	return make_json_resp( metadata , 200)
 
 #### RESOURCE DEFs:
 
