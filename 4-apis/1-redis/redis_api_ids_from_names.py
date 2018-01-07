@@ -149,12 +149,12 @@ def get_unique_metadata( tag ):
 #### RESOURCE DEFs:
 
 @app.route('/', methods=['GET'])
-def get(self):
+def alive(self):
 	return make_json_resp( {'status': 'OK'} )
 
 @app.route('/artist_name_ids', methods=['GET'])
 @use_args(name_args,locations=('querystring','json', 'form'))
-def get(name_args):
+def artist_name_ids(name_args):
 	req_time = timer()
 	print(args['name'])
 	result = get_smembers('redis-artists-ids', args['name'])
@@ -163,7 +163,7 @@ def get(name_args):
 		
 @app.route('/release_name_ids', methods=['GET'])
 @use_args(name_args,locations=('querystring','json', 'form'))
-def get(name_args):
+def release_name_ids(name_args):
 	req_time = timer()
 	print(args['name'])
 	result = get_smembers('redis-masters-ids', args['name'])
@@ -172,7 +172,7 @@ def get(name_args):
 
 @app.route('/label_name_ids', methods=['GET'])
 @use_args(name_args,locations=('querystring','json', 'form'))
-def get(name_args):
+def label_name_ids(name_args):
 	req_time = timer()
 	print(args['name'])
 	result = make_json_resp( {"ERROR": "Not implemented yet" } , 400 )
@@ -182,7 +182,7 @@ def get(name_args):
 
 @app.route('/video_urls', methods=['GET'])
 @use_args(video_args,locations=('json', 'form'))
-def get(video_args):
+def video_urls(video_args):
 	req_time = timer()
 	result = get_videos( args['master_ids'] )
 	print('request time taken', req_time.time_taken() )
@@ -190,7 +190,7 @@ def get(video_args):
 		
 @app.route('/metadata_ids', methods=['GET'])
 @use_args(metadata_id_args,locations=('json', 'form'))
-def get(metadata_id_args):
+def metadata_ids(metadata_id_args):
 	req_time = timer()
 	result = metadata_ids( args )
 	print('request time taken', req_time.time_taken() )
@@ -198,7 +198,7 @@ def get(metadata_id_args):
 
 @app.route('/unique_metadata', methods=['GET'])
 @use_args(name_args,locations=('querystring','json', 'form'))
-def get(tag_args):
+def unique_metadata(tag_args):
 	req_time = timer()
 	result = get_unique_metadata( tag )
 	print('request time taken', req_time.time_taken() )
