@@ -14,17 +14,12 @@ app.secret_key = generate_password_hash(os.urandom(24))
 
 # app routes (pages and fucntions applied to server data etc.)
 
-def redis_meta_host(value):
-	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
+def api_get_requests(host_string, r_json):
+	api_call_headers = {"Content-Type": "application/json"}
+	r = requests.get(requests.get( host_string , json = r_json , headers = api_call_headers)
+	output = json.loads(r.json())
+	return output
 
-def redis_host(value):
-	return redis.Redis(host=value,port=6379)
-
-def get_redis_keys(redis_instance):
-	return [i.decode('utf-8') for i in list(redis_instance.keys())]
-
-def get_redis_values(redis_instance,key_string):
-	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
 
 @app.route('/',methods=['GET','POST'])
 #@login_required
@@ -36,7 +31,8 @@ def wide_query():
 		
 		# reldate?
 		tags = ['year','genre','style']
-		#uniq_params = { tag : requests.get('/unique_metadata',json=jsonify( {'tag':tag} )) for tag in tags }
+		
+		#uniq_params = { tag : api_get_requests('/unique_metadata', {'tag':tag} ) for tag in tags }
 		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in tags }
 		for key in uniq_params: uniq_params[key].sort()
 		
@@ -46,17 +42,13 @@ def wide_query():
 	
 	elif request.method == 'POST':
 		
-		api_call_headers = {"Content-Type": "application/json"}
+		
 		
 		print('POST',request)
 		
 		time_dict = { 0: ('start_time',datetime.datetime.now() ) }
 		
-		for tag in ['year','genre','style']:
-			print(request.form.getlist('query:'+tag, type=str))
-		
-		#wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
-		wide_query_dict = dict()
+		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
 		print(wide_query_dict)
 		
 		artist_name = request.form.getlist('search:artist_name')[0]
@@ -67,20 +59,10 @@ def wide_query():
 		
 		# -------- ids from names API
 		
-		artist_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
-										, json= {'name_type':'artist','name':artist_name} \
-										, headers = api_call_headers \
-									)
-									
-		release_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
-										, json={'name_type':'release','name':release_name} \
-										, headers = api_call_headers \
-									)
-									
-		#label_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
-		#								, json={'name_type':'label','name':release_name} \
-		#								, headers = api_call_headers \
-		#							)
+		
+		artist_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'artist','name':artist_name} )
+		release_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'release','name':release_name} )
+		#label_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'label','name':release_name} )
 		
 		print(artist_ids,release_ids) #, label_ids
 		
@@ -89,7 +71,7 @@ def wide_query():
 		print('getting: ',wide_query_dict)
 		
 		if len(wide_query_dict) != 0:
-			#master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json = wide_query_dict , headers = api_call_headers )
+			#master_ids_dict = api_get_requests('http://172.23.0.5/metadata_ids', wide_query_dict )
 			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 			print('master ids gotten')
 			#intersections = set.intersection(set(*master_ids_dict.values()))
@@ -114,7 +96,7 @@ def wide_query():
 		
 		# ---- VIDEOS GET
 		
-		all_links = requests.get('http://172.23.0.4/video_urls', json= {'master_ids': unions}, headers = api_call_headers )
+		all_links = api_get_requests('http://172.23.0.4/video_urls', {'master_ids': unions} )
 			
 		print('videos gotten')
 		
