@@ -25,8 +25,8 @@ class timer:
 		c_time = datetime.datetime.now() - self.start
 		return c_time.total_seconds()
 
-def make_json_resp(in_data):
-	return make_response( jsonify( in_data ))
+def make_json_resp(in_data,resp):
+	return make_response( jsonify( in_data ), resp )
 
 def redis_meta_host(value):
 	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
