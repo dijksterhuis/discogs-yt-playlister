@@ -11,9 +11,11 @@ for file in * ; \
             then \
                 mv -v 'DEV_api_build_funx.py' $file'/api_build_funx.py' ; \
                 echo 'Building and running: '$file ; \
-                docker-build-contextual $file ; \
-                chmod u+x $file'/docker_run.sh' ; \
-                ./$file'/docker_run.sh' ; \
+                cd $file ; \
+                docker-build-contextual ./ ; \
+                chmod u+x 'docker_run.sh' ; \
+                './docker_run.sh' ; \
+                cd $pth ; \
         fi ; \
     done
     
