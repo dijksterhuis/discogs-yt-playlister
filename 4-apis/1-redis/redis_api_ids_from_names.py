@@ -143,21 +143,21 @@ class am_i_alive(Resource):
 		return make_json_resp( {'status': 'OK'} )
 
 class artist_name_ids(Resource):
-	def get(self, get_value):
+	def post(self):
 		req_time = timer()
-		result = get_smembers('redis-artists-ids', get_value)
+		result = get_smembers('redis-artists-ids', request.data)
 		print('request time taken', req_time.time_taken() )
 		return result
 		
 class release_name_ids(Resource):
-	def get(self, get_value):
+	def post(self):
 		req_time = timer()
-		result = get_smembers('redis-masters-ids', get_value)
+		result = get_smembers('redis-masters-ids', request.data)
 		print('request time taken', req_time.time_taken() )
 		return result
 
 class label_name_ids(Resource):
-	def get(self, get_value):
+	def post(self):
 		req_time = timer()
 		result = make_json_resp( {"ERROR": "Not implemented yet" } , 400 )
 		#result = get_master_ids('redis-labels-ids', get_value)
@@ -165,34 +165,35 @@ class label_name_ids(Resource):
 		return result
 
 class video_urls(Resource):
-	def get(self, master_ids_list):
+	def post(self):
 		req_time = timer()
-		result = get_videos( master_ids_list )
+		result = get_videos( request.data )
 		print('request time taken', req_time.time_taken() )
 		return result
 		
 class get_metadata_ids(Resource):
 	def post(self):
 		req_time = timer()
-		result = metadata_ids(request.data)
+		result = metadata_ids( request.data )
 		print('request time taken', req_time.time_taken() )
 		return result
 
 class get_unique_metadata(Resource):
-	def get(self,tag):
+	def get(self):
 		req_time = timer()
-		result = get_unique_metadata(tag)
+		result = get_unique_metadata( request.data )
 		print('request time taken', req_time.time_taken() )
 		return result
 
 #### ENDPOINT DEFs:
 
 api.add_resource( am_i_alive , '/am_i_alive' )
-api.add_resource( artist_name_ids , '/artist_name_ids/<string:get_value>' )
-api.add_resource( release_name_ids , '/release_name_ids/<string:get_value>' )
-api.add_resource( label_name_ids , '/label_name_ids/<string:get_value>' )
-api.add_resource( video_urls , '/video_urls/<int:master_id>' )
-api.add_resource( get_metadata_ids , '/get_metadata_ids' )
+api.add_resource( artist_name_ids , '/artist_name_ids' )
+api.add_resource( release_name_ids , '/release_name_ids' )
+api.add_resource( label_name_ids , '/label_name_ids' )
+api.add_resource( video_urls , '/video_urls' )
+api.add_resource( get_metadata_ids , '/metadata_ids' )
+api.add_resource( get_unique_metadata , '/unique_metadata' )
 
 #### APP EXECUTE:
 
