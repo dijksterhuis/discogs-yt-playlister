@@ -1,6 +1,6 @@
 from flask import  Flask, render_template, redirect, url_for, request, session, flash
 #from werkzeug import generate_password_hash, check_password_hash
-import json, os, datetime, time, redis
+import json, os, datetime, time, redis, requests
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 import werkzeug
 from youtube_playlist_gen import create_playlist, insert_videos
@@ -36,7 +36,7 @@ def wide_query():
 		
 		# reldate?
 		tags = ['year','genre','style']
-		#uniq_params = { tag : request.get('/unique_metadata',json=jsonify( {'tag':tag} )) for tag in tags }
+		#uniq_params = { tag : requests.get('/unique_metadata',json=jsonify( {'tag':tag} )) for tag in tags }
 		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in tags }
 		for key in uniq_params: uniq_params[key].sort()
 		
@@ -63,16 +63,16 @@ def wide_query():
 		#release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
 		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
 		
-		artist_ids = request.get('discogs-get-artname-id/get_ids_from_name',json=jsonify( {'name_type':'artist','name':artist_name} ))
-		release_ids = request.get('discogs-get-relname-id/get_ids_from_name',json=jsonify( {'name_type':'release','name':artist_name} ))
-		#label_ids = request.get('discogs-get-lblname-id/get_ids_from_name',json=jsonify( {'name_type':'label','name':label_name} ))
+		artist_ids = requests.get('discogs-get-artname-id/get_ids_from_name',json=jsonify( {'name_type':'artist','name':artist_name} ))
+		release_ids = requests.get('discogs-get-relname-id/get_ids_from_name',json=jsonify( {'name_type':'release','name':artist_name} ))
+		#label_ids = requests.get('discogs-get-lblname-id/get_ids_from_name',json=jsonify( {'name_type':'label','name':label_name} ))
 		print(artist_ids,release_ids) #, label_ids
 		
 		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
 		
 		print('getting: ',wide_query_dict)
 		
-		master_ids_dict = request.get('discogs-get-ids-from-metadata-filt/metadata_ids',json=jsonify( wide_query_dict ))
+		master_ids_dict = requests.get('discogs-get-ids-from-metadata-filt/metadata_ids',json=jsonify( wide_query_dict ))
 		print('master ids gotten')
 		
 		time_dict[2] = ('metadata ids set' , datetime.datetime.now())
@@ -95,7 +95,7 @@ def wide_query():
 		
 		# ---- VIDEOS GET
 		
-		all_links = request.get('discogs-get-video-urls-from-ids/video_urls',json=jsonify( {'master_ids': unions} ))
+		all_links = requests.get('discogs-get-video-urls-from-ids/video_urls',json=jsonify( {'master_ids': unions} ))
 			
 		print('videos gotten')
 
