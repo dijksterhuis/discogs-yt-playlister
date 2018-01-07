@@ -13,7 +13,6 @@ RUN apk update ; apk add wget unzip
 #RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O /home/ngrok-stable-linux-amd64.zip
 #RUN unzip ./ngrok-stable-linux-amd64.zip
 COPY reqs.txt /home/
-RUN ls /home
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
 EXPOSE 80
