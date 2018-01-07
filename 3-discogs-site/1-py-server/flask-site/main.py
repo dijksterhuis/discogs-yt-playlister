@@ -119,7 +119,7 @@ def wide_query():
 		
 		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
 		tot = len(all_links)
-		
+		print(all_links)
 		# ---- TIMINGS TEST OUTPUT
 		
 		print('\ntimings: key, time since start, time since last op, str_key')
