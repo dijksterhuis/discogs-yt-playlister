@@ -24,7 +24,7 @@ auth = HTTPBasicAuth()
 
 @app.route('/', methods=['GET'])
 def alive():
-	return make_json_resp( {'status': 'OK'} )
+	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/video_urls', methods=['GET'])
 @use_args(VIDEO_ARGS,locations=('json', 'form'))

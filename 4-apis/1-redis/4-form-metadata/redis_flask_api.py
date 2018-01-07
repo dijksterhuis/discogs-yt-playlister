@@ -24,7 +24,7 @@ auth = HTTPBasicAuth()
 
 @app.route('/', methods=['GET'])
 def alive():
-	return make_json_resp( {'status': 'OK'} )
+	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/unique_metadata', methods=['GET'])
 @use_args(TAG_ARGS,locations=('json', 'form'))

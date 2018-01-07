@@ -24,7 +24,7 @@ auth = HTTPBasicAuth()
 
 @app.route('/', methods=['GET'])
 def alive():
-	return make_json_resp( {'status': 'OK'} )
+	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/ids_from_metadata', methods=['GET'])
 @use_args(METADATA_ID_ARGS,locations=('json', 'form'))
