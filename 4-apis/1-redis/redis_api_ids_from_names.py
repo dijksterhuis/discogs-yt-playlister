@@ -200,7 +200,7 @@ def metadata_ids(args):
 @use_args(tag_args,locations=('querystring','json', 'form'))
 def unique_metadata(args):
 	req_time = timer()
-	result = get_unique_metadata( tag )
+	result = get_unique_metadata( args['tag'] )
 	print('request time taken', req_time.time_taken() )
 	return result
 
