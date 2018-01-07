@@ -14,7 +14,7 @@ RUN apk update ; apk add wget unzip
 #RUN unzip ./ngrok-stable-linux-amd64.zip
 COPY reqs.txt /home/
 RUN ls /home
-RUN pip install --upgrade reqs.txt
+RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
 EXPOSE 80
 ENTRYPOINT ["python"]
