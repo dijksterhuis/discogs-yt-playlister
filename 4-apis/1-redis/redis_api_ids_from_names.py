@@ -1,7 +1,7 @@
 #!flask/bin/python
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_httpauth import HTTPBasicAuth
-from flask_restful import reqparse, abort, Resource, Api, make_response
+from flask_restful import abort, Resource, Api #, reqparse - depreciated
 import json, os, datetime, time, redis, werkzeug, requests, flask
 
 """
