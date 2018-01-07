@@ -47,7 +47,7 @@ def wide_query():
 		# reldate?
 		tags = ['year','genre','style']
 		
-		#uniq_params = { tag : api_get_requests('/unique_metadata', {'tag':tag} ) for tag in tags }
+		#uniq_params = { tag : api_get_requests('http://172.23.0.6/unique_metadata', {'tag':tag} ) for tag in tags }
 		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in tags }
 		for key in uniq_params: uniq_params[key].sort()
 		
@@ -56,8 +56,6 @@ def wide_query():
 	## These can be big queries...
 	
 	elif request.method == 'POST':
-		
-		
 		
 		print('POST',request)
 		
@@ -86,10 +84,10 @@ def wide_query():
 		print('getting: ',wide_query_dict)
 		
 		if len(wide_query_dict) != 0:
-			#master_ids_dict = api_get_requests('http://172.23.0.5/metadata_ids', wide_query_dict )
+			master_ids_dict = api_get_requests('http://172.23.0.5/metadata_ids', wide_query_dict )
 			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 			print('master ids gotten')
-			#intersections = set.intersection(set(*master_ids_dict.values()))
+			intersections = set.intersection(set(*master_ids_dict.values()))
 			intersections = set()
 			time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		else:
