@@ -51,8 +51,14 @@ def wide_query():
 		print('POST',request)
 		
 		time_dict = { 0: ('start_time',datetime.datetime.now() ) }
-		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
+		
+		for tag in ['year','genre','style']:
+			print(request.form.getlist('query:'+tag, type=str))
+		
+		#wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
+		wide_query_dict = dict()
 		print(wide_query_dict)
+		
 		artist_name = request.form.getlist('search:artist_name')[0]
 		release_name = request.form.getlist('search:release_name')[0]
 		label_name = request.form.getlist('search:label_name')[0]
@@ -87,10 +93,11 @@ def wide_query():
 		print('getting: ',wide_query_dict)
 		
 		if len(wide_query_dict) != 0:
-			master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json=jsonify( wide_query_dict ), headers = api_call_headers )
+			#master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json=jsonify( wide_query_dict ), headers = api_call_headers )
 			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 			print('master ids gotten')
-			intersections = set.intersection(set(*master_ids_dict.values()))
+			#intersections = set.intersection(set(*master_ids_dict.values()))
+			intersections = set()
 			time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		else:
 			intersections = set()
