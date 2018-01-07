@@ -22,7 +22,7 @@ for container_name in $container_names ; \
                 docker network connect discogs-redis-site-queries $container_name ; \
                 echo $container_name' connected to network discogs-redis-site-queries.' ; \
         fi ; \
-        docker exec -i $container_name /bin/ash -c $container_command ; \
+        docker exec $container_name /bin/ash -c $container_command ; \
         echo $container_name' running.' ; \
         $port_number=$(($port_number+1)) ; \
     done
