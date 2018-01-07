@@ -16,7 +16,7 @@ do \
         --network $network \
         redis:alpine redis-server ; \
     echo $container_name' started.' ;\
-    $port=$(($port+1)) ;\
+    port=$(($port+1)) ;\
 done
 
 ##### NOTES:
