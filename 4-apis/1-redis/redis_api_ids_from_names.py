@@ -154,7 +154,7 @@ def alive(self):
 
 @app.route('/artist_name_ids', methods=['GET'])
 @use_args(name_args,locations=('querystring','json', 'form'))
-def artist_name_ids(name_args):
+def artist_name_ids(args):
 	req_time = timer()
 	print(args['name'])
 	result = get_smembers('redis-artists-ids', args['name'])
@@ -163,7 +163,7 @@ def artist_name_ids(name_args):
 		
 @app.route('/release_name_ids', methods=['GET'])
 @use_args(name_args,locations=('querystring','json', 'form'))
-def release_name_ids(name_args):
+def release_name_ids(args):
 	req_time = timer()
 	print(args['name'])
 	result = get_smembers('redis-masters-ids', args['name'])
@@ -172,7 +172,7 @@ def release_name_ids(name_args):
 
 @app.route('/label_name_ids', methods=['GET'])
 @use_args(name_args,locations=('querystring','json', 'form'))
-def label_name_ids(name_args):
+def label_name_ids(args):
 	req_time = timer()
 	print(args['name'])
 	result = make_json_resp( {"ERROR": "Not implemented yet" } , 400 )
@@ -182,7 +182,7 @@ def label_name_ids(name_args):
 
 @app.route('/video_urls', methods=['GET'])
 @use_args(video_args,locations=('json', 'form'))
-def video_urls(video_args):
+def video_urls(args):
 	req_time = timer()
 	result = get_videos( args['master_ids'] )
 	print('request time taken', req_time.time_taken() )
@@ -190,15 +190,15 @@ def video_urls(video_args):
 		
 @app.route('/metadata_ids', methods=['GET'])
 @use_args(metadata_id_args,locations=('json', 'form'))
-def metadata_ids(metadata_id_args):
+def metadata_ids(args):
 	req_time = timer()
 	result = metadata_ids( args )
 	print('request time taken', req_time.time_taken() )
 	return result
 
 @app.route('/unique_metadata', methods=['GET'])
-@use_args(name_args,locations=('querystring','json', 'form'))
-def unique_metadata(tag_args):
+@use_args(tag_args,locations=('querystring','json', 'form'))
+def unique_metadata(args):
 	req_time = timer()
 	result = get_unique_metadata( tag )
 	print('request time taken', req_time.time_taken() )
