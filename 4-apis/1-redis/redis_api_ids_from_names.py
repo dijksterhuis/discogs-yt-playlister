@@ -1,7 +1,7 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request, make_response
 from flask_httpauth import HTTPBasicAuth
-from flask_restful import abort, Resource, Api #, reqparse - depreciated
+from flask_restful import abort, Resource, Api, marshal_with, fields #, reqparse - depreciated
 import json, os, datetime, time, redis, werkzeug, requests, flask
 
 """
@@ -14,6 +14,8 @@ OLD VERSION - https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-
 app = Flask(__name__)
 api = Api(app)
 auth = HTTPBasicAuth()
+
+#resource_fields = {'name': fields.String, 'tag': fields.String,'date_updated': fields.DateTime(dt_format='rfc822')}
 
 #### EXECUTION DEFs:
 
@@ -48,7 +50,7 @@ def redis_conn_check(redis_connection_pool):
 		return e
 
 def get_smembers(host_string, value):
-	
+	print(value)
 	r = redis_host( host_string )
 	
 	ping_check = redis_conn_check(r)
