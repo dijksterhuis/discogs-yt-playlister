@@ -1,5 +1,5 @@
 from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify
-#from werkzeug import generate_password_hash, check_password_hash
+from werkzeug import generate_password_hash, check_password_hash
 import json, os, datetime, time, redis, requests
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 import werkzeug
@@ -8,7 +8,7 @@ from youtube_playlist_gen import create_playlist, insert_videos
 app = Flask(__name__)
 
 # Super secret cookie session key
-#app.secret_key = generate_password_hash(os.urandom(24))
+app.secret_key = generate_password_hash(os.urandom(24))
 
 # --------------------------------------------------
 
@@ -52,7 +52,7 @@ def wide_query():
 		
 		time_dict = { 0: ('start_time',datetime.datetime.now() ) }
 		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
-		
+		print(wide_query_dict)
 		artist_name = request.form.getlist('search:artist_name')[0]
 		release_name = request.form.getlist('search:release_name')[0]
 		label_name = request.form.getlist('search:label_name')[0]
@@ -86,15 +86,17 @@ def wide_query():
 		
 		print('getting: ',wide_query_dict)
 		
-		master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json=jsonify( wide_query_dict ), headers = api_call_headers )
-		print('master ids gotten')
-		
-		time_dict[2] = ('metadata ids set' , datetime.datetime.now())
-		
+		if len(wide_query_dict) != 0:
+			master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json=jsonify( wide_query_dict ), headers = api_call_headers )
+			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
+			print('master ids gotten')
+			intersections = set.intersection(set(*master_ids_dict.values()))
+			time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
+		else:
+			intersections = set()
+			
 		# ---- TODO - and/or logic - intersections
 		
-		intersections = set.intersection(set(*master_ids_dict.values()))
-		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
 		
 		# ---- TODO - and/or logic - unions
@@ -153,5 +155,5 @@ def send_to_yt():
 		insert_videos( playlist_result , video_id)
 
 if __name__ == '__main__':
-	#app.run(host='0.0.0.0',debug=True,port=5000)
-	app.run(host='0.0.0.0',debug=False,port=80)
+	app.run(host='0.0.0.0',debug=True,port=80)
+	#app.run(host='0.0.0.0',debug=False,port=80)
