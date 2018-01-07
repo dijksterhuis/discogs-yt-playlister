@@ -12,7 +12,7 @@ docker run \
     --name $container_name \
     $image_name":"$image_tag
 
-docker network connect --ip=172.23.0.2/16 $api_net $container_name
+docker network connect --ip=172.23.0.2 $api_net $container_name
 
 if [ numb_nets > 1 ]; then \
     for net in $networks ; do docker network connect $net $container_name ; done ; \
