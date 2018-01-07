@@ -143,8 +143,9 @@ class am_i_alive(Resource):
 		return make_json_resp( {'status': 'OK'} )
 
 class artist_name_ids(Resource):
-	def post(self):
+	def post(self,data):
 		req_time = timer()
+		print(data)
 		print(request)
 		print(request.data)
 		result = get_smembers('redis-artists-ids', request.data)
