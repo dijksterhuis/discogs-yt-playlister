@@ -5,7 +5,7 @@ docker network create discogs-get-apis
 image='dijksterhuis/discogs-flask-redis-api:dev'
 port_number=10000
 container_names='discogs-get-videos discogs-get-relname-id discogs-get-artname-id discogs-get-metadata-id discogs-get-metadata-unique'
-container_command='python redis_api_ids_from_names'
+container_command='python /home/redis_api_ids_from_names.py'
 
 for container_name in $container_names ; \
     do \
