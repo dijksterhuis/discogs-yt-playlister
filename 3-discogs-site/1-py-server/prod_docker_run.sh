@@ -6,7 +6,7 @@ numb_nets=$(echo $container_names | wc -w)
 
 docker run \
     -di --restart=always \
-    -p 80:80 \
+    -p 70:80 \
     -w /home \
     --name $container_name \
     $image_name":"$image_tag
