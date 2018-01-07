@@ -20,6 +20,17 @@ def api_get_requests(host_string, r_json):
 	output = json.loads(r.json())
 	return output
 
+def redis_meta_host(value):
+	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
+
+def redis_host(value):
+	return redis.Redis(host=value,port=6379)
+
+def get_redis_values(redis_instance,key_string):
+	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
+
+def get_redis_keys(redis_instance):
+	return [i.decode('utf-8') for i in list(redis_instance.keys())]
 
 @app.route('/',methods=['GET','POST'])
 #@login_required
