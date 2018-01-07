@@ -17,7 +17,11 @@ app.secret_key = generate_password_hash(os.urandom(24))
 def api_get_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
 	r = requests.get( host_string , json = r_json , headers = api_call_headers)
-	output = json.loads(r.json())
+	r_data = r.json()
+	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str)
+		output = json.loads(r.json())
+	else:
+		output = r.json()
 	return output
 
 def redis_meta_host(value):
