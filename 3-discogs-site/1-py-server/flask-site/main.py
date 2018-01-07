@@ -14,15 +14,6 @@ app = Flask(__name__)
 
 # app routes (pages and fucntions applied to server data etc.)
 
-#r_videos = redis.Redis(host='redis-videos-masters',port=6379)
-#r_unique = redis.Redis(host='redis-metadata-unique',port=6379)
-#r_masters = redis.Redis(host='redis-metadata-master-ids',port=6379)
-#
-#r_unique_reldates = redis.Redis(host='redis-metadata-unique-reldate',port=6379)
-#r_unique_year = redis.Redis(host='redis-metadata-unique-year',port=6379)
-#r_unique_style = redis.Redis(host='redis-metadata-unique-style',port=6379)
-#r_unique_genre = redis.Redis(host='redis-metadata-unique-genre',port=6379)
-
 def redis_meta_host(value):
 	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
 
@@ -82,7 +73,7 @@ def wide_query():
 		print('getting: ',wide_query_dict)
 		
 		scards_dict, master_ids_dict, all_links = dict(), dict(), list()
-		/metadata_ids
+		#/metadata_ids
 		# get master IDs for wide filters
 		if len(wide_query_dict.keys()) != 0:
 			for key in wide_query_dict.keys():
