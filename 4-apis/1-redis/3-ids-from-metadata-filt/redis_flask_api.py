@@ -23,7 +23,7 @@ auth = HTTPBasicAuth()
 #### ENDPOINT DEFs:
 
 @app.route('/', methods=['GET'])
-def alive(self):
+def alive():
 	return make_json_resp( {'status': 'OK'} )
 
 @app.route('/ids_from_metadata', methods=['GET'])

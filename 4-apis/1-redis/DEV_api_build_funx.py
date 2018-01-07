@@ -118,4 +118,5 @@ def get_unique_metadata(tag):
 		return make_response( ping_check, 500 )
 	
 	metadata = get_redis_keys(r).sort()
+	print(metadata)
 	return make_json_resp( metadata , 200)
