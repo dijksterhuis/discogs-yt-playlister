@@ -3,13 +3,14 @@ LABEL author="michael robeson (Dijksterhuis)" \
       project="discogs playlister" \
       name="discogs-flask-redis-api" \
       purpose="Get the required data from redis" \
-      version="dev"
+      version="video-urls-from-ids"
 RUN mkdir /logging/
 COPY *.py /home/
+COPY ../api_build_funx.py /home/
 RUN chmod a+x /home/*.py
-RUN apk update
+RUN apk update ; apk upgrade
 RUN pip install --upgrade -r reqs.txt
 WORKDIR /home
-EXPOSE 5000
+EXPOSE 80
 ENTRYPOINT ["python"]
-CMD ["/home/redis_api_ids_from_names.py"]
+CMD ["/home/redis_flask_api.py"]
