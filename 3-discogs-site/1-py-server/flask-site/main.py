@@ -16,7 +16,7 @@ app.secret_key = generate_password_hash(os.urandom(24))
 
 def api_get_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
-	r = requests.get(requests.get( host_string , json = r_json , headers = api_call_headers)
+	r = requests.get( host_string , json = r_json , headers = api_call_headers)
 	output = json.loads(r.json())
 	return output
 
