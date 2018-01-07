@@ -31,7 +31,7 @@ def alive():
 def metadata_ids(args):
 	req_time = timer()
 	print(args)
-	result = get_metadata_ids( args['key'], args['value'] )
+	result = get_metadata_ids( args['metadata_filter_dict'] )
 	print('request time taken', req_time.time_taken() )
 	return result
 

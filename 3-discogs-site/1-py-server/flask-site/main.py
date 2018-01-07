@@ -59,39 +59,23 @@ def wide_query():
 		
 		# -------- TODO API
 		
-		artist_ids = set(get_redis_values(redis_host('redis-artists-ids'),artist_name))
-		release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
+		#artist_ids = set(get_redis_values(redis_host('redis-artists-ids'),artist_name))
+		#release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
 		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
 		
-		#artist_ids = request.get('/artist_name_ids',json=jsonify( {'name':artist_name} ))
-		#release_ids = request.get('/release_name_ids',json=jsonify( {'name':artist_name} ))
-		#label_ids = request.get('/label_name_ids',json=jsonify( {'name':label_name} ))
+		artist_ids = request.get('discogs-get-artname-id/get_ids_from_name',json=jsonify( {'name_type':'artist','name':artist_name} ))
+		release_ids = request.get('discogs-get-relname-id/get_ids_from_name',json=jsonify( {'name_type':'release','name':artist_name} ))
+		#label_ids = request.get('discogs-get-lblname-id/get_ids_from_name',json=jsonify( {'name_type':'label','name':label_name} ))
 		print(artist_ids,release_ids) #, label_ids
 		
 		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
 		
 		print('getting: ',wide_query_dict)
 		
-		scards_dict, master_ids_dict, all_links = dict(), dict(), list()
-		#/metadata_ids
-		# get master IDs for wide filters
-		if len(wide_query_dict.keys()) != 0:
-			for key in wide_query_dict.keys():
-				if len(wide_query_dict[key]) == 0: pass
-				else:
-					# -------- TODO API
-					p = redis_meta_host(key).pipeline()
-					for value in wide_query_dict[key]:
-						#request.get('/metadata_ids',json=jsonify( {key : value} ))
-						scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in wide_query_dict[key] ])
-						master_ids_dict[key] = set.union(*[ redis_meta_host(key).smembers(value) for value in wide_query_dict[key] ])
-					p.execute()
-		
+		master_ids_dict = request.get('discogs-get-ids-from-metadata-filt/metadata_ids',json=jsonify( wide_query_dict ))
 		print('master ids gotten')
 		
-		print('cardinalities: ', scards_dict)
-		
-		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
+		time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 		
 		# ---- TODO - and/or logic - intersections
 		
@@ -111,22 +95,8 @@ def wide_query():
 		
 		# ---- VIDEOS GET
 		
-		# -------- TODO API
-		
-		#request.get('/video_urls',json=jsonify( unions ))
-		
-		videos_pipe = redis_host('redis-video-id-urls').pipeline()
-
-		for master_id in unions:
-			if isinstance(master_id,bytes): master_id = str(master_id.decode('utf-8'))
-			links = get_redis_values(redis_host('redis-video-id-urls'),master_id)
-			if len(links) == 0: pass
-			elif len(links) == 1 and type(links) is list: all_links.append(links[0])
-			elif isinstance(links,list):
-				for link in links: all_links.append(link)
-			else: pass
+		all_links = request.get('discogs-get-video-urls-from-ids/video_urls',json=jsonify( {'master_ids': unions} ))
 			
-		videos_pipe.execute()
 		print('videos gotten')
 
 		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())

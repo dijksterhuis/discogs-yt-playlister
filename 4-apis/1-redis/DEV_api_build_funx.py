@@ -7,7 +7,7 @@ from webargs import fields
 NAME_ARGS = { 'name_type' : fields.Str(required=True), 'name': fields.Str(required=True) }
 TAG_ARGS = { 'tag' : fields.Str(required=True) }
 VIDEO_ARGS = { 'master_ids' : fields.List(fields.Str(required=True)) }
-METADATA_ID_ARGS = { 'key' : fields.Str(required=True), 'value' : fields.Str(required=True) }
+METADATA_ID_ARGS = { 'metadata_filter_dict' : fields.Dict(required=True) }
 
 
 #### EXECUTION DEFs:
@@ -93,21 +93,32 @@ def get_videos(master_ids_list):
 	
 	return make_json_resp(all_links , 200 )
 
-def get_metadata_ids(key, value):
+def get_metadata_ids(metadata_filter_dict):
 	
-	r = redis_meta_host(key)
+	scards_dict, master_ids_dict = dict(), dict()
 	
-	ping_check = redis_conn_check(r)
-	if ping_check != True:
-		return make_response( ping_check, 500 )
-		
-	p = r.pipeline()
+	redis_insts = { key : redis_meta_host(key) for key in metadata_filter_dict.keys() }
 	
-	cardinality = sum(r.scard(value))
-	master_ids = list(r.smembers(value))
-	
-	p.execute()
+	for r in redis_inst.values():
+		ping_check = redis_conn_check(r)
+		if ping_check != True:
+			return make_response( ping_check, 500 )
 			
+	pipes = [ r.pipeline() for r in redis_insts.values() ]
+	
+	if len(metadata_filter_dict.keys()) == 0:
+		return make_json_resp( {'ERR' : 'No input data given '}, 400 )
+		
+	else:
+		for key in metadata_filter_dict.keys():
+			if len(metadata_filter_dict[key]) == 0:
+				pass
+			else:
+				#scards_dict[key] = sum([ redis_insts[key].scard(value) for value in metadata_filter_dict[key] ])
+				master_ids[key] = list(set.union(*[ get_redis_values(redis_insts[key],value) for value in metadata_filter_dict[key] ]))
+				
+	e = [ p.execute() for p in pipes ]
+	
 	return make_json_resp(master_ids , 200 )
 
 def get_unique_metadata(tag):
