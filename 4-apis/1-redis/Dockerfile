@@ -8,7 +8,7 @@ RUN mkdir /logging/
 COPY *.py /home/
 RUN chmod a+x /home/*.py
 RUN apk update
-RUN pip install --upgrade flask requests redis werkzeug flask-httpauth flask_restful webargs
+RUN pip install --upgrade -r reqs.txt
 WORKDIR /home
 EXPOSE 5000
 ENTRYPOINT ["python"]

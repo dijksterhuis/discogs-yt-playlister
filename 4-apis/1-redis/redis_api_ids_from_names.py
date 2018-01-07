@@ -1,10 +1,9 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request, make_response
 from flask_httpauth import HTTPBasicAuth
-from flask_restful import abort, Resource, Api, marshal_with, fields #, reqparse - depreciated
 from webargs import fields
 from webargs.flaskparser import use_args
-import json, os, datetime, time, redis, werkzeug, requests, flask
+import datetime, time, redis, werkzeug
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -14,18 +13,16 @@ OLD VERSION - https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-
 #### APP DEFs:
 
 app = Flask(__name__)
-#api = Api(app)
 auth = HTTPBasicAuth()
 
-#resource_fields = {'name': fields.String, 'tag': fields.String,'date_updated': fields.DateTime(dt_format='rfc822')}
+#### INPUT FIELD DEFs:
 
 name_args = { 'name': fields.Str(required=True) }
 tag_args = { 'tag': fields.Str(required=True) }
-video_args = { 'master_ids': fields.List(fields.Str()) }
-metadata_id_args = { 'year': fields.List(fields.Str()), 'style' : fields.List(fields.Str())  , 'genre' : fields.List(fields.Str()) }
+video_args = { 'master_ids': fields.List(fields.Str(required=True)) }
+metadata_id_args = { 'key': fields.Str(required=True), 'value' : fields.Str(required=True) }
 
 #### EXECUTION DEFs:
-
 
 class timer:
 	def __init__(self):
@@ -83,7 +80,7 @@ def put_smembers(host_string, key, value):
 	else:
 		return make_json_resp( {put_key:'ERROR'} , 500)
 
-def get_videos( master_ids_list ):
+def get_videos(master_ids_list):
 	
 	all_links = list()
 	
@@ -108,35 +105,24 @@ def get_videos( master_ids_list ):
 	
 	return make_json_resp(all_links , 200 )
 
-def metadata_ids(query_dict):
+def metadata_ids(key, value):
 	
-	scards_dict, master_ids_dict = dict(), dict()
+	r = redis_meta_host(key)
 	
-	# get master IDs for wide filters
+	ping_check = redis_conn_check(r)
+	if ping_check != True:
+		return make_response( ping_check, 500 )
+		
+	p = r.pipeline()
 	
-	if len(query_dict) == 0:
-		return make_response( "No data provided." , 400 )
+	cardinality = sum(r.scard(value))
+	master_ids = list(r.smembers(value))
 	
-	for key in query_dict.keys():
-		if len(query_dict[key]) == 0: pass
-		else:
-			r = redis_meta_host(key)
+	p.execute()
 			
-			ping_check = redis_conn_check(r)
-			if ping_check != True:
-				return make_response( ping_check, 500 )
-			
-			p = r.pipeline()
-			
-			for value in query_dict[key]:
-				scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in query_dict[key] ])
-				master_ids_dict[key] = set.union(*[ redis_meta_host(key).smembers(value) for value in query_dict[key] ])
-				
-			p.execute()
-			
-	return make_json_resp(master_ids_dict , 200 )
+	return make_json_resp(master_ids , 200 )
 
-def get_unique_metadata( tag ):
+def get_unique_metadata(tag):
 	r = redis_meta_host(tag)
 	
 	ping_check = redis_conn_check(r)
@@ -146,14 +132,14 @@ def get_unique_metadata( tag ):
 	metadata = get_redis_keys(r).sort()
 	return make_json_resp( metadata , 200)
 
-#### RESOURCE DEFs:
+#### ENDPOINT DEFs:
 
 @app.route('/', methods=['GET'])
 def alive(self):
 	return make_json_resp( {'status': 'OK'} )
 
 @app.route('/artist_name_ids', methods=['GET'])
-@use_args(name_args,locations=('querystring','json', 'form'))
+@use_args(name_args,locations=('json', 'form'))
 def artist_name_ids(args):
 	req_time = timer()
 	print(args['name'])
@@ -162,7 +148,7 @@ def artist_name_ids(args):
 	return result
 		
 @app.route('/release_name_ids', methods=['GET'])
-@use_args(name_args,locations=('querystring','json', 'form'))
+@use_args(name_args,locations=('json', 'form'))
 def release_name_ids(args):
 	req_time = timer()
 	print(args['name'])
@@ -171,7 +157,7 @@ def release_name_ids(args):
 	return result
 
 @app.route('/label_name_ids', methods=['GET'])
-@use_args(name_args,locations=('querystring','json', 'form'))
+@use_args(name_args,locations=('json', 'form'))
 def label_name_ids(args):
 	req_time = timer()
 	print(args['name'])
@@ -192,20 +178,19 @@ def video_urls(args):
 @use_args(metadata_id_args,locations=('json', 'form'))
 def metadata_ids(args):
 	req_time = timer()
-	result = metadata_ids( args )
+	result = metadata_ids( args['key'], args['value'] )
 	print('request time taken', req_time.time_taken() )
 	return result
 
 @app.route('/unique_metadata', methods=['GET'])
-@use_args(tag_args,locations=('querystring','json', 'form'))
+@use_args(tag_args,locations=('json', 'form'))
 def unique_metadata(args):
 	req_time = timer()
 	result = get_unique_metadata( args['tag'] )
 	print('request time taken', req_time.time_taken() )
 	return result
 
-
-#### APP EXECUTE:
+#### APP EXECUTION:
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0',port=5000,debug=True)

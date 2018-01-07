@@ -14,7 +14,7 @@ COPY *.py /home/
 RUN chmod a+x /home/*.py
 
 # install required python libraries
-RUN pip install --upgrade pymongo argparse xmltodict
+RUN pip install --upgrade reqs.txt
 
 # Execution command
 # TODO: Create an entrypoint so can test different ETL scripts 

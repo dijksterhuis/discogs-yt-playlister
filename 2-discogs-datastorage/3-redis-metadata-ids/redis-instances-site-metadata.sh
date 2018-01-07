@@ -1,55 +1,50 @@
 #!/bin/bash
 
-docker network create discogs-metadata-stores
+network='discogs-metadata-stores'
+container_names='redis-metadata-unique-genre redis-metadata-unique-style redis-metadata-unique-year redis-metadata-unique-reldate' 
+port=7100
+docker network create $network
 
+for container_name in $container_names ; 
+do \
+    docker run \
+        -d \
+        --restart=always \
+        -p $port:6379 \
+        -v $container_name:/data \
+        --name $container_name \
+        --network $network \
+        redis:alpine redis-server --appendonly yes ; \
+    echo $container_name' started.'
+    $port=$(($port+1)) ;\
+done
+
+##### NOTES:
 # ------------------------------------------------------------------
 ###### redis-metadata-unique-genre
+# ----------------------------------------------------------------
 # for year, genre, style etc. tags to be pulled onto the site
 # to be used for filtering searches / searching for all data
 # pulled from master file only
 # TODO release date (from releases)
-
-docker run -d --rm -p 7100:6379 \
-    -v redis-metadata-unique-genre:/data \
-    --name redis-metadata-unique-genre \
-    --network discogs-metadata-stores \
-    redis:alpine redis-server --appendonly yes
-
-# ------------------------------------------------------------------
+# ----------------------------------------------------------------
 ###### redis-metadata-unique-style
+# ----------------------------------------------------------------
 # for year, genre, style etc. tags to be pulled onto the site
 # to be used for filtering searches / searching for all data
 # pulled from master file only
 # TODO release date (from releases)
-
-docker run -d --rm -p 7101:6379 \
-    -v redis-metadata-unique-style:/data \
-    --name redis-metadata-unique-style \
-    --network discogs-metadata-stores \
-    redis:alpine redis-server --appendonly yes
-
-# ------------------------------------------------------------------
+# ----------------------------------------------------------------
 ###### redis-metadata-unique-year
+# ----------------------------------------------------------------
 # for year, genre, style etc. tags to be pulled onto the site
 # to be used for filtering searches / searching for all data
 # pulled from master file only
 # TODO release date (from releases)
-
-docker run -d --rm -p 7102:6379 \
-    -v redis-metadata-unique-year:/data \
-    --name redis-metadata-unique-year \
-    --network discogs-metadata-stores \
-    redis:alpine redis-server --appendonly yes
-
-# ------------------------------------------------------------------
-###### redis-metadata-unique-reldata
+# ----------------------------------------------------------------
+###### redis-metadata-unique-reldata (month???)
+# ----------------------------------------------------------------
 # for year, genre, style etc. tags to be pulled onto the site
 # to be used for filtering searches / searching for all data
 # pulled from master file only
 # TODO release date (from releases)
-
-docker run -d --rm -p 7103:6379 \
-    -v edis-metadata-unique-reldate:/data \
-    --name redis-metadata-unique-reldate \
-    --network discogs-metadata-stores \
-    redis:alpine redis-server --appendonly yes

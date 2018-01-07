@@ -7,5 +7,5 @@ LABEL author="michael robeson (Dijksterhuis)" \
 RUN mkdir /logging/
 COPY redis-load*.py /home/
 RUN chmod u+x /home/*.py
-RUN pip install --upgrade argparse redis pymongo
+RUN pip install --upgrade reqs.txt
 WORKDIR /home

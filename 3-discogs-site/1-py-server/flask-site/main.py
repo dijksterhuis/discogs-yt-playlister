@@ -45,6 +45,7 @@ def wide_query():
 		
 		# reldate?
 		tags = ['year','genre','style']
+		#uniq_params = { tag : request.get('/unique_metadata',json=jsonify( {'tag':tag} )) for tag in tags }
 		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in tags }
 		for key in uniq_params: uniq_params[key].sort()
 		
@@ -71,6 +72,9 @@ def wide_query():
 		release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
 		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
 		
+		#artist_ids = request.get('/artist_name_ids',json=jsonify( {'name':artist_name} ))
+		#release_ids = request.get('/release_name_ids',json=jsonify( {'name':artist_name} ))
+		#label_ids = request.get('/label_name_ids',json=jsonify( {'name':label_name} ))
 		print(artist_ids,release_ids) #, label_ids
 		
 		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
@@ -78,7 +82,7 @@ def wide_query():
 		print('getting: ',wide_query_dict)
 		
 		scards_dict, master_ids_dict, all_links = dict(), dict(), list()
-		
+		/metadata_ids
 		# get master IDs for wide filters
 		if len(wide_query_dict.keys()) != 0:
 			for key in wide_query_dict.keys():
@@ -87,6 +91,7 @@ def wide_query():
 					# -------- TODO API
 					p = redis_meta_host(key).pipeline()
 					for value in wide_query_dict[key]:
+						#request.get('/metadata_ids',json=jsonify( {key : value} ))
 						scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in wide_query_dict[key] ])
 						master_ids_dict[key] = set.union(*[ redis_meta_host(key).smembers(value) for value in wide_query_dict[key] ])
 					p.execute()
@@ -117,10 +122,10 @@ def wide_query():
 		
 		# -------- TODO API
 		
+		#request.get('/video_urls',json=jsonify( unions ))
+		
 		videos_pipe = redis_host('redis-video-id-urls').pipeline()
-		
-		# ? { link : {'id' : id, 'artist':artist,'release-title':release_title }
-		
+
 		for master_id in unions:
 			if isinstance(master_id,bytes): master_id = str(master_id.decode('utf-8'))
 			links = get_redis_values(redis_host('redis-video-id-urls'),master_id)
@@ -132,6 +137,7 @@ def wide_query():
 			
 		videos_pipe.execute()
 		print('videos gotten')
+
 		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
 		tot = len(all_links)
 		
@@ -182,6 +188,19 @@ def wide_query():
 		redis_host('discogs-session-query-cache').expire(session_id,30*60)
 		
 		return render_template('/added.html',intersex=all_links,total_count=tot)
+
+@app.route('/create_playlist',methods=['GET'])
+def send_to_yt():
+	title = request.form.get('playlist_title')
+	desc = request.form.get('playlist_desc')
+	session_id = 1
+	
+	r = redis_host('discogs-session-query-cache')
+	video_ids = list(r.smembers(session_id))
+	
+	playlist_result = create_playlist(title,desc)
+	for video_id in video_ids:
+		insert_videos( playlist_result , video_id)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug=True,port=5000)

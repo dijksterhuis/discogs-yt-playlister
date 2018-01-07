@@ -12,6 +12,6 @@ RUN mkdir /home/data/
 RUN apk update ; apk add wget unzip
 #RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O /home/ngrok-stable-linux-amd64.zip
 #RUN unzip ./ngrok-stable-linux-amd64.zip
-RUN pip install --upgrade flask requests redis werkzeug google-api-python-client httplib2 google-auth-httplib2 google-auth-oauthlib[tool]
+RUN pip install --upgrade reqs.txt
 WORKDIR /home
 #CMD ['/bin/ash']
