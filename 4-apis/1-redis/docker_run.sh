@@ -24,5 +24,5 @@ for container_name in $container_names ; \
         fi ; \
         docker exec -d $container_name /bin/ash -c $container_command ; \
         echo $container_name' running.' ; \
-        $port_number=$(($port_number+1)) ; \
+        port_number=$(($port_number+1)) ; \
     done
