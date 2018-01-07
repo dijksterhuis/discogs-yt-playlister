@@ -7,9 +7,10 @@ LABEL author="michael robeson (Dijksterhuis)" \
 RUN mkdir /logging/
 COPY *.py /home/
 RUN chmod a+x /home/*.py
+COPY reqs.txt /home
+WORKDIR /home
 RUN apk update ; apk upgrade
 RUN pip install --upgrade -r reqs.txt
-WORKDIR /home
 EXPOSE 80
 ENTRYPOINT ["python"]
 CMD ["/home/redis_flask_api.py"]

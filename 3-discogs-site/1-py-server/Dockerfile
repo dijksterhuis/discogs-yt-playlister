@@ -7,11 +7,14 @@ LABEL author="michael robeson (Dijksterhuis)" \
 RUN mkdir /logging/
 RUN mkdir /home/site/
 RUN mkdir /home/data/
-#COPY flask-site/ /home/site/
-#RUN chmod u+x /home/*.py
+COPY reqs.txt /home/
+WORKDIR /home
+COPY flask-site/ /home/site/
 RUN apk update ; apk add wget unzip
 #RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O /home/ngrok-stable-linux-amd64.zip
 #RUN unzip ./ngrok-stable-linux-amd64.zip
 RUN pip install --upgrade reqs.txt
-WORKDIR /home
-#CMD ['/bin/ash']
+RUN rm /home/reqs.txt
+EXPOSE 80
+ENTRYPOINT ["python"]
+CMD ["/home/site/main.py"]
