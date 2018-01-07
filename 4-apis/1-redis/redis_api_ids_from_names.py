@@ -11,7 +11,9 @@ OLD VERSION - https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-
 
 #### APP DEFs:
 
-app, api, auth = Flask(__name__), Api(app), HTTPBasicAuth()
+app = Flask(__name__)
+api = Api(app)
+auth = HTTPBasicAuth()
 
 #### EXECUTION DEFs:
 
