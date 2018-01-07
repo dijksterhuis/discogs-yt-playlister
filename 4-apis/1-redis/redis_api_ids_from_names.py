@@ -2,6 +2,8 @@
 from flask import Flask, jsonify, request, make_response
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import abort, Resource, Api, marshal_with, fields #, reqparse - depreciated
+from webargs import fields
+from webargs.flaskparser import use_args
 import json, os, datetime, time, redis, werkzeug, requests, flask
 
 """
@@ -12,12 +14,18 @@ OLD VERSION - https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-
 #### APP DEFs:
 
 app = Flask(__name__)
-api = Api(app)
+#api = Api(app)
 auth = HTTPBasicAuth()
 
 #resource_fields = {'name': fields.String, 'tag': fields.String,'date_updated': fields.DateTime(dt_format='rfc822')}
 
+name_args = { 'name': fields.Str(required=True) }
+tag_args = { 'tag': fields.Str(required=True) }
+video_args = { 'master_ids': fields.List(fields.Str()) }
+metadata_id_args = { 'year': fields.List(fields.Str()), 'style' : fields.List(fields.Str())  , 'genre' : fields.List(fields.Str()) }
+
 #### EXECUTION DEFs:
+
 
 class timer:
 	def __init__(self):
@@ -46,8 +54,8 @@ def redis_conn_check(redis_connection_pool):
 	try:
 		redis_connection_pool.ping()
 		return True
-	except redis.exceptions.ConnectionError as e:
-		return e
+	except:
+		return ConnectionError
 
 def get_smembers(host_string, value):
 	print(value)
@@ -140,65 +148,62 @@ def get_unique_metadata( tag ):
 
 #### RESOURCE DEFs:
 
-class am_i_alive(Resource):
-	def get(self):
-		return make_json_resp( {'status': 'OK'} )
+@app.route('/', methods=['GET'])
+def alive(self):
+	return make_json_resp( {'status': 'OK'} )
 
-class artist_name_ids(Resource):
-	def get(self,name):
-		req_time = timer()
-		print(name)
-		result = get_smembers('redis-artists-ids', request.data)
-		print('request time taken', req_time.time_taken() )
-		return result
+@app.route('/artist_name_ids', methods=['GET'])
+@use_args(name_args,locations=('querystring','json', 'form'))
+def artist_name_ids(args):
+	req_time = timer()
+	print(args['name'])
+	result = get_smembers('redis-artists-ids', args['name'])
+	print('request time taken', req_time.time_taken() )
+	return result
 		
-class release_name_ids(Resource):
-	def get(self,name):
-		req_time = timer()
-		print(name)
-		result = get_smembers('redis-masters-ids', request.data)
-		print('request time taken', req_time.time_taken() )
-		return result
+@app.route('/release_name_ids', methods=['GET'])
+@use_args(name_args,locations=('querystring','json', 'form'))
+def release_name_ids(args):
+	req_time = timer()
+	print(args['name'])
+	result = get_smembers('redis-masters-ids', args['name'])
+	print('request time taken', req_time.time_taken() )
+	return result
 
-class label_name_ids(Resource):
-	def get(self,name):
-		req_time = timer()
-		print(name)
-		result = make_json_resp( {"ERROR": "Not implemented yet" } , 400 )
-		#result = get_master_ids('redis-labels-ids', get_value)
-		print('request time taken', req_time.time_taken() )
-		return result
+@app.route('/label_name_ids', methods=['GET'])
+@use_args(name_args,locations=('querystring','json', 'form'))
+def label_name_ids(args):
+	req_time = timer()
+	print(args['name'])
+	result = make_json_resp( {"ERROR": "Not implemented yet" } , 400 )
+	#result = get_master_ids('redis-labels-ids', get_value)
+	print('request time taken', req_time.time_taken() )
+	return result
 
-class video_urls(Resource):
-	def post(self):
-		req_time = timer()
-		result = get_videos( request.data )
-		print('request time taken', req_time.time_taken() )
-		return result
+@app.route('/video_urls', methods=['GET'])
+@use_args(video_args,locations=('json', 'form'))
+def video_urls(args):
+	req_time = timer()
+	result = get_videos( args['master_ids'] )
+	print('request time taken', req_time.time_taken() )
+	return result
 		
-class get_metadata_ids(Resource):
-	def post(self):
-		req_time = timer()
-		result = metadata_ids( request.data )
-		print('request time taken', req_time.time_taken() )
-		return result
+@app.route('/metadata_ids', methods=['GET'])
+@use_args(metadata_id_args,locations=('json', 'form'))
+def metadata_ids(args):
+	req_time = timer()
+	result = metadata_ids( args )
+	print('request time taken', req_time.time_taken() )
+	return result
 
-class get_unique_metadata(Resource):
-	def get(self,tag):
-		req_time = timer()
-		result = get_unique_metadata( tag )
-		print('request time taken', req_time.time_taken() )
-		return result
+@app.route('/unique_metadata', methods=['GET'])
+@use_args(tag_args,locations=('querystring','json', 'form'))
+def unique_metadata(args):
+	req_time = timer()
+	result = get_unique_metadata( args['tag'] )
+	print('request time taken', req_time.time_taken() )
+	return result
 
-#### ENDPOINT DEFs:
-
-api.add_resource( am_i_alive , '/am_i_alive', '/' )
-api.add_resource( artist_name_ids , '/artist_name_ids/<name>' )
-api.add_resource( release_name_ids , '/release_name_ids/<name>' )
-api.add_resource( label_name_ids , '/label_name_ids/<name>' )
-api.add_resource( video_urls , '/video_urls' )
-api.add_resource( get_metadata_ids , '/metadata_ids' )
-api.add_resource( get_unique_metadata , '/unique_metadata/<tag>' )
 
 #### APP EXECUTE:
 
