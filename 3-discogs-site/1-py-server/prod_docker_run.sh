@@ -1,7 +1,7 @@
 image_name="dijksterhuis/discogs-flask-server"
 image_tag="dev"
 container_name="pyserving-test"
-networks='discogs-get-apis'
+networks='discogs-get-apis discogs-redis-site-queries discogs-metadata-stores'
 numb_nets=$(echo $container_names | wc -w)
 
 docker run \
