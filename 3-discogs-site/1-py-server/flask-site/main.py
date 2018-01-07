@@ -72,7 +72,7 @@ def wide_query():
 									
 		release_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
 										, json=jsonify( {'name_type':'release','name':release_name} )\
-										headers = api_call_headers \
+										, headers = api_call_headers \
 									)
 									
 		#label_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
