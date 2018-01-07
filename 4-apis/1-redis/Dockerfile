@@ -10,3 +10,4 @@ RUN chmod a+x /home/*.py
 RUN apk update
 RUN pip install --upgrade flask requests redis werkzeug flask-httpauth flask_restful
 WORKDIR /home
+EXPOSE 5000

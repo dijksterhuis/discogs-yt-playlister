@@ -1,19 +1,28 @@
 #!/bin/bash
 
+docker network create discogs-get-apis
+
 image='dijksterhuis/discogs-flask-redis-api:dev'
-container_name='rest-redis-video-urls'
-container_command='python redis_videos_api.py'
-networks='redis-videos-masters rest-videos'
+port_number=10000
+container_names='discogs-get-videos discogs-get-relname-id discogs-get-artname-id discogs-get-metadata-id discogs-get-metadata-unique'
+container_command='python redis_api_ids_from_names'
 port='127.0.0.1:80:5000'
 
-docker stop $container_name
-
-docker run -di --rm \
-    -p $port \
-    -v logs:/logging \
-    --name $container_name \
-    $image /bin/ash
-
-for network in networks; do docker network connect $network $container_name ; done
-
-docker exec -it $container_name /bin/ash -c $container_command
+for container_name in $container_names ; \
+    do \
+        docker rm -f $container_name ; \
+        docker run -di --restart=always -p $port -v logs:/logging --name $container_name $image /bin/ash ; \
+        echo $container_name' started.' ; \
+        docker network connect discogs-get-apis $container_name ; \
+        if [ $container_name = 'discogs-get-metadata-id' ] || [ $container_name = 'discogs-get-metadata-unique' ] ; \
+            then \
+                docker network connect discogs-metadata-stores $container_name ; \
+                echo $container_name' connected to network discogs-metadata-stores.' ; \
+            else \
+                docker network connect discogs-redis-site-queries $container_name ; \
+                echo $container_name' connected to network discogs-redis-site-queries.' ; \
+        fi ; \
+        docker exec -i $container_name /bin/ash -c $container_command ; \
+        echo $container_name' running.' ; \
+        $port_number=$(($port_number+1)) ; \
+    done

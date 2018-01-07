@@ -32,7 +32,6 @@ def redis_host(value):
 def get_redis_keys(redis_instance):
 	return [i.decode('utf-8') for i in list(redis_instance.keys())]
 
-
 def get_redis_values(redis_instance,key_string):
 	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
 
@@ -45,7 +44,8 @@ def wide_query():
 		print('GET',request)
 		
 		# reldate?
-		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in ['year','genre','style'] }
+		tags = ['year','genre','style']
+		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in tags }
 		for key in uniq_params: uniq_params[key].sort()
 		
 		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
@@ -65,6 +65,8 @@ def wide_query():
 		
 		print(artist_name,release_name,label_name)		
 		
+		# -------- TODO API
+		
 		artist_ids = set(get_redis_values(redis_host('redis-artists-ids'),artist_name))
 		release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
 		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
@@ -82,6 +84,7 @@ def wide_query():
 			for key in wide_query_dict.keys():
 				if len(wide_query_dict[key]) == 0: pass
 				else:
+					# -------- TODO API
 					p = redis_meta_host(key).pipeline()
 					for value in wide_query_dict[key]:
 						scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in wide_query_dict[key] ])
@@ -94,9 +97,13 @@ def wide_query():
 		
 		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
 		
+		# ---- TODO - and/or logic - intersections
+		
 		intersections = set.intersection(set(*master_ids_dict.values()))
 		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		print('intersections gotten')
+		
+		# ---- TODO - and/or logic - unions
 		
 		lets_union_u = [artist_ids, release_ids, intersections]
 		if sum([len(i) for i in lets_union_u]) != 0: unions = set.union( *[i for i in lets_union_u if len(i) > 0] )
@@ -107,6 +114,8 @@ def wide_query():
 		print('total video links to get: ',len(unions))
 		
 		# ---- VIDEOS GET
+		
+		# -------- TODO API
 		
 		videos_pipe = redis_host('redis-video-id-urls').pipeline()
 		
