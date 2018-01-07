@@ -8,12 +8,12 @@ RUN mkdir /logging/
 RUN mkdir /home/site/
 RUN mkdir /home/data/
 COPY reqs.txt /home/
-WORKDIR /home
 COPY flask-site/ /home/site/
+WORKDIR /home
 RUN apk update ; apk add wget unzip
 #RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O /home/ngrok-stable-linux-amd64.zip
 #RUN unzip ./ngrok-stable-linux-amd64.zip
-RUN pip install --upgrade reqs.txt
+RUN pip install --upgrade /home/reqs.txt
 RUN rm /home/reqs.txt
 EXPOSE 80
 ENTRYPOINT ["python"]
