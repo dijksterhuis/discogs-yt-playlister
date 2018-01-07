@@ -138,7 +138,7 @@ def get_unique_metadata(tag):
 
 class am_i_alive(Resource):
 	def get(self):
-		return {'status': 'OK'}
+		return make_json_resp( {'status': 'OK'} )
 
 class artist_name_ids(Resource):
 	def get(self, get_value):
@@ -157,7 +157,7 @@ class release_name_ids(Resource):
 class label_name_ids(Resource):
 	def get(self, get_value):
 		req_time = timer()
-		result = make_json_resp( {"ERROR": "Not implemented yet" } ), 400 )
+		result = make_json_resp( {"ERROR": "Not implemented yet" } , 400 )
 		#result = get_master_ids('redis-labels-ids', get_value)
 		print('request time taken', req_time.time_taken() )
 		return result
