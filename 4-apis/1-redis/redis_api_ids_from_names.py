@@ -143,25 +143,25 @@ class am_i_alive(Resource):
 		return make_json_resp( {'status': 'OK'} )
 
 class artist_name_ids(Resource):
-	def post(self,data):
+	def get(self,name):
 		req_time = timer()
-		print(data)
-		print(request)
-		print(request.data)
+		print(name)
 		result = get_smembers('redis-artists-ids', request.data)
 		print('request time taken', req_time.time_taken() )
 		return result
 		
 class release_name_ids(Resource):
-	def post(self):
+	def get(self,name):
 		req_time = timer()
+		print(name)
 		result = get_smembers('redis-masters-ids', request.data)
 		print('request time taken', req_time.time_taken() )
 		return result
 
 class label_name_ids(Resource):
-	def post(self):
+	def get(self,name):
 		req_time = timer()
+		print(name)
 		result = make_json_resp( {"ERROR": "Not implemented yet" } , 400 )
 		#result = get_master_ids('redis-labels-ids', get_value)
 		print('request time taken', req_time.time_taken() )
@@ -182,21 +182,21 @@ class get_metadata_ids(Resource):
 		return result
 
 class get_unique_metadata(Resource):
-	def post(self):
+	def get(self,tag):
 		req_time = timer()
-		result = get_unique_metadata( request.data )
+		result = get_unique_metadata( tag )
 		print('request time taken', req_time.time_taken() )
 		return result
 
 #### ENDPOINT DEFs:
 
-api.add_resource( am_i_alive , '/am_i_alive' )
-api.add_resource( artist_name_ids , '/artist_name_ids' )
-api.add_resource( release_name_ids , '/release_name_ids' )
-api.add_resource( label_name_ids , '/label_name_ids' )
+api.add_resource( am_i_alive , '/am_i_alive', '/' )
+api.add_resource( artist_name_ids , '/artist_name_ids/<name>' )
+api.add_resource( release_name_ids , '/release_name_ids/<name>' )
+api.add_resource( label_name_ids , '/label_name_ids/<name>' )
 api.add_resource( video_urls , '/video_urls' )
 api.add_resource( get_metadata_ids , '/metadata_ids' )
-api.add_resource( get_unique_metadata , '/unique_metadata' )
+api.add_resource( get_unique_metadata , '/unique_metadata/<tag>' )
 
 #### APP EXECUTE:
 
