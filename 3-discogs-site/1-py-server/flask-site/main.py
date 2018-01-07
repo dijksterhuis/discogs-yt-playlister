@@ -42,7 +42,7 @@ def wide_query():
 		
 		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
 	
-	## These can be big queries, so we want post requests, rather than a get rest API
+	## These can be big queries...
 	
 	elif request.method == 'POST':
 		
@@ -50,14 +50,14 @@ def wide_query():
 		
 		print('POST',request)
 		
-		time_dict = { 0: ('start_time',datetime.datetime.now() ) } 
+		time_dict = { 0: ('start_time',datetime.datetime.now() ) }
 		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
 		
 		artist_name = request.form.getlist('search:artist_name')[0]
 		release_name = request.form.getlist('search:release_name')[0]
 		label_name = request.form.getlist('search:label_name')[0]
 		
-		print(artist_name,release_name,label_name)		
+		print(artist_name,release_name,label_name)
 		
 		# -------- TODO API
 		
@@ -65,20 +65,17 @@ def wide_query():
 		#release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
 		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
 		
-		artist_ids = requests.get(\
-										'discogs-get-artname-id/get_ids_from_name' \
+		artist_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
 										, json=jsonify( {'name_type':'artist','name':artist_name} )\
 										, headers = api_call_headers \
 									)
 									
-		release_ids = requests.get(\
-										, 'discogs-get-relname-id/get_ids_from_name' \
+		release_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
 										, json=jsonify( {'name_type':'release','name':release_name} )\
 										headers = api_call_headers \
 									)
 									
-		#label_ids = requests.get(\
-		#								'discogs-get-lblname-id/get_ids_from_name' \
+		#label_ids = requests.get('http://172.23.0.3/get_ids_from_name' \
 		#								, json=jsonify( {'name_type':'label','name':release_name} )\
 		#								, headers = api_call_headers \
 		#							)
@@ -89,10 +86,7 @@ def wide_query():
 		
 		print('getting: ',wide_query_dict)
 		
-		master_ids_dict = requests.get('discogs-get-ids-from-metadata-filt/metadata_ids' \
-											, json=jsonify( wide_query_dict ) \
-											, headers = api_call_headers \
-										)
+		master_ids_dict = requests.get('http://172.23.0.5/metadata_ids', json=jsonify( wide_query_dict ), headers = api_call_headers )
 		print('master ids gotten')
 		
 		time_dict[2] = ('metadata ids set' , datetime.datetime.now())
@@ -115,40 +109,12 @@ def wide_query():
 		
 		# ---- VIDEOS GET
 		
-		all_links = requests.get('discogs-get-video-urls-from-ids/video_urls' \
-									,json=jsonify( {'master_ids': unions} )\
-									, headers = api_call_headers\
-								)
+		all_links = requests.get('http://172.23.0.4/video_urls', json=jsonify( {'master_ids': unions} ), headers = api_call_headers )
 			
 		print('videos gotten')
-
+		
 		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
 		tot = len(all_links)
-		
-		# ---- ARTIST NAME GET
-		#
-		#artists = list()
-		#artist_pipe = redis_host('redis-mastersid-artistname').pipeline()
-		#
-		#for i in intersections:
-		#	links = get_redis_values(redis_host('redis-mastersid-artistname'),str(i.decode('utf-8')))
-		#	if len(links) == 0: pass
-		#	elif len(links) == 1 and type(links) is list: artists.append(links[0])
-		#	elif type(links) is list:
-		#		for link in links: artists.append(link)
-		#	else: pass
-		#	
-		#artist_pipe.execute()
-		#print('artists gotten')
-		#time_dict[6] = ('artists_time_delta' , datetime.dßatetime.now())
-		#
-		## ---- RELEASE TITLE GET
-		#
-		#release_title_pipe = redis_host('redis-masterids-titles').pipeline()
-		#titles = [ get_redis_values(redis_host('redis-masterids-titles'),str(i.decode('utf-8'))) for i in intersections]
-		#release_title_pipe.execute()
-		#print('titles gotten')
-		#time_dict[7] = ('release_names_delta' , datetime.datetime.now())
 		
 		# ---- TIMINGS TEST OUTPUT
 		
