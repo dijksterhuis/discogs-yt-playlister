@@ -2,9 +2,10 @@
 
 # variable declarations
 
-tags='ids-from-names video-urls-from-ids ids-from-metadata-filt form-metadata'
+tags='ids-from-names video-urls-from-ids ids-from-metadata-filt form-metadata video-cache'
 api_net='discogs-get-apis'
-redis_net='discogs-redis-site-queries'
+redis_site_net='discogs-redis-site-queries'
+redis_cache_net='discogs-redis-caches'
 # 172.23.0.2 is reserved for pyserving
 ip_suffix=3
 ip_prefix='172.23.0.'
@@ -24,7 +25,12 @@ function bring_up_container {
     
     # MUST SPECIFY IP ADDRESSES ON NETWORK FOR REQUESTS
     docker network connect --ip=$ip_prefix$ip_suffix $api_net $container_name
-    docker network connect $redis_net $container_name
+    
+    fi [ $tag -e 'video-cache' ] ; \
+        then docker network connect $redis_cache_net $container_name ; \
+    else ; \
+        then docker network connect $redis_site_net $container_name ; \
+    fi
     
     echo $container_name' connected to networks '$api_net' & '$redis_net'.'
     echo $container_name' UP.'

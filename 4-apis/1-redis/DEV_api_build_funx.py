@@ -12,6 +12,8 @@ METADATA_ID_ARGS = { 'year' : fields.List(fields.Str(required=True)) \
 						, 'genre' : fields.List(fields.Str(required=True)) \
 					}
 
+V_CACHE_ARGS = { 'session_id' : fields.Str(required=True) , 'video_ids' : fields.List(fields.Str()) }
+
 #### EXECUTION DEFs:
 
 class timer:
@@ -146,3 +148,27 @@ def get_unique_metadata(tag):
 	metadata.sort()
 	print(metadata)
 	return make_json_resp( metadata , 200)
+
+def put_video_ids_cache(session_id,video_ids_list):
+	r = redis_host('discogs-session-query-cache')
+	
+	ping_check = redis_conn_check(r)
+	if ping_check != True:
+		return make_response( ping_check, 500 )
+	
+	result = sum([r.sadd(session_id, video.replace('https://youtube.com/watch?v=','') ) for video in video_ids_list ])
+	redis_host('discogs-session-query-cache').expire(session_id,30*60)
+	
+	return make_json_resp(result,200)
+	
+def get_video_ids_cache(session_id):
+	r = redis_host('discogs-session-query-cache')
+	
+	ping_check = redis_conn_check(r)
+	if ping_check != True:
+		return make_response( ping_check, 500 )
+	
+	result = list(r.smembers(session_id))
+	
+	return make_json_resp(result,200)
+	

@@ -1,7 +1,7 @@
-docker network create --subnet=172.23.0.0/16 $api_net
-docker network create discogs-redis-site-queries
-docker network create discogs-metadata-stores
-docker network create discogs-mongo
-docker network create discogs-redis-autocomplete
-docker network create discogs-redis-caches
-docker network create discogs-redis-site-queries
+#!/bin/bash
+
+docker network create --driver bridge --subnet=172.23.0.0/16 --internal --attachable discogs-get-apis
+docker network create --driver bridge --subnet=172.18.0.0/16 --internal --attachable discogs-mongo
+docker network create --driver bridge --subnet=172.20.0.0/16 --internal --attachable discogs-redis-autocomplete
+docker network create --driver bridge --subnet=172.24.0.0/16 --internal --attachable discogs-redis-caches
+docker network create --driver bridge --subnet=172.19.0.0/30 --internal --attachable discogs-redis-site-queries

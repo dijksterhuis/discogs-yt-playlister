@@ -6,12 +6,11 @@ import json, os, datetime, time, redis, requests
 from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from werkzeug import generate_password_hash, check_password_hash
 
-
 # Google imports
 from youtube_playlist_gen import create_playlist, insert_videos
 import googleapiclient.discovery
 import google_auth_oauthlib.flow
-
+import google.oauth2.credentials
 
 #TODO import google.oauth2.credentials <<<<<- This breaks it?!
 
@@ -42,13 +41,14 @@ API_VERSION = 'v3'
 # --------------------------------------------------
 
 # reldate?
+BASE_API_URL = 'http://172.23.0.'
 TAGS = ['year','genre','style']
 API_URLS = { \
-				'unique_metadata' : 'http://172.23.0.6/unique_metadata' \
-				, 'ids_from_name' : 'http://172.23.0.3/get_ids_from_name' \
-				, 'ids_from_metadata' : 'http://172.23.0.5/ids_from_metadata' \
-				, 'video_urls' : 'http://172.23.0.4/video_urls' \
-				, 'video_query_cache' : None \
+				'unique_metadata' : BASE_API_URL+'6/unique_metadata' \
+				, 'ids_from_name' : BASE_API_URL+'3/get_ids_from_name' \
+				, 'ids_from_metadata' : BASE_API_URL+'5/ids_from_metadata' \
+				, 'video_urls' : BASE_API_URL+'4/video_urls' \
+				, 'video_query_cache' : BASE_API_URL+'7/video_query_cache' \
 			}
 
 # --------------------------------------------------
@@ -69,6 +69,16 @@ def list_of_sets(in_data):
 def api_get_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
 	r = requests.get( host_string , json = r_json , headers = api_call_headers)
+	r_data = r.json()
+	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
+		output = json.loads(r.json())
+	else:
+		output = r.json()
+	return output
+
+def api_put_requests(host_string, r_json):
+	api_call_headers = {"Content-Type": "application/json"}
+	r = requests.put( host_string , json = r_json , headers = api_call_headers)
 	r_data = r.json()
 	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
 		output = json.loads(r.json())
@@ -141,11 +151,11 @@ def query():
 			return render_template('/no-results.html')
 			
 		# ---- Add to redis cache
-		# TODO API logic
-		session_id = session['session_id']
-		redis_query_cache_adds = sum( [ redis_host('discogs-session-query-cache').sadd(session_id, \
-													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
-		redis_host('discogs-session-query-cache').expire(session_id,30*60)
+		
+		redis_query_cache_adds = api_put_requests( \
+													API_URLS['video_query_cache'] \
+													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
+												)
 		
 		return render_template('/added.html',intersex=all_links,total_count=len(all_links))
 
@@ -216,29 +226,37 @@ def oauth2callback():
 
 @app.route('/create_playlist',methods=['GET'])
 def send_to_yt():
-	if 'session_id' not in session or 'credentials' not in session:
-		return redirect('authorize')
 	
-	title = request.form.get('playlist_title')
-	desc = request.form.get('playlist_desc')
+	if 'credentials' not in session: return redirect('authorize')
+	if 'session_id' not in session: return redirect('query')
 	
-	#session_id = flask.session['session_id']
-	session_id = 1
-	
-	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
-	
-	# Load the credentials from the session.
-	#credentials = google.oauth2.credentials.Credentials(**session['credentials'])
-	
-	client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-	
-	r = redis_host('discogs-session-query-cache')
-	video_ids = list(r.smembers(session_id))
-	
-	playlist_result = create_playlist(client, title, desc)
-	for video_id in video_ids:
-		insert_videos(client, playlist_result , video_id)
-	return redirect(url_for('/home'))
+	if request.method == 'GET':
+		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'])
+		return render_template('/playlist_details.html', numb_videos = len(video_ids))
+		
+	if request.method == 'POST':
+		
+		title, desc = request.form.get('playlist_title'), request.form.get('playlist_desc')
+		
+		# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+		
+		# Load the credentials from the session.
+		credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+		
+		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'])
+		playlist_result = create_playlist(client, title, desc)
+		responses = [ insert_videos(client, playlist_result , video_id) for video_id in video_ids ]
+		
+		print(reponses)
+		
+		return render_template( '/added.html' \
+												, pl_title=title \
+												, pl_desc=desc \
+												, pl_resp=playlist_result \
+												, v_resp=responses \
+												, v_add=len(responses)\
+										)
 
 if __name__ == '__main__':
 	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
