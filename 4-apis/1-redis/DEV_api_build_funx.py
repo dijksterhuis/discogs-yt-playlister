@@ -7,7 +7,10 @@ from webargs import fields
 NAME_ARGS = { 'name_type' : fields.Str(required=True), 'name': fields.Str(required=True) }
 TAG_ARGS = { 'tag' : fields.Str(required=True) }
 VIDEO_ARGS = { 'master_ids' : fields.List(fields.Str(required=True)) }
-METADATA_ID_ARGS = { 'metadata_filter_dict' : fields.Str() }
+METADATA_ID_ARGS = { 'year' : fields.List(fields.Str(required=True)) \
+						, 'style' : fields.List(fields.Str(required=True))\
+						, 'genre' : fields.List(fields.Str(required=True)) \
+					}
 
 #### EXECUTION DEFs:
 
