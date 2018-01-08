@@ -99,7 +99,8 @@ def get_metadata_ids(metadata_filter_dict):
 	
 	print(metadata_filter_dict)
 	
-	scards_dict, master_ids_dict = dict(), dict()
+	master_ids = dict()
+	#scards = dict()
 	
 	redis_insts = { key : redis_meta_host(key) for key in metadata_filter_dict.keys() }
 	
@@ -128,7 +129,7 @@ def get_metadata_ids(metadata_filter_dict):
 					master_ids[key] = set.union(master_ids[key],r_vals)
 				master_ids[key] = list(master_ids[key])
 				
-				#scards_dict[key] = sum([ redis_insts[key].scard(value) for value in metadata_filter_dict[key] ])
+				#scards[key] = sum([ redis_insts[key].scard(value) for value in metadata_filter_dict[key] ])
 				
 	e = [ p.execute() for p in pipes ]
 	
