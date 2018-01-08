@@ -154,7 +154,7 @@ def query():
 		
 		redis_query_cache_adds = api_put_requests( \
 													API_URLS['video_query_cache'] \
-													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
+													, { 'session_id' : str(session['session_id']) , 'video_ids': all_links } \
 												)
 		
 		return render_template('/added.html',intersex=all_links,total_count=len(all_links))
