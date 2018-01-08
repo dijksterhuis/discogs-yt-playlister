@@ -225,9 +225,9 @@ def send_to_yt():
 	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 	
 	# Load the credentials from the session.
-	#credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
+	#credentials = google.oauth2.credentials.Credentials(**session['credentials'])
 	
-	#client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+	client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 	
 	r = redis_host('discogs-session-query-cache')
 	video_ids = list(r.smembers(session_id))
