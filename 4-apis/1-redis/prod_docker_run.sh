@@ -28,8 +28,7 @@ function bring_up_container {
     
     fi [ $tag -e 'video-cache' ] ; \
         then docker network connect $redis_cache_net $container_name ; \
-    else ; \
-        then docker network connect $redis_site_net $container_name ; \
+        else docker network connect $redis_site_net $container_name ; \
     fi
     
     echo $container_name' connected to networks '$api_net' & '$redis_net'.'
