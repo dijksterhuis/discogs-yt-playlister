@@ -29,6 +29,8 @@ app.secret_key = generate_password_hash(os.urandom(24))
 # Google api vars
 # --------------------------------------------------
 
+# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+
 CLIENT_SECRETS_FILE = "client_secrets.json"
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
@@ -76,8 +78,8 @@ def home():
 #@login_required
 #@subscription_required
 def query():
-	if 'session_id' not in flask.session:
-		flask.session['session_id'] = os.urandom(24)
+	if 'session_id' not in session:
+		session['session_id'] = os.urandom(24)
 		
 	if request.method == 'GET':
 		print('GET',request)
@@ -178,6 +180,8 @@ def query():
 @app.route('/authorize',methods=['GET'])
 def authorize():
 	
+	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+	
 	# Create a flow instance to manage the OAuth 2.0 Authorization Grant Flow
 	# steps.
 	
@@ -201,16 +205,18 @@ def authorize():
 @app.route('/oauth2callback')
 def oauth2callback():
 	
+	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+	
 	# Specify the state when creating the flow in the callback so that it can
 	# verify the authorization server response.
 	
-	state = flask.session['state']
+	state = session['state']
 	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
 	flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
 	
 	# Use the authorization server's response to fetch the OAuth 2.0 tokens.
 	
-	authorization_response = flask.request.url
+	authorization_response = request.url
 	flow.fetch_token(authorization_response=authorization_response)
 	
 	# Store the credentials in the session.
@@ -219,21 +225,21 @@ def oauth2callback():
 	#     incorporating this code into your real app.
 	
 	credentials = flow.credentials
-	flask.session['credentials'] = { \
-										'token': credentials.token \
-										, 'refresh_token': credentials.refresh_token \
-										, 'token_uri': credentials.token_uri \
-										, 'client_id': credentials.client_id \
-										, 'client_secret': credentials.client_secret \
-										, 'scopes': credentials.scopes \
-									}
+	session['credentials'] = { \
+								'token': credentials.token \
+								, 'refresh_token': credentials.refresh_token \
+								, 'token_uri': credentials.token_uri \
+								, 'client_id': credentials.client_id \
+								, 'client_secret': credentials.client_secret \
+								, 'scopes': credentials.scopes \
+							}
 									
-	return flask.redirect(flask.url_for('/query_builder'))
+	return redirect(url_for('/query_builder'))
 
 
 @app.route('/create_playlist',methods=['GET'])
 def send_to_yt():
-	if 'session_id' not in flask.session:
+	if 'session_id' not in session:
 		return redirect('query_builder')
 	
 	title = request.form.get('playlist_title')
@@ -241,6 +247,8 @@ def send_to_yt():
 	
 	#session_id = flask.session['session_id']
 	session_id = 1
+	
+	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 	
 	# Load the credentials from the session.
 	#credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
