@@ -3,7 +3,7 @@ image_tag="dev"
 container_name="pyserving-test"
 api_net='discogs-get-apis'
 numb_nets=$(echo $container_names | wc -w)
-redis_nets='discogs-redis-site-queries discogs-redis-querying'
+redis_nets='discogs-redis-site-queries discogs-metadata-stores'
 
 docker stop $container_name
 docker rm $container_name
