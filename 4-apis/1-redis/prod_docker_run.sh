@@ -27,11 +27,15 @@ function bring_up_container {
     docker network connect --ip=$ip_prefix$ip_suffix $api_net $container_name
     
     if [ $tag = 'video-cache' ] ; \
-        then docker network connect $redis_cache_net $container_name ; \
-        else docker network connect $redis_site_net $container_name ; \
+        then \
+            docker network connect $redis_cache_net $container_name ; \
+            echo $container_name' connected to networks '$api_net' & '$redis_cache_net'.' ; \
+        else \
+            docker network connect $redis_site_net $container_name ; \
+            echo $container_name' connected to networks '$api_net' & '$redis_site_net'.' ; \
     fi
     
-    echo $container_name' connected to networks '$api_net' & '$redis_net'.'
+
     echo $container_name' UP.'
     
     ip_suffix=$(($ip_suffix+1))

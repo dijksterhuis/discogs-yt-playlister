@@ -11,7 +11,6 @@ METADATA_ID_ARGS = { 'year' : fields.List(fields.Str(required=True)) \
 						, 'style' : fields.List(fields.Str(required=True))\
 						, 'genre' : fields.List(fields.Str(required=True)) \
 					}
-
 V_CACHE_ARGS = { 'session_id' : fields.Str(required=True) , 'video_ids' : fields.List(fields.Str()) }
 
 #### EXECUTION DEFs:
@@ -162,6 +161,7 @@ def put_video_ids_cache(session_id,video_ids_list):
 	return make_json_resp(result,200)
 	
 def get_video_ids_cache(session_id):
+	
 	r = redis_host('discogs-session-query-cache')
 	
 	ping_check = redis_conn_check(r)
