@@ -105,7 +105,7 @@ def get_metadata_ids(metadata_filter_dict):
 	
 	print(redis_insts)
 	
-	for r in redis_inst.values():
+	for r in redis_insts.values():
 		ping_check = redis_conn_check(r)
 		if ping_check != True:
 			return make_response( ping_check, 500 )
