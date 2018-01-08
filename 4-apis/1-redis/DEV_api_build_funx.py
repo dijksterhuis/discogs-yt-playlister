@@ -95,9 +95,13 @@ def get_videos(master_ids_list):
 
 def get_metadata_ids(metadata_filter_dict):
 	
+	print(metadata_filter_dict)
+	
 	scards_dict, master_ids_dict = dict(), dict()
 	
 	redis_insts = { key : redis_meta_host(key) for key in metadata_filter_dict.keys() }
+	
+	print(redis_insts)
 	
 	for r in redis_inst.values():
 		ping_check = redis_conn_check(r)
@@ -111,9 +115,14 @@ def get_metadata_ids(metadata_filter_dict):
 		
 	else:
 		for key in metadata_filter_dict.keys():
+			print('key',key)
 			if len(metadata_filter_dict[key]) == 0:
 				pass
 			else:
+				print('values',metadata_filter_dict.values())
+				for value in metadata_filter_dict[key]:
+					print('value -ids: ',get_redis_values(redis_insts[key],value))
+				
 				#scards_dict[key] = sum([ redis_insts[key].scard(value) for value in metadata_filter_dict[key] ])
 				master_ids[key] = list(set.union(*[ get_redis_values(redis_insts[key],value) for value in metadata_filter_dict[key] ]))
 				
