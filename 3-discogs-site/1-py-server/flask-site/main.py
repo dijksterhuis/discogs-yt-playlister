@@ -31,7 +31,7 @@ app.secret_key = generate_password_hash(os.urandom(24))
 
 # https://developers.google.com/youtube/v3/quickstart/python#further_reading
 
-CLIENT_SECRETS_FILE = "client_secrets.json"
+CLIENT_SECRETS_FILE = "/home/site/client_secrets.json"
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
@@ -43,7 +43,13 @@ API_VERSION = 'v3'
 
 # reldate?
 TAGS = ['year','genre','style']
-
+API_URLS = { \
+				'unique_metadata' : 'http://172.23.0.6/unique_metadata' \
+				, 'ids_from_name' : 'http://172.23.0.3/get_ids_from_name' \
+				, 'ids_from_metadata' : 'http://172.23.0.5/ids_from_metadata' \
+				, 'video_urls' : 'http://172.23.0.4/video_urls' \
+				, 'video_query_cache' : None \
+			}
 
 # --------------------------------------------------
 # misc functions
@@ -57,6 +63,8 @@ class timer:
 		c_time = datetime.datetime.now() - self.start
 		return c_time.total_seconds()
 
+def list_of_sets(in_data):
+	return [set(i) for i in in_data if len(i) > 0]
 
 def api_get_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
@@ -68,17 +76,8 @@ def api_get_requests(host_string, r_json):
 		output = r.json()
 	return output
 
-def redis_meta_host(value):
-	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
-
 def redis_host(value):
 	return redis.Redis(host=value,port=6379)
-
-def get_redis_values(redis_instance,key_string):
-	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
-
-def get_redis_keys(redis_instance):
-	return [i.decode('utf-8') for i in list(redis_instance.keys())]
 
 # --------------------------------------------------
 # server logic
@@ -88,8 +87,7 @@ def get_redis_keys(redis_instance):
 def home():
 	if 'credentials' not in session:
 		return redirect('authorize')
-	
-	return render_template('/no_results.html')
+	return redirect(url_for('/query_builder'))
 
 @app.route('/',methods=['GET','POST'])
 #@login_required
@@ -101,7 +99,7 @@ def query():
 	if request.method == 'GET':
 		print('GET',request)
 		
-		uniq_params = { tag : api_get_requests('http://172.23.0.6/unique_metadata', {'tag':tag} ) for tag in TAGS }
+		uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], {'tag':tag} ) for tag in TAGS }
 		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
 	
 	elif request.method == 'POST':
@@ -116,27 +114,29 @@ def query():
 		
 		# ---- Get master IDs from APIs
 		
-		artist_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'artist','name':artist_name} )
-		release_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'release','name':release_name} )
+		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
+		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
 		#label_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'label','name':release_name} )
-		master_ids_dict = api_get_requests('http://172.23.0.5/ids_from_metadata', wide_query_dict )
+		master_ids_dict = api_get_requests(API_URLS['ids_from_metadata'], wide_query_dict )
 		
-		# ---- Calculate Query (move off to a seperate API ?)
+		# ---- Calculate Query (TODO move off to a seperate API ?)
 		
-		wide_query_sets = [set(i) for i in master_ids_dict.values() if len(i) > 0]
+		wide_query_sets = list_of_sets(master_ids_dict.values())
+		
 		if len(wide_query_sets) == 0:
 			to_intersect = [artist_ids,release_ids]
 		else:
-			wide_query_intersect = set.intersection(*wide_query_sets)
-			to_intersect = [artist_ids,release_ids,wide_query_intersect]
+			to_intersect = [artist_ids,release_ids,set.intersection(*wide_query_sets)]
 		
-		master_ids = set.intersection( *[set(i) for i in to_intersect if len(i) > 0]  )
+		master_ids = set.intersection( *list_of_sets(to_intersect) )
 		
 		# ---- Get video urls
 		
-		all_links = api_get_requests('http://172.23.0.4/video_urls', {'master_ids': master_ids} )
-		tot = len(all_links)
+		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': master_ids} )
 		
+		if len(all_links) == 0:
+			return render_template('/no-results.html')
+			
 		# ---- Add to redis cache
 		# TODO API logic
 		session_id = session['session_id']
@@ -144,8 +144,11 @@ def query():
 													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
 		redis_host('discogs-session-query-cache').expire(session_id,30*60)
 		
-		return render_template('/added.html',intersex=all_links,total_count=tot)
+		return render_template('/added.html',intersex=all_links,total_count=len(all_links))
 
+@app.route('/current_urls',methods=["GET"])
+def current_vids():
+	return redirect(url_for('/query_builder'))
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
@@ -158,7 +161,7 @@ def authorize():
 	# steps.
 	
 	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
-	flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+	flow.redirect_uri = url_for('oauth2callback', _external=True)
 	
 	# This (access_type) parameter enables offline access which gives your application
 	# both an access and refresh token.
@@ -169,9 +172,9 @@ def authorize():
 	# Store the state in the session so that the callback can verify that
 	# the authorization server response.
 	
-	flask.session['state'] = state
+	session['state'] = state
 	
-	return flask.redirect(authorization_url)
+	return redirect(authorization_url)
 
 
 @app.route('/oauth2callback')
@@ -184,7 +187,7 @@ def oauth2callback():
 	
 	state = session['state']
 	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
-	flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+	flow.redirect_uri = url_for('oauth2callback', _external=True)
 	
 	# Use the authorization server's response to fetch the OAuth 2.0 tokens.
 	
@@ -232,6 +235,7 @@ def send_to_yt():
 	playlist_result = create_playlist(client, title, desc)
 	for video_id in video_ids:
 		insert_videos(client, playlist_result , video_id)
+	return return redirect(url_for('/home'))
 
 if __name__ == '__main__':
 	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
