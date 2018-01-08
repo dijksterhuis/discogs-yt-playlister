@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp,  METADATA_ID_ARGS
+from api_build_funx import timer, make_json_resp, get_metadata_ids, METADATA_ID_ARGS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -31,9 +31,9 @@ def alive():
 def get_ids(args):
 	req_time = timer()
 	print(args)
-	#result = get_metadata_ids( args['metadata_filter_dict'] )
+	result = get_metadata_ids( args )
 	print('request time taken', req_time.time_taken() )
-	return make_json_resp( {'status': 'OK'} , 200 )
+	return result
 
 if __name__ == '__main__':
 	#app.run(host='0.0.0.0',port=80,debug=True)

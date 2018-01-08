@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, redis_host, get_videos, VIDEO_ARGS
+from api_build_funx import timer, make_json_resp, get_videos, VIDEO_ARGS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
