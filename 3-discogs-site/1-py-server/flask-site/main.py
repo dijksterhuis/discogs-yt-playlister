@@ -88,7 +88,6 @@ def wide_query():
 			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 			print('master ids gotten')
 			intersections = set.intersection(set(*master_ids_dict.values()))
-			intersections = set()
 			time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		else:
 			intersections = set()
