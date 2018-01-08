@@ -9,11 +9,11 @@ docker stop $container_name
 docker rm $container_name
 
 docker run \
-    -di --restart=always \
+    -it --restart=always \
     -p 70:80 \
     -w /home \
     --name $container_name \
     $image_name":"$image_tag
 
-docker network connect --ip=172.23.0.2 $api_net $container_name
-for net in $redis_nets ; do docker network connect $net $container_name ; done
+#docker network connect --ip=172.23.0.2 $api_net $container_name
+#for net in $redis_nets ; do docker network connect $net $container_name ; done

@@ -87,7 +87,9 @@ def wide_query():
 			master_ids_dict = api_get_requests('http://172.23.0.5/ids_from_metadata', {'meta_filter_dict' : wide_query_dict} )
 			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 			print('master ids gotten')
+			print(master_ids_dict)
 			intersections = set.intersection(set(*master_ids_dict.values()))
+			print(intersections)
 			time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		else:
 			intersections = set()
@@ -104,7 +106,7 @@ def wide_query():
 		else:
 			return render_template('/no_results.html')
 		time_dict[4] = ('union_time_delta' , datetime.datetime.now())
-		
+		print(unions)
 		print('unions gotten')
 		print('total video links to get: ',len(unions))
 		
