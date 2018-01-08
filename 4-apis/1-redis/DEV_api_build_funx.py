@@ -142,6 +142,7 @@ def get_unique_metadata(tag):
 	if ping_check != True:
 		return make_response( ping_check, 500 )
 	
-	metadata = get_redis_keys(r).sort()
+	metadata = get_redis_keys(r)
+	metadata.sort()
 	print(metadata)
 	return make_json_resp( metadata , 200)
