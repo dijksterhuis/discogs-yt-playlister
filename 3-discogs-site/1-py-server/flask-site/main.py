@@ -1,27 +1,72 @@
-from flask import  Flask, render_template, redirect, url_for, request, session, flash
-#from werkzeug import generate_password_hash, check_password_hash
-import json, os, datetime, time, redis
+# general imports
+import json, os, datetime, time, redis, requests
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
-import werkzeug
-from youtube_playlist_gen import create_playlist, insert_videos
 
+# site imports
+from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify
+from werkzeug import generate_password_hash, check_password_hash
+
+
+# Google imports
+from youtube_playlist_gen import create_playlist, insert_videos
+import googleapiclient.discovery
+import google_auth_oauthlib.flow
+
+
+#TODO import google.oauth2.credentials <<<<<- This breaks it?!
+
+# --------------------------------------------------
+# Flask vars
+# --------------------------------------------------
+
+# Flask App
 app = Flask(__name__)
 
 # Super secret cookie session key
-#app.secret_key = generate_password_hash(os.urandom(24))
+app.secret_key = generate_password_hash(os.urandom(24))
 
 # --------------------------------------------------
+# Google api vars
+# --------------------------------------------------
 
-# app routes (pages and fucntions applied to server data etc.)
+# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 
-#r_videos = redis.Redis(host='redis-videos-masters',port=6379)
-#r_unique = redis.Redis(host='redis-metadata-unique',port=6379)
-#r_masters = redis.Redis(host='redis-metadata-master-ids',port=6379)
-#
-#r_unique_reldates = redis.Redis(host='redis-metadata-unique-reldate',port=6379)
-#r_unique_year = redis.Redis(host='redis-metadata-unique-year',port=6379)
-#r_unique_style = redis.Redis(host='redis-metadata-unique-style',port=6379)
-#r_unique_genre = redis.Redis(host='redis-metadata-unique-genre',port=6379)
+CLIENT_SECRETS_FILE = "client_secrets.json"
+
+SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
+API_SERVICE_NAME = 'youtube'
+API_VERSION = 'v3'
+
+# --------------------------------------------------
+# My vars
+# --------------------------------------------------
+
+# reldate?
+TAGS = ['year','genre','style']
+
+
+# --------------------------------------------------
+# misc functions
+# --------------------------------------------------
+
+class timer:
+	def __init__(self):
+		#import datetime
+		self.start = datetime.datetime.now()
+	def time_taken(self):
+		c_time = datetime.datetime.now() - self.start
+		return c_time.total_seconds()
+
+
+def api_get_requests(host_string, r_json):
+	api_call_headers = {"Content-Type": "application/json"}
+	r = requests.get( host_string , json = r_json , headers = api_call_headers)
+	r_data = r.json()
+	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
+		output = json.loads(r.json())
+	else:
+		output = r.json()
+	return output
 
 def redis_meta_host(value):
 	return redis.Redis(host='redis-metadata-unique-'+value,port=6379)
@@ -29,178 +74,166 @@ def redis_meta_host(value):
 def redis_host(value):
 	return redis.Redis(host=value,port=6379)
 
+def get_redis_values(redis_instance,key_string):
+	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
+
 def get_redis_keys(redis_instance):
 	return [i.decode('utf-8') for i in list(redis_instance.keys())]
 
-def get_redis_values(redis_instance,key_string):
-	return [i.decode('utf-8') for i in list(redis_instance.smembers(key_string))]
+# --------------------------------------------------
+# server logic
+# --------------------------------------------------
+
+@app.route('/home',methods=['GET'])
+def home():
+	if 'credentials' not in session:
+		return redirect('authorize')
+	
+	return render_template('/no_results.html')
 
 @app.route('/',methods=['GET','POST'])
 #@login_required
 #@subscription_required
-def wide_query():
-	
+def query():
+	if 'session_id' not in session:
+		session['session_id'] = os.urandom(24)
+		
 	if request.method == 'GET':
 		print('GET',request)
 		
-		# reldate?
-		tags = ['year','genre','style']
-		#uniq_params = { tag : request.get('/unique_metadata',json=jsonify( {'tag':tag} )) for tag in tags }
-		uniq_params = { tag : get_redis_keys(redis_meta_host(tag)) for tag in tags }
-		for key in uniq_params: uniq_params[key].sort()
-		
+		uniq_params = { tag : api_get_requests('http://172.23.0.6/unique_metadata', {'tag':tag} ) for tag in TAGS }
 		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
 	
-	## These can be big queries, so we want post requests, rather than a get rest API
-	
 	elif request.method == 'POST':
-		
 		print('POST',request)
 		
-		time_dict = { 0: ('start_time',datetime.datetime.now() ) } 
-		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
+		# ---- Query parameters
 		
-		artist_name = request.form.getlist('search:artist_name')[0]
-		release_name = request.form.getlist('search:release_name')[0]
-		label_name = request.form.getlist('search:label_name')[0]
+		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in TAGS}
+		artist_name = request.form.get('search:artist_name', type=str, default='')
+		release_name = request.form.get('search:release_name', type=str, default='')
+		label_name = request.form.get('search:label_name', type=str, default='')
 		
-		print(artist_name,release_name,label_name)		
+		# ---- Get master IDs from APIs
 		
-		# -------- TODO API
+		artist_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'artist','name':artist_name} )
+		release_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'release','name':release_name} )
+		#label_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'label','name':release_name} )
+		master_ids_dict = api_get_requests('http://172.23.0.5/ids_from_metadata', wide_query_dict )
 		
-		artist_ids = set(get_redis_values(redis_host('redis-artists-ids'),artist_name))
-		release_ids = set(get_redis_values(redis_host('redis-masters-ids'),release_name))
-		#label_ids = set(get_redis_values(redis_host('redis-label-ids'),release_name))
+		# ---- Calculate Query (move off to a seperate API ?)
 		
-		#artist_ids = request.get('/artist_name_ids',json=jsonify( {'name':artist_name} ))
-		#release_ids = request.get('/release_name_ids',json=jsonify( {'name':artist_name} ))
-		#label_ids = request.get('/label_name_ids',json=jsonify( {'name':label_name} ))
-		print(artist_ids,release_ids) #, label_ids
+		wide_query_sets = [set(i) for i in master_ids_dict.values() if len(i) > 0]
+		if len(wide_query_sets) == 0:
+			to_intersect = [artist_ids,release_ids]
+		else:
+			wide_query_intersect = set.intersection(*wide_query_sets)
+			to_intersect = [artist_ids,release_ids,wide_query_intersect]
 		
-		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
+		master_ids = set.intersection( *[set(i) for i in to_intersect if len(i) > 0]  )
 		
-		print('getting: ',wide_query_dict)
+		# ---- Get video urls
 		
-		scards_dict, master_ids_dict, all_links = dict(), dict(), list()
-		/metadata_ids
-		# get master IDs for wide filters
-		if len(wide_query_dict.keys()) != 0:
-			for key in wide_query_dict.keys():
-				if len(wide_query_dict[key]) == 0: pass
-				else:
-					# -------- TODO API
-					p = redis_meta_host(key).pipeline()
-					for value in wide_query_dict[key]:
-						#request.get('/metadata_ids',json=jsonify( {key : value} ))
-						scards_dict[key] = sum([ redis_meta_host(key).scard(value) for value in wide_query_dict[key] ])
-						master_ids_dict[key] = set.union(*[ redis_meta_host(key).smembers(value) for value in wide_query_dict[key] ])
-					p.execute()
-		
-		print('master ids gotten')
-		
-		print('cardinalities: ', scards_dict)
-		
-		time_dict[2] = ('scards and master-ids set' , datetime.datetime.now())
-		
-		# ---- TODO - and/or logic - intersections
-		
-		intersections = set.intersection(set(*master_ids_dict.values()))
-		time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
-		print('intersections gotten')
-		
-		# ---- TODO - and/or logic - unions
-		
-		lets_union_u = [artist_ids, release_ids, intersections]
-		if sum([len(i) for i in lets_union_u]) != 0: unions = set.union( *[i for i in lets_union_u if len(i) > 0] )
-		else: return render_template('/no_results.html')
-		time_dict[4] = ('union_time_delta' , datetime.datetime.now())
-		
-		print('unions gotten')
-		print('total video links to get: ',len(unions))
-		
-		# ---- VIDEOS GET
-		
-		# -------- TODO API
-		
-		#request.get('/video_urls',json=jsonify( unions ))
-		
-		videos_pipe = redis_host('redis-video-id-urls').pipeline()
-
-		for master_id in unions:
-			if isinstance(master_id,bytes): master_id = str(master_id.decode('utf-8'))
-			links = get_redis_values(redis_host('redis-video-id-urls'),master_id)
-			if len(links) == 0: pass
-			elif len(links) == 1 and type(links) is list: all_links.append(links[0])
-			elif isinstance(links,list):
-				for link in links: all_links.append(link)
-			else: pass
-			
-		videos_pipe.execute()
-		print('videos gotten')
-
-		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
+		all_links = api_get_requests('http://172.23.0.4/video_urls', {'master_ids': master_ids} )
 		tot = len(all_links)
 		
-		# ---- ARTIST NAME GET
-		#
-		#artists = list()
-		#artist_pipe = redis_host('redis-mastersid-artistname').pipeline()
-		#
-		#for i in intersections:
-		#	links = get_redis_values(redis_host('redis-mastersid-artistname'),str(i.decode('utf-8')))
-		#	if len(links) == 0: pass
-		#	elif len(links) == 1 and type(links) is list: artists.append(links[0])
-		#	elif type(links) is list:
-		#		for link in links: artists.append(link)
-		#	else: pass
-		#	
-		#artist_pipe.execute()
-		#print('artists gotten')
-		#time_dict[6] = ('artists_time_delta' , datetime.dßatetime.now())
-		#
-		## ---- RELEASE TITLE GET
-		#
-		#release_title_pipe = redis_host('redis-masterids-titles').pipeline()
-		#titles = [ get_redis_values(redis_host('redis-masterids-titles'),str(i.decode('utf-8'))) for i in intersections]
-		#release_title_pipe.execute()
-		#print('titles gotten')
-		#time_dict[7] = ('release_names_delta' , datetime.datetime.now())
-		
-		# ---- TIMINGS TEST OUTPUT
-		
-		print('\ntimings: key, time since start, time since last op, str_key')
-		for time_key,time_value in time_dict.items():
-			if time_key is 0:
-				print(time_key  , 0 , 0  , time_value[0] )
-			else:
-				from_start = time_value[1] - time_dict[0][1]
-				from_last_op = time_value[1] - time_dict[time_key-1][1]
-				print(time_key , from_start , from_last_op , time_value[0] )
-		total_time = datetime.datetime.now() - time_dict[0][1]
-		print('\ntotaltime',total_time.total_seconds())
-		print('\n')
-		
-		# TODO !!!
-		session_id = 1
-		
+		# ---- Add to redis cache
+		# TODO API logic
+		session_id = session['session_id']
 		redis_query_cache_adds = sum( [ redis_host('discogs-session-query-cache').sadd(session_id, \
 													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
 		redis_host('discogs-session-query-cache').expire(session_id,30*60)
 		
 		return render_template('/added.html',intersex=all_links,total_count=tot)
 
+
+@app.route('/authorize',methods=['GET'])
+def authorize():
+	if 'session_id' not in session:
+		session['session_id'] = os.urandom(24)
+		
+	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+	
+	# Create a flow instance to manage the OAuth 2.0 Authorization Grant Flow
+	# steps.
+	
+	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
+	flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+	
+	# This (access_type) parameter enables offline access which gives your application
+	# both an access and refresh token.
+	# This parameter (include_granted_scopes) enables incremental auth.
+	
+	authorization_url, state = flow.authorization_url(access_type='offline',include_granted_scopes='true')
+	
+	# Store the state in the session so that the callback can verify that
+	# the authorization server response.
+	
+	flask.session['state'] = state
+	
+	return flask.redirect(authorization_url)
+
+
+@app.route('/oauth2callback')
+def oauth2callback():
+	
+	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+	
+	# Specify the state when creating the flow in the callback so that it can
+	# verify the authorization server response.
+	
+	state = session['state']
+	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
+	flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
+	
+	# Use the authorization server's response to fetch the OAuth 2.0 tokens.
+	
+	authorization_response = request.url
+	flow.fetch_token(authorization_response=authorization_response)
+	
+	# Store the credentials in the session.
+	# ACTION ITEM for developers:
+	#     Store user's access and refresh tokens in your data store if
+	#     incorporating this code into your real app.
+	
+	credentials = flow.credentials
+	session['credentials'] = { \
+								'token': credentials.token \
+								, 'refresh_token': credentials.refresh_token \
+								, 'token_uri': credentials.token_uri \
+								, 'client_id': credentials.client_id \
+								, 'client_secret': credentials.client_secret \
+								, 'scopes': credentials.scopes \
+							}
+									
+	return redirect(url_for('/query_builder'))
+
 @app.route('/create_playlist',methods=['GET'])
 def send_to_yt():
+	if 'session_id' not in session or 'credentials' not in session:
+		return redirect('authorize')
+	
 	title = request.form.get('playlist_title')
 	desc = request.form.get('playlist_desc')
+	
+	#session_id = flask.session['session_id']
 	session_id = 1
+	
+	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+	
+	# Load the credentials from the session.
+	#credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
+	
+	#client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 	
 	r = redis_host('discogs-session-query-cache')
 	video_ids = list(r.smembers(session_id))
 	
-	playlist_result = create_playlist(title,desc)
+	playlist_result = create_playlist(client, title, desc)
 	for video_id in video_ids:
-		insert_videos( playlist_result , video_id)
+		insert_videos(client, playlist_result , video_id)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True,port=5000)
+	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+	app.run(host='0.0.0.0',debug=True,port=80)
+	#app.run(host='0.0.0.0',debug=False,port=80)

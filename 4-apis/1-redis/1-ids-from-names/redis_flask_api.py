@@ -23,19 +23,25 @@ auth = HTTPBasicAuth()
 #### ENDPOINT DEFs:
 
 @app.route('/', methods=['GET'])
-def alive(self):
-	return make_json_resp( {'status': 'OK'} )
+def alive():
+	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/get_ids_from_name', methods=['GET'])
 @use_args(NAME_ARGS,locations=('json', 'form'))
 def get_ids(args):
 	req_time = timer()
 	print(args)
-	if args['name_type'] == 'artist': result = get_smembers('redis-artists-ids', args['name'])
-	elif args['name_type'] == 'release': result = get_smembers('redis-masters-ids', args['name'])
+	
+	if args['name_type'] == 'artist':
+		result = get_smembers('redis-artists-ids', args['name'])
+		
+	elif args['name_type'] == 'release':
+		result = get_smembers('redis-masters-ids', args['name'])
+		
 	elif args['name_type'] == 'label': 
-		result = make_json_resp( {'ERROR': 'NOT IMPLEMENTED YET' } )
+		result = make_json_resp( {'ERROR': 'NOT IMPLEMENTED YET' } , 500 )
 		#result = get_smembers('redis-labels-ids', args['name'])
+		
 	print('request time taken', req_time.time_taken() )
 	return result
 

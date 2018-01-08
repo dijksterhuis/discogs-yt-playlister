@@ -23,13 +23,14 @@ auth = HTTPBasicAuth()
 #### ENDPOINT DEFs:
 
 @app.route('/', methods=['GET'])
-def alive(self):
-	return make_json_resp( {'status': 'OK'} )
+def alive():
+	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/unique_metadata', methods=['GET'])
 @use_args(TAG_ARGS,locations=('json', 'form'))
 def unique_metadata(args):
 	req_time = timer()
+	print(args)
 	result = get_unique_metadata( args['tag'] )
 	print('request time taken', req_time.time_taken() )
 	return result

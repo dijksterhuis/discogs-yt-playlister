@@ -7,8 +7,10 @@ from webargs import fields
 NAME_ARGS = { 'name_type' : fields.Str(required=True), 'name': fields.Str(required=True) }
 TAG_ARGS = { 'tag' : fields.Str(required=True) }
 VIDEO_ARGS = { 'master_ids' : fields.List(fields.Str(required=True)) }
-METADATA_ID_ARGS = { 'key' : fields.Str(required=True), 'value' : fields.Str(required=True) }
-
+METADATA_ID_ARGS = { 'year' : fields.List(fields.Str(required=True)) \
+						, 'style' : fields.List(fields.Str(required=True))\
+						, 'genre' : fields.List(fields.Str(required=True)) \
+					}
 
 #### EXECUTION DEFs:
 
@@ -93,21 +95,44 @@ def get_videos(master_ids_list):
 	
 	return make_json_resp(all_links , 200 )
 
-def get_metadata_ids(key, value):
+def get_metadata_ids(metadata_filter_dict):
 	
-	r = redis_meta_host(key)
+	print(metadata_filter_dict)
 	
-	ping_check = redis_conn_check(r)
-	if ping_check != True:
-		return make_response( ping_check, 500 )
-		
-	p = r.pipeline()
+	master_ids = dict()
+	#scards = dict()
 	
-	cardinality = sum(r.scard(value))
-	master_ids = list(r.smembers(value))
+	redis_insts = { key : redis_meta_host(key) for key in metadata_filter_dict.keys() }
 	
-	p.execute()
+	print(redis_insts)
+	
+	for r in redis_insts.values():
+		ping_check = redis_conn_check(r)
+		if ping_check != True:
+			return make_response( ping_check, 500 )
 			
+	if len(metadata_filter_dict.keys()) == 0:
+		return make_json_resp( {'ERR' : 'No input data given '}, 400 )
+		
+	else:
+		pipes = [ r.pipeline() for r in redis_insts.values() ]
+		
+		for key in metadata_filter_dict.keys():
+			print('key',key)
+			if len(metadata_filter_dict[key]) == 0:
+				pass
+			else:
+				print('values',metadata_filter_dict.values())
+				master_ids[key] = set()
+				for value in metadata_filter_dict[key]:
+					r_vals = get_redis_values(redis_insts[key],value)
+					master_ids[key] = set.union(master_ids[key],r_vals)
+				master_ids[key] = list(master_ids[key])
+				
+				#scards[key] = sum([ redis_insts[key].scard(value) for value in metadata_filter_dict[key] ])
+				
+	e = [ p.execute() for p in pipes ]
+	
 	return make_json_resp(master_ids , 200 )
 
 def get_unique_metadata(tag):
@@ -117,5 +142,7 @@ def get_unique_metadata(tag):
 	if ping_check != True:
 		return make_response( ping_check, 500 )
 	
-	metadata = get_redis_keys(r).sort()
+	metadata = get_redis_keys(r)
+	metadata.sort()
+	print(metadata)
 	return make_json_resp( metadata , 200)

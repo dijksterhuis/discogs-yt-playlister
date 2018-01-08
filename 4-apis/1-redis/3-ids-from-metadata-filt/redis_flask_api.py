@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, redis_host, get_videos, METADATA_ID_ARGS
+from api_build_funx import timer, make_json_resp, get_metadata_ids, METADATA_ID_ARGS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -23,17 +23,17 @@ auth = HTTPBasicAuth()
 #### ENDPOINT DEFs:
 
 @app.route('/', methods=['GET'])
-def alive(self):
-	return make_json_resp( {'status': 'OK'} )
+def alive():
+	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/ids_from_metadata', methods=['GET'])
 @use_args(METADATA_ID_ARGS,locations=('json', 'form'))
-def metadata_ids(args):
+def get_ids(args):
 	req_time = timer()
-	result = get_metadata_ids( args['key'], args['value'] )
+	print(args)
+	result = get_metadata_ids( args )
 	print('request time taken', req_time.time_taken() )
 	return result
 
 if __name__ == '__main__':
-	#app.run(host='0.0.0.0',port=5000,debug=True)
 	app.run(host='0.0.0.0',port=80,debug=False)

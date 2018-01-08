@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, redis_host, get_videos, VIDEO_ARGS
+from api_build_funx import timer, make_json_resp, get_videos, VIDEO_ARGS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -23,13 +23,14 @@ auth = HTTPBasicAuth()
 #### ENDPOINT DEFs:
 
 @app.route('/', methods=['GET'])
-def alive(self):
-	return make_json_resp( {'status': 'OK'} )
+def alive():
+	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/video_urls', methods=['GET'])
 @use_args(VIDEO_ARGS,locations=('json', 'form'))
 def video_urls(args):
 	req_time = timer()
+	print(args)
 	result = get_videos( args['master_ids'] )
 	print('request time taken', req_time.time_taken() )
 	return result

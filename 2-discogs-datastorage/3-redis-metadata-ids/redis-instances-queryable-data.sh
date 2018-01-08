@@ -1,7 +1,7 @@
 #!/bin/bash
 
 network='discogs-redis-site-queries'
-container_names='redis-masterids-titles redis-metadata-filtering redis-video-id-urls redis-mainrel-masterid redis-mastersid-artistname redis-artists-ids redis-masters-ids' 
+container_names='redis-masterids-titles redis-metadata-filtering redis-video-id-urls redis-mainrel-masterid redis-mastersid-artistname redis-artists-ids redis-masters-ids redis-metadata-unique-genre redis-metadata-unique-style redis-metadata-unique-year redis-metadata-unique-reldate'
 port=7000
 docker network create $network
 
@@ -15,8 +15,8 @@ do \
         --name $container_name \
         --network $network \
         redis:alpine redis-server --appendonly yes ; \
-    echo $container_name' started.'
-    $port=$(($port+1)) ;\
+    echo $container_name' started.' ;\
+    port=$(($port+1)) ;\
 done
 
 
@@ -65,3 +65,31 @@ done
 ###### redis-masterids-titles
 # ----------------------------------------------------------------
 ## key: master-id , values: master release title
+# ------------------------------------------------------------------
+###### redis-metadata-unique-genre
+# ----------------------------------------------------------------
+# for year, genre, style etc. tags to be pulled onto the site
+# to be used for filtering searches / searching for all data
+# pulled from master file only
+# TODO release date (from releases)
+# ----------------------------------------------------------------
+###### redis-metadata-unique-style
+# ----------------------------------------------------------------
+# for year, genre, style etc. tags to be pulled onto the site
+# to be used for filtering searches / searching for all data
+# pulled from master file only
+# TODO release date (from releases)
+# ----------------------------------------------------------------
+###### redis-metadata-unique-year
+# ----------------------------------------------------------------
+# for year, genre, style etc. tags to be pulled onto the site
+# to be used for filtering searches / searching for all data
+# pulled from master file only
+# TODO release date (from releases)
+# ----------------------------------------------------------------
+###### redis-metadata-unique-reldata (month???)
+# ----------------------------------------------------------------
+# for year, genre, style etc. tags to be pulled onto the site
+# to be used for filtering searches / searching for all data
+# pulled from master file only
+# TODO release date (from releases)
