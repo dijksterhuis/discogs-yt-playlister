@@ -141,7 +141,7 @@ def query():
 		else:
 			to_intersect = [artist_ids,release_ids,set.intersection(*wide_query_sets)]
 		
-		master_ids = set.intersection( *list_of_sets(to_intersect) )
+		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
 		
 		# ---- Get video urls
 		
