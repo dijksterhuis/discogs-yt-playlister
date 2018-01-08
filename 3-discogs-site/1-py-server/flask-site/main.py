@@ -93,6 +93,9 @@ def home():
 #@login_required
 #@subscription_required
 def query():
+	
+	with open('tmp.txt','a+') as f:
+		f.write(session)
 	if 'session_id' not in session:
 		session['session_id'] = os.urandom(24)
 		
@@ -209,7 +212,7 @@ def oauth2callback():
 								, 'scopes': credentials.scopes \
 							}
 									
-	return redirect(url_for('/query_builder'))
+	return redirect(url_for('/'))
 
 @app.route('/create_playlist',methods=['GET'])
 def send_to_yt():
