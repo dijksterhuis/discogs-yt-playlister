@@ -244,7 +244,7 @@ def send_to_yt():
 		credentials = google.oauth2.credentials.Credentials(**session['credentials'])
 		
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'])
+		video_ids = api_get_requests(API_URLS['video_query_cache'], str(session['session_id']))
 		playlist_result = create_playlist(client, title, desc)
 		responses = [ insert_videos(client, playlist_result , video_id) for video_id in video_ids ]
 		
