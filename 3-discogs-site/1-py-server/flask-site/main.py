@@ -13,7 +13,7 @@ import googleapiclient.discovery
 import google_auth_oauthlib.flow
 
 
-#TODO import google.oauth2.credentials <<<<<- This break it?!
+#TODO import google.oauth2.credentials <<<<<- This breaks it?!
 
 # --------------------------------------------------
 # Flask vars
@@ -38,8 +38,25 @@ API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 
 # --------------------------------------------------
+# My vars
+# --------------------------------------------------
+
+# reldate?
+TAGS = ['year','genre','style']
+
+
+# --------------------------------------------------
 # misc functions
 # --------------------------------------------------
+
+class timer:
+	def __init__(self):
+		#import datetime
+		self.start = datetime.datetime.now()
+	def time_taken(self):
+		c_time = datetime.datetime.now() - self.start
+		return c_time.total_seconds()
+
 
 def api_get_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
@@ -69,7 +86,7 @@ def get_redis_keys(redis_instance):
 
 @app.route('/home',methods=['GET'])
 def home():
-	if 'credentials' not in flask.session:
+	if 'credentials' not in session:
 		return redirect('authorize')
 	
 	return render_template('/no_results.html')
@@ -84,92 +101,45 @@ def query():
 	if request.method == 'GET':
 		print('GET',request)
 		
-		# reldate?
-		tags = ['year','genre','style']
-		uniq_params = { tag : api_get_requests('http://172.23.0.6/unique_metadata', {'tag':tag} ) for tag in tags }
+		uniq_params = { tag : api_get_requests('http://172.23.0.6/unique_metadata', {'tag':tag} ) for tag in TAGS }
 		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
 	
-	## These can be big queries...
-	
 	elif request.method == 'POST':
-		
 		print('POST',request)
 		
-		time_dict = { 0: ('start_time',datetime.datetime.now() ) }
+		# ---- Query parameters
 		
-		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in ['year','genre','style']}
-		print(wide_query_dict)
+		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in TAGS}
+		artist_name = request.form.get('search:artist_name', type=str, default='')
+		release_name = request.form.get('search:release_name', type=str, default='')
+		label_name = request.form.get('search:label_name', type=str, default='')
 		
-		artist_name = request.form.getlist('search:artist_name')[0]
-		release_name = request.form.getlist('search:release_name')[0]
-		label_name = request.form.getlist('search:label_name')[0]
-		
-		print(artist_name,release_name,label_name)
-		
-		# -------- ids from names API
+		# ---- Get master IDs from APIs
 		
 		artist_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'artist','name':artist_name} )
 		release_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'release','name':release_name} )
 		#label_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'label','name':release_name} )
+		master_ids_dict = api_get_requests('http://172.23.0.5/ids_from_metadata', wide_query_dict )
 		
-		print(artist_ids,release_ids) #, label_ids
+		# ---- Calculate Query (move off to a seperate API ?)
 		
-		time_dict[1] = ('wide_query_dict_get' , datetime.datetime.now())
-		
-		print('getting: ',wide_query_dict)
-		
-		if len(wide_query_dict) != 0:
-			master_ids_dict = api_get_requests('http://172.23.0.5/ids_from_metadata', wide_query_dict )
-			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
-			print('master ids gotten')
-			intersections = set.intersection(*[set(i) for i in master_ids_dict.values() if len(i) > 0])
-			time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
+		wide_query_sets = [set(i) for i in master_ids_dict.values() if len(i) > 0]
+		if len(wide_query_sets) == 0:
+			to_intersect = [artist_ids,release_ids]
 		else:
-			intersections = set()
-			
-		# ---- TODO - and/or logic - intersections
+			wide_query_intersect = set.intersection(*wide_query_sets)
+			to_intersect = [artist_ids,release_ids,wide_query_intersect]
 		
-		print('intersections gotten')
+		master_ids = set.intersection( *[set(i) for i in to_intersect if len(i) > 0]  )
 		
-		# ---- TODO - and/or logic - unions
+		# ---- Get video urls
 		
-		lets_union_u = [artist_ids, release_ids, intersections]
-		if sum([len(i) for i in lets_union_u]) != 0:
-			unions = list(set.union( *[set(i) for i in lets_union_u if len(i) > 0] ))
-		else:
-			return render_template('/no_results.html')
-		time_dict[4] = ('union_time_delta' , datetime.datetime.now())
-		print('unions gotten')
-		
-		print('total master ids to get videos for: ',len(unions))
-		
-		# ---- VIDEOS GET
-		
-		all_links = api_get_requests('http://172.23.0.4/video_urls', {'master_ids': unions} )
-			
-		print('videos gotten')
-		
-		time_dict[5] = ('videos_time_delta' , datetime.datetime.now())
+		all_links = api_get_requests('http://172.23.0.4/video_urls', {'master_ids': master_ids} )
 		tot = len(all_links)
-		print(all_links)
 		
-		# ---- TIMINGS TEST OUTPUT
-		
-		print('\ntimings: key, time since start, time since last op, str_key')
-		for time_key,time_value in time_dict.items():
-			if time_key is 0:
-				print(time_key  , 0 , 0  , time_value[0] )
-			else:
-				from_start = time_value[1] - time_dict[0][1]
-				from_last_op = time_value[1] - time_dict[time_key-1][1]
-				print(time_key , from_start , from_last_op , time_value[0] )
-		total_time = datetime.datetime.now() - time_dict[0][1]
-		print('\ntotaltime',total_time.total_seconds())
-		print('\n')
-		
-		# TODO API + SESSION!!!
-		session_id = 1
-		
+		# ---- Add to redis cache
+		# TODO API logic
+		session_id = session['session_id']
 		redis_query_cache_adds = sum( [ redis_host('discogs-session-query-cache').sadd(session_id, \
 													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
 		redis_host('discogs-session-query-cache').expire(session_id,30*60)
@@ -179,7 +149,9 @@ def query():
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
-	
+	if 'session_id' not in session:
+		session['session_id'] = os.urandom(24)
+		
 	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 	
 	# Create a flow instance to manage the OAuth 2.0 Authorization Grant Flow
@@ -236,11 +208,10 @@ def oauth2callback():
 									
 	return redirect(url_for('/query_builder'))
 
-
 @app.route('/create_playlist',methods=['GET'])
 def send_to_yt():
-	if 'session_id' not in session:
-		return redirect('query_builder')
+	if 'session_id' not in session or 'credentials' not in session:
+		return redirect('authorize')
 	
 	title = request.form.get('playlist_title')
 	desc = request.form.get('playlist_desc')

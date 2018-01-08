@@ -10,21 +10,25 @@
         <tr>
           <td align="right">Max Videos to Return </td>
           <td align="left"><input type="number" name="query:max_results"></td>
+        </tr>
+        <tr>
           <td align="right">Artist Name </td>
           <td align="left"><input type="search" name="search:artist_name"></td>
         </tr>
         <tr>
           <td align="right">Release Name </td>
           <td align="left"><input type="search" name="search:release_name"></td>
+        </tr>
+        <tr>
           <td align="right">Label Name  </p>
           <td align="left"><input type="search" name="search:label_name"></td>
         </tr>
       </table>
     </fieldset>
     <br>
+<!--
     <fieldset id="andors">
-      <p>Perform an 'AND' or 'OR' search</p>
-      <p>(N.B. 'OR' searches might be massive! )
+      <p>Perform an 'AND' or 'OR' on text search parameters ?</p>
       <table>
         <tr>
           <td><input type="radio" name="andors" value="AND" checked>AND</td>
@@ -33,6 +37,7 @@
       </table>
     </fieldset>
     <br>
+-->
     <fieldset id="selections">
       <select multiple id="Years" name="query:year" size="20" style="width: 100px">
         {% for year in years %}
