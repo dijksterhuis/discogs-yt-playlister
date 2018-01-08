@@ -110,23 +110,25 @@ def get_metadata_ids(metadata_filter_dict):
 		if ping_check != True:
 			return make_response( ping_check, 500 )
 			
-	pipes = [ r.pipeline() for r in redis_insts.values() ]
-	
 	if len(metadata_filter_dict.keys()) == 0:
 		return make_json_resp( {'ERR' : 'No input data given '}, 400 )
 		
 	else:
+		pipes = [ r.pipeline() for r in redis_insts.values() ]
+		
 		for key in metadata_filter_dict.keys():
 			print('key',key)
 			if len(metadata_filter_dict[key]) == 0:
 				pass
 			else:
 				print('values',metadata_filter_dict.values())
+				master_ids[key] = set()
 				for value in metadata_filter_dict[key]:
-					print('value -ids: ',get_redis_values(redis_insts[key],value))
+					r_vals = get_redis_values(redis_insts[key],value)
+					master_ids[key] = set.union(master_ids[key],r_vals)
+				master_ids[key] = list(master_ids[key])
 				
 				#scards_dict[key] = sum([ redis_insts[key].scard(value) for value in metadata_filter_dict[key] ])
-				master_ids[key] = list(set.union(*[ get_redis_values(redis_insts[key],value) for value in metadata_filter_dict[key] ]))
 				
 	e = [ p.execute() for p in pipes ]
 	
