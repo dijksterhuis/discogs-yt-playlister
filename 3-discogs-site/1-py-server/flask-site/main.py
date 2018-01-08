@@ -84,11 +84,11 @@ def wide_query():
 		print('getting: ',wide_query_dict)
 		
 		if len(wide_query_dict) != 0:
-			master_ids_dict = api_get_requests('http://172.23.0.5/ids_from_metadata', { wide_query_dict} )
+			master_ids_dict = api_get_requests('http://172.23.0.5/ids_from_metadata', wide_query_dict )
 			time_dict[2] = ('metadata ids set' , datetime.datetime.now())
 			print('master ids gotten')
 			print('len-wide-queery',len(master_ids_dict))
-			intersections = set.intersection(set(*master_ids_dict.values()))
+			intersections = set.intersection(*[set(i) for i in master_ids_dict.values() if len(i) > 0])
 			print('lenintersex',len(intersections))
 			time_dict[3] = ('intersection_time_delta' , datetime.datetime.now())
 		else:
