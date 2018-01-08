@@ -26,7 +26,7 @@ function bring_up_container {
     # MUST SPECIFY IP ADDRESSES ON NETWORK FOR REQUESTS
     docker network connect --ip=$ip_prefix$ip_suffix $api_net $container_name
     
-    if [ $tag -e 'video-cache' ] ; \
+    if [ $tag = 'video-cache' ] ; \
         then docker network connect $redis_cache_net $container_name ; \
         else docker network connect $redis_site_net $container_name ; \
     fi
