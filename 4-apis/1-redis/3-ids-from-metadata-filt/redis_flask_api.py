@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, redis_host, get_videos, METADATA_ID_ARGS
+from api_build_funx import timer, make_json_resp, redis_host, get_metadata_ids, METADATA_ID_ARGS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -36,5 +36,5 @@ def metadata_ids(args):
 	return result
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0',port=80,debug=True)
-	#app.run(host='0.0.0.0',port=80,debug=False)
+	#app.run(host='0.0.0.0',port=80,debug=True)
+	app.run(host='0.0.0.0',port=80,debug=False)
