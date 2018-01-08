@@ -235,7 +235,7 @@ def send_to_yt():
 	playlist_result = create_playlist(client, title, desc)
 	for video_id in video_ids:
 		insert_videos(client, playlist_result , video_id)
-	return return redirect(url_for('/home'))
+	return redirect(url_for('/home'))
 
 if __name__ == '__main__':
 	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
