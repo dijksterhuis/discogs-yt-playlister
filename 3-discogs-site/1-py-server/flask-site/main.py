@@ -95,7 +95,7 @@ def home():
 def query():
 	
 	with open('tmp.txt','a+') as f:
-		f.write(session)
+		f.write(str(session))
 	if 'session_id' not in session:
 		session['session_id'] = os.urandom(24)
 		
