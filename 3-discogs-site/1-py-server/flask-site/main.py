@@ -212,7 +212,7 @@ def oauth2callback():
 								, 'scopes': credentials.scopes \
 							}
 									
-	return redirect(url_for('/'))
+	return redirect(url_for('query'))
 
 @app.route('/create_playlist',methods=['GET'])
 def send_to_yt():
