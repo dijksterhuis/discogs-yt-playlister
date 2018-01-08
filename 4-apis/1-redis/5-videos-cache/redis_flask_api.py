@@ -2,7 +2,7 @@
 
 #### EXTERNAL LIBRARY IMPORTS:
 
-from flask import Flask
+from flask import Flask, requests
 from flask_httpauth import HTTPBasicAuth
 from webargs.flaskparser import use_args
 
