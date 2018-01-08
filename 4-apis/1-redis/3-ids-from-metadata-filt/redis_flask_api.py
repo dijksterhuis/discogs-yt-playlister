@@ -33,7 +33,7 @@ def get_ids(args):
 	print(args)
 	#result = get_metadata_ids( args['metadata_filter_dict'] )
 	print('request time taken', req_time.time_taken() )
-	return make_json_resp( args , 200 )
+	return args
 
 if __name__ == '__main__':
 	#app.run(host='0.0.0.0',port=80,debug=True)
