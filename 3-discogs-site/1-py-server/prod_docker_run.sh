@@ -8,7 +8,7 @@ docker rm $container_name
 
 docker run \
     -it --restart=always \
-    -p 75:80 -p 127.0.0.1:9191:9191 \
+    -p 70:80 \
     -w /home \
     --name $container_name \
     $image_name":"$image_tag
