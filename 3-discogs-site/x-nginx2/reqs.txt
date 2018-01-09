@@ -1,0 +1,10 @@
+flask
+uwsgi
+requests
+redis
+werkzeug
+google-api-python-client
+httplib2
+google-auth-httplib2
+google-auth-oauthlib[tool]
+oauth2client
