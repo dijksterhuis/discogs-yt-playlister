@@ -313,20 +313,11 @@ def send_to_yt():
 		
 		time.sleep(2)
 		
-		return redirect( url_for('playlist_added' \
-										, playlist_title=str(title) \
-										, playlist_id=str(playlist_result['id']) \
-										, first_video=str(video_ids[0]) \
-								))
-
-
-@app.route('/playlist_added/<playlist_title/<playlist_id>/<first_video>',methods=['GET'])
-def playlist_added(playlist_title,playlist_id,first_video):
-	return render_template('/playlist_added.html' \
-									, pl_title=playlist_title\
-									, pl_link=playlist_id\
-									, first_vid=first_video \
-							)
+		return render_template('/playlist_added.html' \
+										, pl_title=playlist_title\
+										, pl_link=playlist_id\
+										, first_vid=first_video \
+								)
 	
 if __name__ == '__main__':
 	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
