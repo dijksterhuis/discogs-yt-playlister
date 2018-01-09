@@ -2,7 +2,7 @@ image_name="dijksterhuis/discogs-flask-server"
 image_tag="dev"
 container_name="pyserving-test"
 api_net='discogs-get-apis'
-webserve_net='discogs-web-serve'
+webserve_net='discogs-webserve'
 
 docker stop $container_name
 docker rm $container_name
