@@ -104,7 +104,7 @@ def api_post(host_string, r_json):
 
 @app.route('/',methods=['GET'])
 def index():
-	redirect('home')
+	return redirect('home')
 
 @app.route('/welcome',methods=['GET'])
 def home():
@@ -115,8 +115,6 @@ def home():
 									, latest_count=len(video_ids) \
 									, total_count=session['numb_videos'] \
 							)
-
-
 
 @app.route('/query_builder',methods=['GET','POST'])
 #@login_required
