@@ -313,7 +313,7 @@ def send_to_yt():
 		
 		time.sleep(2)
 		
-		return redirect( url_for('playlist_added/' \
+		return redirect( url_for('playlist_added' \
 										, playlist_title=str(title) \
 										, playlist_id=str(playlist_result['id']) \
 										, first_video=str(video_ids[0]) \
