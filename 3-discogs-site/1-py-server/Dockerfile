@@ -10,6 +10,12 @@ RUN mkdir /home/data/
 COPY flask-site/ /home/site/
 WORKDIR /home
 RUN apk update ; apk add wget unzip
+RUN cd /tmp
+RUN wget https://projects.unbit.it/downloads/uwsgi-latest.tar.gz
+RUN tar zxvf uwsgi-latest.tar.gz
+RUN cd uwsgi-latest
+RUN make
+RUN cd /home
 COPY reqs.txt /home/
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
