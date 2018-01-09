@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="form_input">
+  <form action="/" method="get">
+    <input class="btn btn-default" type="submit" value="Add more videos">
+  </form>
+  <form action="/create_playlist" method="get">
+    <input class="btn btn-default" type="submit" value="Generate Playlist">
+  </form>
+</div>
+
+<h1>Results:</h1>
+<p>There were {{total_count}} videos found:</p>
+<p><a href='/'>Add more videos?</a>
+<br>
+  {% for result in intersex %}
+  <li><a href={{result}}>{{result}}</a>
+  {% endfor %}
+
+
+{% endblock %}

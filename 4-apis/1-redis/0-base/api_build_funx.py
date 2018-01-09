@@ -11,6 +11,8 @@ METADATA_ID_ARGS = { 'year' : fields.List(fields.Str(required=True)) \
 						, 'style' : fields.List(fields.Str(required=True))\
 						, 'genre' : fields.List(fields.Str(required=True)) \
 					}
+V_CACHE_ARGS = { 'session_id' : fields.Str(required=True) , 'video_ids' : fields.List(fields.Str()) }
+
 
 #### EXECUTION DEFs:
 
@@ -146,3 +148,58 @@ def get_unique_metadata(tag):
 	metadata.sort()
 	print(metadata)
 	return make_json_resp( metadata , 200)
+
+def put_video_ids_cache(session_id,video_ids_list):
+	r = redis_host('discogs-session-query-cache')
+	
+	ping_check = redis_conn_check(r)
+	if ping_check != True:
+		return make_response( ping_check, 500 )
+	
+	stripped_videos = [ video.lstrip('https://www.youtube.com/watch?v=') for video in video_ids_list ]
+	result = sum([ r.sadd(session_id, video) for video in stripped_videos ])
+	redis_host('discogs-session-query-cache').expire(session_id,30*60)
+	
+	return make_json_resp(result,200)
+
+def get_video_ids_cache(session_id):
+	
+	r = redis_host('discogs-session-query-cache')
+	
+	ping_check = redis_conn_check(r)
+	if ping_check != True:
+		return make_response( ping_check, 500 )
+	
+	result = get_redis_values(r,session_id)
+	
+	return make_json_resp(result,200)
+
+def clear_video_ids_cache(session_id):
+	
+	r = redis_host('discogs-session-query-cache')
+	
+	ping_check = redis_conn_check(r)
+	if ping_check != True:
+		return make_response( ping_check, 500 )
+	
+	result = r.delete(session_id)
+	if result == 1:
+		return make_json_resp( { 'session_id' : session_id, 'result' : 'CLEARED' } , 200 )
+	else:
+		return make_json_resp( { 'session_id' : session_id, 'result' : 'NOT CLEARED' } , 200 )
+
+#def max_query_id():
+#	
+#	r = redis_host('discogs-session-query-cache')
+#	
+#	ping_check = redis_conn_check(r)
+#	if ping_check != True:
+#		return make_response( ping_check, 500 )
+#		
+#	if len(get_redis_keys(r)) == 0:
+#		max_key = 1
+#	else:
+#		max_key = max([int(k.lstrip('query:')) for k in get_redis_keys(r)])
+#	
+#	return make_json_resp('query:'+str(max_key),200)
+

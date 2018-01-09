@@ -99,7 +99,8 @@ def playlist_items_insert(client, properties, **kwargs):
 	# See full sample for function
 	kwargs = remove_empty_kwargs(**kwargs)
 	response = client.playlistItems().insert(body=resource,**kwargs).execute()
-	return print_response(response)
+	#return print_response(response)
+	return response
 
 def add_playlist(youtube, pl_title, pl_description):
 	body = dict( snippet=dict( title=pl_title, description=pl_description ), status=dict( privacyStatus='private' ) ) 
@@ -115,18 +116,21 @@ def create_playlist(client, pl_title,pl_description):
 		print('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
 		exit(e.resp.status)
 
-def insert_videos(client, playlists_insert_response,video_ids):
+def insert_videos(client, playlists_insert_response,video_id):
 	pl_id = playlists_insert_response['id']
 	#youtube = get_authenticated_service()
-	if len(video_ids) > 0:
-		for video_id in video_ids:
-			if 'http' in video_id or 'youtube.com' in video_id:
-				video_id = video_id.replace('https://youtube.com/watch?v=','')
-			playlist_items_insert(\
-						client, { 'snippet.playlistId': pl_id, 'snippet.resourceId.kind': 'youtube#video' \
-									, 'snippet.resourceId.videoId': video_id, 'snippet.position': '' \
-								}, part='snippet', onBehalfOfContentOwner='' \
-						)
+	if isinstance(video_id,str) and len(video_id) > 0:
+		responses = playlist_items_insert( \
+											client, { \
+														'snippet.playlistId': pl_id\
+														, 'snippet.resourceId.kind': 'youtube#video' \
+														, 'snippet.resourceId.videoId': video_id \
+													} \
+											, part='snippet' \
+										)
+		return responses
+	else:
+		return None
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

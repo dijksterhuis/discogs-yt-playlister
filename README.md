@@ -5,22 +5,24 @@ A Web App to generate private playlists on Youtube from the [discogs monthly dat
 ## Build Info - V1 (Python ETL)
 
 Basic premise:
-1. Download xml dump files
-2. Flatten xmls
-3. Load into Mongo DB instances
-4. Extract the necessary data from Mongo DBs into Redis query instances (this should really be API based!)
-5. Run a query on site - GET data request through RESTful APIs from Redis instances
-6. Store cache of query data (video urls) in redis
-7. Perform OAuth connection for User session to Youtube
-8. Send video urls to Youtube to create a provate playlist for user
 
-Originally this was meant to be prototyped with Redis, but I ended up having so much fun with it I fell into the Redis rabbit hole. For a final production version of the webapp, a SQL/Hadoop system needs to be implemented.
+1. Download xml dump files
+2. Load into Mongo DB instances
+3. Extract the necessary data from Mongo DBs into Redis query instances
+4. Redis instances accesible from webserver via static IP RESTful APIs
+5. Query data (video urls) cached in Redis (TODO - API)
+6. Webserver for Youtube OAuth2 per User session (TODO)
+7. RESTful API for Youtube API call to create a private playlist for User (TODO)
+
+Originally this was meant to be prototyped with Redis, but I ended up having so much fun with it I fell into the Redis rabbit hole. For a final production version of the webapp, a SQL/Hadoop system might want to be implemented.
 
 Redis performed MUCH faster than MongoDB on benchmark tests (redis circa 2 seconds with intersections in python between 3 redis dbs, MongoDB minimum 5 seconds, depending on size of query)
 
 TODOs:
+- Nginx serving flask app
+- Build query (intersections) on seperate RESTful API (docker network connected to Redis RESTful APIs)
 - Data is initially kept in mongo DB instances for redundancy purposes. This data dump files can be quite big. This may change in future (Added processing steps which don't otherwise add much use).
-- MongoDB APIs - single document (misc analysis) / full collection (redis load) queries
+- MongoDB APIs - single document (misc analysis) public RESTful APIs
 
 ### 1-discogs-dataget
 #### 1-downloads  - 0.0.5

@@ -1,17 +1,17 @@
 # general imports
 import json, os, datetime, time, redis, requests
+from random import randint
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 
 # site imports
 from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from werkzeug import generate_password_hash, check_password_hash
 
-
 # Google imports
 from youtube_playlist_gen import create_playlist, insert_videos
 import googleapiclient.discovery
 import google_auth_oauthlib.flow
-
+import google.oauth2.credentials
 
 #TODO import google.oauth2.credentials <<<<<- This breaks it?!
 
@@ -42,13 +42,16 @@ API_VERSION = 'v3'
 # --------------------------------------------------
 
 # reldate?
+BASE_API_URL = 'http://172.23.0.'
 TAGS = ['year','genre','style']
 API_URLS = { \
-				'unique_metadata' : 'http://172.23.0.6/unique_metadata' \
-				, 'ids_from_name' : 'http://172.23.0.3/get_ids_from_name' \
-				, 'ids_from_metadata' : 'http://172.23.0.5/ids_from_metadata' \
-				, 'video_urls' : 'http://172.23.0.4/video_urls' \
-				, 'video_query_cache' : None \
+				'unique_metadata' : BASE_API_URL+'6/unique_metadata' \
+				, 'ids_from_name' : BASE_API_URL+'3/get_ids_from_name' \
+				, 'ids_from_metadata' : BASE_API_URL+'5/ids_from_metadata' \
+				, 'video_urls' : BASE_API_URL+'4/video_urls' \
+				, 'video_query_cache' : BASE_API_URL+'7/video_query_cache' \
+				, 'video_query_cache_clear' : BASE_API_URL+'7/video_query_cache_clear' \
+				, 'max_query_id' : BASE_API_URL+'7/max_query_id' \
 			}
 
 # --------------------------------------------------
@@ -66,14 +69,27 @@ class timer:
 def list_of_sets(in_data):
 	return [set(i) for i in in_data if len(i) > 0]
 
-def api_get_requests(host_string, r_json):
+def api_get_requests(host_string, r_json=None):
 	api_call_headers = {"Content-Type": "application/json"}
-	r = requests.get( host_string , json = r_json , headers = api_call_headers)
+	if r_json != None:
+		r = requests.get( host_string , json = r_json , headers = api_call_headers)
+	else:
+		r = requests.get( host_string )
 	r_data = r.json()
 	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
-		output = json.loads(r.json())
+		output = json.loads(r_data)
 	else:
-		output = r.json()
+		output = r_data
+	return output
+
+def api_put_requests(host_string, r_json):
+	api_call_headers = {"Content-Type": "application/json"}
+	r = requests.put( host_string , json = r_json , headers = api_call_headers)
+	r_data = r.json()
+	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
+		output = json.loads(r_data)
+	else:
+		output = r_data
 	return output
 
 def redis_host(value):
@@ -85,16 +101,16 @@ def redis_host(value):
 
 @app.route('/home',methods=['GET'])
 def home():
-	if 'credentials' not in session:
-		return redirect('authorize')
+	if 'credentials' not in session: return redirect('authorize')
 	return redirect(url_for('/query_builder'))
+
 
 @app.route('/',methods=['GET','POST'])
 #@login_required
 #@subscription_required
 def query():
-	if 'session_id' not in session:
-		session['session_id'] = os.urandom(24)
+	
+	if 'credentials' not in session: return redirect('authorize')
 		
 	if request.method == 'GET':
 		print('GET',request)
@@ -116,7 +132,7 @@ def query():
 		
 		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
 		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
-		#label_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'label','name':release_name} )
+		#label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':release_name} )
 		master_ids_dict = api_get_requests(API_URLS['ids_from_metadata'], wide_query_dict )
 		
 		# ---- Calculate Query (TODO move off to a seperate API ?)
@@ -128,23 +144,26 @@ def query():
 		else:
 			to_intersect = [artist_ids,release_ids,set.intersection(*wide_query_sets)]
 		
-		master_ids = set.intersection( *list_of_sets(to_intersect) )
+		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
 		
 		# ---- Get video urls
 		
 		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': master_ids} )
-		
-		if len(all_links) == 0:
+		numb_links = len(all_links)
+		if numb_links == 0:
 			return render_template('/no-results.html')
-			
-		# ---- Add to redis cache
-		# TODO API logic
-		session_id = session['session_id']
-		redis_query_cache_adds = sum( [ redis_host('discogs-session-query-cache').sadd(session_id, \
-													link.replace('https://youtube.com/watch?v=','') ) for link in all_links ] )
-		redis_host('discogs-session-query-cache').expire(session_id,30*60)
 		
-		return render_template('/added.html',intersex=all_links,total_count=len(all_links))
+		# ---- Add to redis cache
+		
+		redis_query_cache_adds = api_put_requests( \
+													API_URLS['video_query_cache'] \
+													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
+												)
+		if 'numb_videos' not in session.keys():
+			session['numb_videos'] = numb_links
+		else:
+			session['numb_videos'] += numb_links
+		return render_template('/videos_added.html',intersex=all_links,total_count=numb_links)
 
 @app.route('/current_urls',methods=["GET"])
 def current_vids():
@@ -152,9 +171,11 @@ def current_vids():
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
-	if 'session_id' not in session:
-		session['session_id'] = os.urandom(24)
-		
+	
+	session['session_id'] = 'query:'+str(randint(0,1000))
+	
+	print(session['session_id'])
+	
 	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 	
 	# Create a flow instance to manage the OAuth 2.0 Authorization Grant Flow
@@ -209,33 +230,46 @@ def oauth2callback():
 								, 'scopes': credentials.scopes \
 							}
 									
-	return redirect(url_for('/query_builder'))
+	return redirect(url_for('query'))
 
-@app.route('/create_playlist',methods=['GET'])
+@app.route('/create_playlist',methods=['GET','POST'])
 def send_to_yt():
-	if 'session_id' not in session or 'credentials' not in session:
-		return redirect('authorize')
 	
-	title = request.form.get('playlist_title')
-	desc = request.form.get('playlist_desc')
+	if 'credentials' not in session: return redirect('authorize')
 	
-	#session_id = flask.session['session_id']
-	session_id = 1
-	
-	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
-	
-	# Load the credentials from the session.
-	#credentials = google.oauth2.credentials.Credentials(**session['credentials'])
-	
-	client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-	
-	r = redis_host('discogs-session-query-cache')
-	video_ids = list(r.smembers(session_id))
-	
-	playlist_result = create_playlist(client, title, desc)
-	for video_id in video_ids:
-		insert_videos(client, playlist_result , video_id)
-	return redirect(url_for('/home'))
+	if request.method == 'GET':
+		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+		return render_template('/playlist_details.html' , numb_videos = len(video_ids))
+		
+	if request.method == 'POST':
+		
+		title, desc = request.form.get('playlist_title'), request.form.get('playlist_desc')
+		
+		# https://developers.google.com/youtube/v3/quickstart/python#further_reading
+		
+		# Load the credentials from the session.
+		credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+		video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
+		playlist_result = create_playlist(client, title, desc)
+		
+		responses = dict()
+		for idx, video_id in enumerate(video_ids):
+			responses[str(idx)] = { 'video_id' : video_id }
+			try:
+				responses[str(idx)] = { 'video' : insert_videos(client, playlist_result , video_id ) }
+			except:
+				responses[str(idx)] = { 'video' : 'NOT ADDED' }
+				
+		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
+		#session.clear()
+		return render_template( '/playlist_added.html' \
+												, pl_title=title \
+												, pl_desc=desc \
+												, pl_resp=playlist_result \
+												, v_resp=responses \
+										)
 
 if __name__ == '__main__':
 	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'

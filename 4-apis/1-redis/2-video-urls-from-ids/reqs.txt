@@ -1,6 +1,0 @@
-flask
-requests
-redis
-werkzeug
-flask-httpauth
-webargs
