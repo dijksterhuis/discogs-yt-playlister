@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-
+<title>Discogs-YT-Playlister</title>
 <head>
   
 {% block head %}
@@ -140,6 +140,7 @@ a {color: lightblue}
 
 </style>
 
+<!--
 <link rel="apple-touch-icon" sizes="57x57" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-60x60.png">
 <link rel="apple-touch-icon" sizes="72x72" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-72x72.png">
@@ -157,12 +158,12 @@ a {color: lightblue}
 <meta name="msapplication-TileColor" content="#ffffff">
 <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
 <meta name="theme-color" content="#ffffff">
+-->
 
 </head>
 
 <body>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
   <!-- message flashing -->
   <div class="message_flashes">
     {% with messages = get_flashed_messages(["message"]) %}
@@ -179,24 +180,17 @@ a {color: lightblue}
   </div>
   
   <!-- main page div -->  
-=======
->>>>>>> parent of 426ce63... nginx, uswgi serving / message flashing / clean up
   <div class="container">
     <!-- child template -->
     {% block content %}{% endblock %}
-  <br>
+    <br>
+    
     <!-- errors -->
-<<<<<<< HEAD
     {% with errors = get_flashed_messages(category_filter=["error"]) %}
       {% if error %}
         <p class="error"><strong>Error:</strong> {{ error }}</p>
       {% endif %}
     {% endwith %}
-=======
-    {% if error %}
-    <p class="error"><strong>Error:</strong> {{ error }}</p>
-    {% endif %}
->>>>>>> parent of 426ce63... nginx, uswgi serving / message flashing / clean up
   </div>
   
 </body>
