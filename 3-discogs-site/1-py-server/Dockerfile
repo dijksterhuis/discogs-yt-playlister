@@ -16,5 +16,6 @@ COPY reqs.txt /home/
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
 EXPOSE 80
+EXPOSE 443
 ENTRYPOINT ["python"]
 CMD ["/home/site/main.py"]
