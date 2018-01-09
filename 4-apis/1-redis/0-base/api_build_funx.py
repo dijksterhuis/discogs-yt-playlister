@@ -183,17 +183,7 @@ def clear_video_ids_cache(session_id):
 		return make_response( ping_check, 500 )
 	
 	result = r.delete(session_id)
-	
-	return make_json_resp(result,200)
+	if result == 1: return make_json_resp( { 'session_id' : session_id, 'result' : 'CLEARED' } , 200 )
+	else: return make_json_resp( { 'session_id' : session_id, 'result' : 'NOT CLEARED' } , 200 )
 	
 def clear_video_ids_cache(session_id):
-
-	r = redis_host('discogs-session-query-cache')
-
-	ping_check = redis_conn_check(r)
-	if ping_check != True:
-		return make_response( ping_check, 500 )
-	keys = [k.lstrip('query:') for k in get_redis_keys(r)]
-	result = 'query:'+str(max(keys))
-
-	return make_json_resp(result,200)
