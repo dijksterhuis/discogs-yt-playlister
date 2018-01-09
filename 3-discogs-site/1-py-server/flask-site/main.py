@@ -234,8 +234,8 @@ def send_to_yt():
 	if 'credentials' not in session: return redirect('authorize')
 	
 	if request.method == 'GET':
-		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'] )
-		return render_template('/playlist_details.html', numb_videos = len(video_ids))
+		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+		return render_template('/playlist_details.html') , numb_videos = len(video_ids))
 		
 	if request.method == 'POST':
 		
