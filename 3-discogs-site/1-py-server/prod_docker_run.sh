@@ -11,6 +11,6 @@ docker run \
     -p 70:80 -p 443:443 \
     -w /home \
     --name $container_name \
-    $image_name":"$image_tag
+    $image_name":"$image_tag /bin/ash -c "python /app/main.py"
 
 docker network connect --ip=172.23.0.2 $api_net $container_name
