@@ -11,6 +11,3 @@ COPY reqs.txt /home/
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
 EXPOSE 80
-EXPOSE 443
-ENV LISTEN_PORT 443
-RUN export OAUTHLIB_INSECURE_TRANSPORT=1
