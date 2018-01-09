@@ -8,19 +8,19 @@
     <fieldset id="searches">
       <table>
         <tr>
-          <td align="right">Max Videos to Return </td>
+          <td align="right">Max Videos to Return - </td>
           <td align="left"><input type="number" name="query:max_results"></td>
         </tr>
         <tr>
-          <td align="right">Artist Name </td>
+          <td align="right">Artist Name - </td>
           <td align="left"><input type="search" name="search:artist_name"></td>
         </tr>
         <tr>
-          <td align="right">Release Name </td>
+          <td align="right">Release Name - </td>
           <td align="left"><input type="search" name="search:release_name"></td>
         </tr>
         <tr>
-          <td align="right">Label Name  </p>
+          <td align="right">Label Name - </p>
           <td align="left"><input type="search" name="search:label_name"></td>
         </tr>
       </table>
@@ -39,19 +39,19 @@
     <br>
 -->
     <fieldset id="selections">
-      <select multiple id="Years" name="query:year" size="20" style="width: 200px">
+      <select multiple id="Years" name="query:year" size="20" style="width: 30%">
         {% for year in years %}
          <option value="{{year}}">{{year}}</option>
         {% endfor %}
       </select> 
   
-      <select multiple id="Genres" name="query:genre" size="20" style="width: 200px">
+      <select multiple id="Genres" name="query:genre" size="20" style="width: 30%">
         {% for genre in genres %}
          <option value="{{genre}}">{{genre}}</option>
         {% endfor %}
       </select>
   
-      <select multiple id="Styles" name="query:style" size="20" style="width: 200px">
+      <select multiple id="Styles" name="query:style" size="20" style="width: 30%">
         {% for style in styles %}
          <option value="{{style}}">{{style}}</option>
         {% endfor %}
