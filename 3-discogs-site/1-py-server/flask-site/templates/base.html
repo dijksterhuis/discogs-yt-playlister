@@ -44,11 +44,13 @@ h4 {color: white;}
 p  {color: white;}
 li {color: white;}
 
-table {color: white;}
+table {color: white; width: 100%;}
 td{ color: white ; padding: 2px 15px;}
 td{ color: white ; padding: 2px 15px;}
 
 div[id=form_input] { height: 100%; width: 100%;}
+
+div[id=message_flashes] { width: 100%; margin: 10px; }
 
 input { 
     text-align: center ; background-color: LightGray; color: black ; border-radius: 1px ; border-style: hidden; 
@@ -190,8 +192,10 @@ a {color: lightblue}
     {% with messages = get_flashed_messages(["message"]) %}
       {% if messages %}
         <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
+          {% for category, message in messages %}
+            {% if category == 'message' %}
+              <p>{{ message }}</p>
+            {% endif %}
         {% endfor %}
         </ul>
       {% endif %}
