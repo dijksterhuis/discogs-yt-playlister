@@ -320,7 +320,7 @@ def send_to_yt():
 								))
 
 
-@app.route('/playlist_added',methods=['GET'])
+@app.route('/playlist_added/<playlist_title/<playlist_id>/<first_video>',methods=['GET'])
 def playlist_added(playlist_title,playlist_id,first_video):
 	return render_template('/playlist_added.html' \
 									, pl_title=playlist_title\
