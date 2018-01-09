@@ -8,8 +8,8 @@ docker stop $container_name
 docker rm $container_name
 
 docker run \
-    -di --restart=always \
-    -p 70:80 -p 127.0.0.1:9191:9191 \
+    -it --restart=always \
+    -p 75:80 -p 127.0.0.1:9191:9191 \
     -w /home \
     --name $container_name \
     $image_name":"$image_tag
