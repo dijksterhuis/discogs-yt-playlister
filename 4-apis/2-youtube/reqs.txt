@@ -1,8 +1,7 @@
 flask
-uwsgi
-requests
-redis
 werkzeug
+flask-httpauth
+webargs
 google-api-python-client
 httplib2
 google-auth-httplib2

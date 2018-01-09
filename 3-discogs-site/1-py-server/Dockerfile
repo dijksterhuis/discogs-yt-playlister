@@ -10,11 +10,12 @@ RUN mkdir /home/data/
 COPY flask-site/ /home/site/
 WORKDIR /home
 RUN apk update ; apk add wget unzip
-#RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O /home/ngrok-stable-linux-amd64.zip
-#RUN unzip ./ngrok-stable-linux-amd64.zip
 COPY reqs.txt /home/
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
+# https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html#deploying-flask
 EXPOSE 80
-ENTRYPOINT ["python"]
-CMD ["/home/site/main.py"]
+EXPOSE 3031
+EXPOSE 9191
+ENTRYPOINT ["uwsgi"]
+CMD ["--socket 127.0.0.1:3031 --wsgi-file /home/site/main.py --callable app --processes 4 --threads 2 --stats 127.0.0.1:9191"]

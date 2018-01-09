@@ -1,5 +1,5 @@
 # general imports
-import json, os, datetime, time, redis, requests
+import json, os, datetime, time, requests
 from random import randint
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 
@@ -92,31 +92,41 @@ def api_put_requests(host_string, r_json):
 		output = r_data
 	return output
 
-def redis_host(value):
-	return redis.Redis(host=value,port=6379)
+def api_post(host_string, r_json):
+	api_call_headers = {"Content-Type": "application/json"}
+	r = requests.post( host_string , json = r_json , headers = api_call_headers)
+	return True
+
 
 # --------------------------------------------------
 # server logic
 # --------------------------------------------------
 
-@app.route('/home',methods=['GET'])
+@app.route('/welcome',methods=['GET'])
 def home():
-	if 'credentials' not in session: return redirect('authorize')
-	return redirect(url_for('/query_builder'))
+	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
+	video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+	return render_template('/videos_added.html'\
+									, intersex=video_ids \
+									, latest_count=len(video_ids) \
+									, total_count=session['numb_videos'] \
+							)
 
 
-@app.route('/',methods=['GET','POST'])
+@app.route('/query_builder',methods=['GET','POST'])
 #@login_required
 #@subscription_required
-def query():
+def query_builder():
 	
-	if 'credentials' not in session: return redirect('authorize')
-		
+	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
+	
 	if request.method == 'GET':
-		print('GET',request)
-		
 		uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], {'tag':tag} ) for tag in TAGS }
-		return render_template('/query-form.html',years=uniq_params['year'],genres=uniq_params['genre'],styles=uniq_params['style'])
+		return render_template('/query-form.html' \
+										, years=uniq_params['year'] \
+										, genres=uniq_params['genre'] \
+										, styles=uniq_params['style'] \
+								)
 	
 	elif request.method == 'POST':
 		print('POST',request)
@@ -128,12 +138,16 @@ def query():
 		release_name = request.form.get('search:release_name', type=str, default='')
 		label_name = request.form.get('search:label_name', type=str, default='')
 		
+		flash('Got your query...','message')
+		
 		# ---- Get master IDs from APIs
 		
 		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
 		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
 		#label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':release_name} )
 		master_ids_dict = api_get_requests(API_URLS['ids_from_metadata'], wide_query_dict )
+		
+		flash('Got the master release IDs...','message')
 		
 		# ---- Calculate Query (TODO move off to a seperate API ?)
 		
@@ -146,12 +160,25 @@ def query():
 		
 		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
 		
+		flash('Aggregated the master release IDs...','message')
+		
+		if len(master_ids) == 0: return render_template('/no-results.html')
+		
 		# ---- Get video urls
 		
 		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': master_ids} )
 		numb_links = len(all_links)
-		if numb_links == 0:
-			return render_template('/no-results.html')
+		
+		flash('Got '+str(numb_links)+' video links...','message')
+		
+		if numb_links > 400:
+			flash('Too many videos in query... There were '+str(numb_links)+'. Limit is 400.','message')
+			return redirect('query_builder')
+		
+		if numb_links == 0: return render_template('/no-results.html')
+		
+		if 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
+		else: session['numb_videos'] += numb_links
 		
 		# ---- Add to redis cache
 		
@@ -159,15 +186,26 @@ def query():
 													API_URLS['video_query_cache'] \
 													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
 												)
-		if 'numb_videos' not in session.keys():
-			session['numb_videos'] = numb_links
-		else:
-			session['numb_videos'] += numb_links
-		return render_template('/videos_added.html',intersex=all_links,total_count=numb_links)
+		
+		flash('Query results saved...','message')
+		
+		return render_template('/videos_added.html'\
+										, intersex=all_links \
+										, latest_count=numb_links \
+										, total_count=session['numb_videos'] \
+								)
 
 @app.route('/current_urls',methods=["GET"])
 def current_vids():
-	return redirect(url_for('/query_builder'))
+	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
+	
+	video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+	
+	return render_template('/videos_added.html'\
+									, intersex=video_ids \
+									, latest_count=len(video_ids) \
+									, total_count=session['numb_videos'] \
+							)
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
@@ -230,48 +268,72 @@ def oauth2callback():
 								, 'scopes': credentials.scopes \
 							}
 									
-	return redirect(url_for('query'))
+	return redirect(url_for('query_builder'))
 
 @app.route('/create_playlist',methods=['GET','POST'])
 def send_to_yt():
 	
-	if 'credentials' not in session: return redirect('authorize')
+	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
 	
 	if request.method == 'GET':
 		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
-		return render_template('/playlist_details.html' , numb_videos = len(video_ids))
+		return render_template('/playlist_details.html' \
+										, numb_videos = len(video_ids)\
+								)
 		
 	if request.method == 'POST':
 		
-		title, desc = request.form.get('playlist_title'), request.form.get('playlist_desc')
+		flash('Building youtube playlist...','message')
+		
+		title, desc = request.form.get('playlist_title'), request.form.get('playlist_desc')+'\n\nGenereated with the discogs-yt-playlister'
 		
 		# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 		
-		# Load the credentials from the session.
+		# ---- Load the credentials from the session.
+		
 		credentials = google.oauth2.credentials.Credentials(**session['credentials'])
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+		
 		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
 		video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
+		
+		flash('Got your videos...','message')
+		
+		# ---- create a playlist
+		
 		playlist_result = create_playlist(client, title, desc)
 		
-		responses = dict()
-		for idx, video_id in enumerate(video_ids):
-			responses[str(idx)] = { 'video_id' : video_id }
-			try:
-				responses[str(idx)] = { 'video' : insert_videos(client, playlist_result , video_id ) }
-			except:
-				responses[str(idx)] = { 'video' : 'NOT ADDED' }
-				
+		flash('Created playlist...','message')
+		
+		# ---- add the videos
+		# - TODO move off to a seperate API (big queries results page times out)
+		
+		video_result = [ insert_videos(client, playlist_result , video_id ) for video_id in video_ids ]
+		
+		flash('Sent off videos...','message')
+		
 		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
 		#session.clear()
 		
 		# wait 5 seconds so youtube updates...
 		
-		time.sleep(5)
+		time.sleep(2)
 		
-		return render_template( '/playlist_added.html' \
-										, pl_title=title, pl_desc=desc, pl_link=playlist_result['id'], first_vid=video_ids[0] )
+		return redirect( url_for('playlist_added/' \
+										, playlist_title=str(title) \
+										, playlist_id=str(playlist_result['id']) \
+										, first_video=str(video_ids[0]) \
+								))
 
+
+@app.route('/playlist_added',methods=['GET'])
+def playlist_added(playlist_title,playlist_id,first_video):
+	return render_template('/playlist_added.html' \
+									, pl_title=playlist_title\
+									, pl_link=playlist_id\
+									, first_vid=first_video \
+							)
+	
 if __name__ == '__main__':
 	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 	app.run(host='0.0.0.0',debug=True,port=80)
