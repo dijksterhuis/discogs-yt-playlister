@@ -39,23 +39,31 @@
     <br>
 -->
     <fieldset id="selections">
-      <select multiple id="Years" name="query:year" size="20" style="width: 30%">
-        {% for year in years %}
-         <option value="{{year}}">{{year}}</option>
-        {% endfor %}
-      </select> 
-  
-      <select multiple id="Genres" name="query:genre" size="20" style="width: 30%">
-        {% for genre in genres %}
-         <option value="{{genre}}">{{genre}}</option>
-        {% endfor %}
-      </select>
-  
-      <select multiple id="Styles" name="query:style" size="20" style="width: 30%">
-        {% for style in styles %}
-         <option value="{{style}}">{{style}}</option>
-        {% endfor %}
-      </select>
+      <table>
+        <tr>
+          <td>
+            <select multiple id="Years" name="query:year" size="20" style="width: 20%">
+              {% for year in years %}
+                <option value="{{year}}">{{year}}</option>
+              {% endfor %}
+            </select>
+          </td>  
+          <td>
+            <select multiple id="Genres" name="query:genre" size="20" style="width: 20%">
+              {% for genre in genres %}
+                <option value="{{genre}}">{{genre}}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
+            <select multiple id="Styles" name="query:style" size="20" style="width: 20%">
+              {% for style in styles %}
+                <option value="{{style}}">{{style}}</option>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+      </table>
     </fieldset>
   <input class="btn btn-default" type="submit" value="Get Results">
   <input class="btn btn-default" type="reset" value="Reset">
