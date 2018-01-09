@@ -24,6 +24,18 @@
 
 <style>
 
+#navmenu ul 
+{
+  background: grey; 
+  margin: 10px; 
+  padding: 10px; 
+	list-style-type: none;
+  list-style-image: none; 
+}
+#navmenu li {display: inline; padding: 10px 75px 5px 20px}
+#navmenu a {text-decoration:none; color: white; }
+#navmenu a:hover {color: orange;}
+
 body {background-color: rgb(20,20,20);}
 h1 {color: white;}
 h2 {color: white;}
@@ -164,6 +176,15 @@ a {color: lightblue}
 
 <body>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- navigation menu -->  
+  <div id="navmenu">
+      <ul>
+        {% for link in nav_links %}
+      	<li><a href="{{nav_links[link]}}">{{link}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  
   <!-- message flashing -->
   <div class="message_flashes">
     {% with messages = get_flashed_messages(["message"]) %}
