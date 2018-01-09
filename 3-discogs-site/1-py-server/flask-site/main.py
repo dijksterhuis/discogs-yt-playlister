@@ -249,25 +249,26 @@ def send_to_yt():
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 		print(client)
 		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+		video_ids = [ video.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
+		print(video_ids)
 		playlist_result = create_playlist(client, title, desc)
 		print(playlist_result)
-		responses = [ \
-						insert_videos(\
-										client\
-										, playlist_result\
-										, video_id.lstrip('https://www.youtube.com/watch?v=')\
-									) for video_id in video_ids \
-								]
-						
+		responses = dict()
+		for idx, video_id in enumerate(video_ids):
+			responses['index'] = idx
+			responses['video_id'] = video_id
+			try:
+				responses['video'] = insert_videos(client, playlist_result , video_id )
+			except:
+				responses['video'] = 'NOT ADDED'
 		print(reponses)
 		clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
 		session.clear()
-		return render_template( '/added.html' \
+		return render_template( '/playlist_added.html' \
 												, pl_title=title \
 												, pl_desc=desc \
 												, pl_resp=playlist_result \
 												, v_resp=responses \
-												, v_add=len(responses)\
 										)
 
 if __name__ == '__main__':
