@@ -38,7 +38,6 @@ def vid_cache_add(args):
 	print('request time taken', req_time.time_taken() )
 	return result
 
-
 @app.route('/video_query_cache_clear', methods=['GET'])
 @use_args(V_CACHE_ARGS,locations=('json', 'form'))
 def vid_cache_clear(args):

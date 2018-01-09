@@ -161,7 +161,7 @@ def put_video_ids_cache(session_id,video_ids_list):
 	redis_host('discogs-session-query-cache').expire(session_id,30*60)
 	
 	return make_json_resp(result,200)
-	
+
 def get_video_ids_cache(session_id):
 	
 	r = redis_host('discogs-session-query-cache')
@@ -183,8 +183,10 @@ def clear_video_ids_cache(session_id):
 		return make_response( ping_check, 500 )
 	
 	result = r.delete(session_id)
-	if result == 1: return make_json_resp( { 'session_id' : session_id, 'result' : 'CLEARED' } , 200 )
-	else: return make_json_resp( { 'session_id' : session_id, 'result' : 'NOT CLEARED' } , 200 )
+	if result == 1:
+		return make_json_resp( { 'session_id' : session_id, 'result' : 'CLEARED' } , 200 )
+	else:
+		return make_json_resp( { 'session_id' : session_id, 'result' : 'NOT CLEARED' } , 200 )
 
 def max_query_id():
 	
