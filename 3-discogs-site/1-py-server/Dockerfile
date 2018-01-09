@@ -10,7 +10,7 @@ WORKDIR /home
 COPY reqs.txt /home/
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
-RUN apt-get install -y python-certbot-nginx
+RUN apt-get update ; apt-get install -y python-certbot-nginx
 RUN certbot --nginx
 EXPOSE 80
 EXPOSE 443
