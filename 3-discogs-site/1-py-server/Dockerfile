@@ -10,6 +10,8 @@ WORKDIR /home
 COPY reqs.txt /home/
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
+RUN apt-get install -y python-certbot-nginx -t stretch-backports
+RUN certbot --nginx
 EXPOSE 80
 EXPOSE 443
 ENV LISTEN_PORT 443
