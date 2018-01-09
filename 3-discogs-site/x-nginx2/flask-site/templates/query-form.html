@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Please try a query</h2>
+<br>
+<div id="form_input">
+  <form style="height: 100%; width: 100%" method="POST" accept-charset="UTF-8">
+    <fieldset id="searches">
+      <table>
+        <tr>
+          <td align="right">Max Videos to Return </td>
+          <td align="left"><input type="number" name="query:max_results"></td>
+        </tr>
+        <tr>
+          <td align="right">Artist Name </td>
+          <td align="left"><input type="search" name="search:artist_name"></td>
+        </tr>
+        <tr>
+          <td align="right">Release Name </td>
+          <td align="left"><input type="search" name="search:release_name"></td>
+        </tr>
+        <tr>
+          <td align="right">Label Name  </p>
+          <td align="left"><input type="search" name="search:label_name"></td>
+        </tr>
+      </table>
+    </fieldset>
+    <br>
+<!--
+    <fieldset id="andors">
+      <p>Perform an 'AND' or 'OR' on text search parameters ?</p>
+      <table>
+        <tr>
+          <td><input type="radio" name="andors" value="AND" checked>AND</td>
+          <td><input type="radio" name="andors" value="OR" checked>OR</td>
+        </tr>
+      </table>
+    </fieldset>
+    <br>
+-->
+    <fieldset id="selections">
+      <select multiple id="Years" name="query:year" size="20" style="width: 100px">
+        {% for year in years %}
+         <option value="{{year}}">{{year}}</option>
+        {% endfor %}
+      </select> 
+  
+      <select multiple id="Genres" name="query:genre" size="20" style="width: 200px">
+        {% for genre in genres %}
+         <option value="{{genre}}">{{genre}}</option>
+        {% endfor %}
+      </select>
+  
+      <select multiple id="Styles" name="query:style" size="20" style="width: 300px">
+        {% for style in styles %}
+         <option value="{{style}}">{{style}}</option>
+        {% endfor %}
+      </select>
+    </fieldset>
+  <input class="btn btn-default" type="submit" value="Get Results">
+  <input class="btn btn-default" type="reset" value="Reset">
+  </form>
+</div>
+
+{% endblock %}
