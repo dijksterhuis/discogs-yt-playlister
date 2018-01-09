@@ -48,6 +48,7 @@
     <br>
 -->
     <fieldset id="selections">
+      
       <table>
         <col valign="center" align="center" style="width : 33%;">
         <col valign="center" align="center" style="width : 33%;">
@@ -58,29 +59,32 @@
           <th align="center">Style</th>
         </tr>
         <tr>
-          <td align="center" style="width:100%;">
+          <td align="center" style="width:33%;">
             <select multiple id="Years" name="query:year" size="20">
               {% for year in years %}
                 <option value="{{year}}">{{year}}</option>
               {% endfor %}
             </select>
           </td>
-          <td align="center" style="width:100%;">
+          <td align="center" style="width:33%;">
             <select multiple id="Genres" name="query:genre" size="20">
               {% for genre in genres %}
                 <option value="{{genre}}">{{genre}}</option>
               {% endfor %}
             </select>
           </td>
-          <td align="center" style="width:100%;">
+          <td align="center" style="width:33%;">
+
             <select multiple id="Styles" name="query:style" size="20">
               {% for style in styles %}
                 <option value="{{style}}">{{style}}</option>
               {% endfor %}
             </select>
+
           </td>
         </tr>
       </table>
+      
     </fieldset>
   </form>
 </div>
