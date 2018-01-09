@@ -7,7 +7,7 @@ docker stop $container_name
 docker rm $container_name
 
 docker run \
-    -it --restart=always \
+    -di --restart=always \
     -p 70:80 -p 443:443 \
     -w /home \
     --name $container_name \
