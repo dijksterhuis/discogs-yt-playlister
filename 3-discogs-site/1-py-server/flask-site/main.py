@@ -314,9 +314,9 @@ def send_to_yt():
 		time.sleep(2)
 		
 		return render_template('/playlist_added.html' \
-										, pl_title=playlist_title\
-										, pl_link=playlist_id\
-										, first_vid=first_video \
+										, pl_title=title \
+										, pl_link=playlist_result['id']\
+										, first_vid=video_ids[0] \
 								)
 	
 if __name__ == '__main__':
