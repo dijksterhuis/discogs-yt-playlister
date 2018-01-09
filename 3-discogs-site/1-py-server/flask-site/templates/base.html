@@ -185,9 +185,10 @@ a {color: lightblue}
     
     <!-- errors -->
     {% with errors = get_flashed_messages(category_filter=["error"]) %}
-    {% if error %}
-    <p class="error"><strong>Error:</strong> {{ error }}</p>
-    {% endif %}
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+      {% endif %}
+    {% endwith %}
   </div>
   
 </body>
