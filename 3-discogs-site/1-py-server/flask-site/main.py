@@ -231,7 +231,7 @@ def send_to_yt():
 	if 'session_id' not in session: return redirect('query')
 	
 	if request.method == 'GET':
-		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'])
+		video_ids = api_get_requests(API_URLS['video_query_cache'], str(session['session_id']) )
 		return render_template('/playlist_details.html', numb_videos = len(video_ids))
 		
 	if request.method == 'POST':
@@ -242,12 +242,13 @@ def send_to_yt():
 		
 		# Load the credentials from the session.
 		credentials = google.oauth2.credentials.Credentials(**session['credentials'])
-		
+		print(credentials)
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+		print(client)
 		video_ids = api_get_requests(API_URLS['video_query_cache'], str(session['session_id']))
 		playlist_result = create_playlist(client, title, desc)
+		print(playlist_result)
 		responses = [ insert_videos(client, playlist_result , video_id) for video_id in video_ids ]
-		
 		print(reponses)
 		
 		return render_template( '/added.html' \
