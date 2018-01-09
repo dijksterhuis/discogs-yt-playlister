@@ -73,15 +73,17 @@ TODO:
 
 ### 3-discogs-site
 All code for serving the site
+
+TODOs:
+- Build query (intersections) on seperate RESTful API
+- Nginx + uwsgi server (SSL/HTTPS currently breaks the oauth flow)
+
 #### 1-py-serving
 Flask server that handles the query building & api logic
 
 #### x-nginx
 TODO Nginx + uwsgi server
 
-TODOs:
-- Build query (intersections) on seperate RESTful API
-- Nginx + uwsgi server (SSL/HTTPS currently breaks the oauth flow)
 
 ### 4-apis
 RESTful APIs the webserver connects to Redis instances through
