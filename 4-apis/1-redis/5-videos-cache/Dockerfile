@@ -1,4 +1,4 @@
-FROM discogs-flask-redis-api:base
+FROM dijksterhuis/discogs-flask-redis-api:base
 LABEL author="michael robeson (Dijksterhuis)" \
       project="discogs playlister" \
       name="discogs-flask-redis-api" \
