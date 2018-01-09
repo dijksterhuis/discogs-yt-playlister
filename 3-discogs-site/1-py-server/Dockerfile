@@ -1,4 +1,4 @@
-FROM python:debian
+FROM python:3-slim-jessie
 LABEL author="michael robeson (Dijksterhuis)" \
       project="discogs playlister" \
       name="discogs-flask-server" \
