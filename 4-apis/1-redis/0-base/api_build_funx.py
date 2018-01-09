@@ -157,7 +157,7 @@ def put_video_ids_cache(session_id,video_ids_list):
 	if ping_check != True:
 		return make_response( ping_check, 500 )
 	
-	result = sum([r.sadd(session_id, video.replace('https://youtube.com/watch?v=','') ) for video in video_ids_list ])
+	result = sum([r.sadd(session_id, video.replace('https://www.youtube.com/watch?v=','') ) for video in video_ids_list ])
 	redis_host('discogs-session-query-cache').expire(session_id,30*60)
 	
 	return make_json_resp(result,200)

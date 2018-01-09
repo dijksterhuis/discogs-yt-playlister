@@ -51,6 +51,7 @@ API_URLS = { \
 				, 'video_urls' : BASE_API_URL+'4/video_urls' \
 				, 'video_query_cache' : BASE_API_URL+'7/video_query_cache' \
 				, 'video_query_cache_clear' : BASE_API_URL+'7/video_query_cache_clear' \
+				, 'max_query_id' : BASE_API_URL+'7/max_query_id' \
 			}
 
 # --------------------------------------------------
@@ -68,9 +69,12 @@ class timer:
 def list_of_sets(in_data):
 	return [set(i) for i in in_data if len(i) > 0]
 
-def api_get_requests(host_string, r_json):
+def api_get_requests(host_string, r_json=None):
 	api_call_headers = {"Content-Type": "application/json"}
-	r = requests.get( host_string , json = r_json , headers = api_call_headers)
+	if r_json != None:
+		r = requests.get( host_string , json = r_json , headers = api_call_headers)
+	else:
+		r = requests.get( host_string )
 	r_data = r.json()
 	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
 		output = json.loads(r_data)
@@ -81,12 +85,12 @@ def api_get_requests(host_string, r_json):
 def api_put_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
 	r = requests.put( host_string , json = r_json , headers = api_call_headers)
-	#r_data = r.json()
-	#if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
-	#	output = json.loads(r_data)
-	#else:
-	#	output = r_data
-	#return output
+	r_data = r.json()
+	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
+		output = json.loads(r_data)
+	else:
+		output = r_data
+	return output
 
 def redis_host(value):
 	return redis.Redis(host=value,port=6379)

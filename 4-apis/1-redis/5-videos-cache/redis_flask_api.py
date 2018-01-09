@@ -28,7 +28,7 @@ def alive():
 
 @app.route('/video_query_cache', methods=['GET','PUT'])
 @use_args(V_CACHE_ARGS,locations=('json', 'form'))
-def vid_cache(args):
+def vid_cache_add(args):
 	req_time = timer()
 	print(args)
 	if request.method == 'GET':
@@ -41,20 +41,19 @@ def vid_cache(args):
 
 @app.route('/video_query_cache_clear', methods=['GET'])
 @use_args(CLEAR_V_CACHE_ARGS,locations=('json', 'form'))
-def vid_cache(args):
+def vid_cache_clear(args):
 	req_time = timer()
 	print(args)
 	result = clear_video_ids_cache(args['session_id'])
 	print('request time taken', req_time.time_taken() )
-	return result.encode('utf-8')
+	return result
 
 @app.route('/max_query_id', methods=['GET'])
-def vid_cache():
+def vid_cache_max():
 	req_time = timer()
 	result = max_query_id()
 	print('request time taken', req_time.time_taken() )
-	return result.encode('utf-8')
-
+	return result
 
 if __name__ == '__main__':
 	#app.run(host='0.0.0.0',port=5000,debug=True)
