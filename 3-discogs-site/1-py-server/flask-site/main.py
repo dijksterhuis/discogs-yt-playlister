@@ -81,12 +81,12 @@ def api_get_requests(host_string, r_json):
 def api_put_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
 	r = requests.put( host_string , json = r_json , headers = api_call_headers)
-	r_data = r.json()
-	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
-		output = json.loads(r.json())
-	else:
-		output = r.json()
-	return output
+	#r_data = r.json()
+	#if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
+	#	output = json.loads(r.json())
+	#else:
+	#	output = r.text
+	#return output
 
 def redis_host(value):
 	return redis.Redis(host=value,port=6379)
@@ -97,14 +97,15 @@ def redis_host(value):
 
 @app.route('/home',methods=['GET'])
 def home():
-	if 'credentials' not in session:
-		return redirect('authorize')
+	if 'credentials' not in session: return redirect('authorize')
 	return redirect(url_for('/query_builder'))
 
 @app.route('/',methods=['GET','POST'])
 #@login_required
 #@subscription_required
 def query():
+	
+	if 'credentials' not in session: return redirect('authorize')
 	
 	with open('tmp.txt','a+') as f:
 		f.write(str(session))
@@ -230,7 +231,6 @@ def oauth2callback():
 def send_to_yt():
 	
 	if 'credentials' not in session: return redirect('authorize')
-	if 'session_id' not in session: return redirect('query')
 	
 	if request.method == 'GET':
 		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'] )
