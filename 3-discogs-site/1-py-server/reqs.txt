@@ -1,4 +1,5 @@
 flask
+uwsgi
 requests
 redis
 werkzeug
