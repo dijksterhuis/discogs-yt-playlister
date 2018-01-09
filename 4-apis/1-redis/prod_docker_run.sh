@@ -35,9 +35,8 @@ function bring_up_container {
             echo $container_name' connected to networks '$api_net' & '$redis_site_net'.' ; \
     fi
     
-
-    echo $container_name' UP.'
     
+    echo $container_name' UP.'
     ip_suffix=$(($ip_suffix+1))
 }
 
