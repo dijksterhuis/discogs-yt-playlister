@@ -104,6 +104,7 @@ def home():
 	if 'credentials' not in session: return redirect('authorize')
 	return redirect(url_for('/query_builder'))
 
+
 @app.route('/',methods=['GET','POST'])
 #@login_required
 #@subscription_required
@@ -148,8 +149,8 @@ def query():
 		# ---- Get video urls
 		
 		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': master_ids} )
-		print(all_links)
-		if len(all_links) == 0:
+		numb_links = len(all_links)
+		if numb_links == 0:
 			return render_template('/no-results.html')
 		
 		# ---- Add to redis cache
@@ -158,8 +159,11 @@ def query():
 													API_URLS['video_query_cache'] \
 													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
 												)
-		
-		return render_template('/added.html',intersex=all_links,total_count=len(all_links))
+		if 'numb_videos' not in session.keys():
+			session['numb_videos'] = numb_links
+		else:
+			session['numb_videos'] += numb_links
+		return render_template('/videos_added.html',intersex=all_links,total_count=numb_links)
 
 @app.route('/current_urls',methods=["GET"])
 def current_vids():
@@ -245,14 +249,11 @@ def send_to_yt():
 		
 		# Load the credentials from the session.
 		credentials = google.oauth2.credentials.Credentials(**session['credentials'])
-		print(credentials)
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-		print(client)
 		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
 		video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
-		print(video_ids)
 		playlist_result = create_playlist(client, title, desc)
-		print(playlist_result)
+		
 		responses = dict()
 		for idx, video_id in enumerate(video_ids):
 			responses[str(idx)] = { 'video_id' : video_id }
@@ -260,7 +261,7 @@ def send_to_yt():
 				responses[str(idx)] = { 'video' : insert_videos(client, playlist_result , video_id ) }
 			except:
 				responses[str(idx)] = { 'video' : 'NOT ADDED' }
-		print(responses)
+				
 		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
 		#session.clear()
 		return render_template( '/playlist_added.html' \
