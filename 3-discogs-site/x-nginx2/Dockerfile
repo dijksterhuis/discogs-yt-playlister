@@ -13,4 +13,4 @@ COPY discogs-yt-playlister /etc/nginx/sites-enabled/discogs-yt-playlister/
 COPY discogs-yt-playlister.conf /etc/supervisor/conf.d/
 COPY start.sh /
 WORKDIR /app
-CMD ['start.sh']
+ENTRYPOINT ['start.sh']
