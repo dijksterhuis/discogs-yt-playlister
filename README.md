@@ -2,6 +2,8 @@
 
 A Web App to generate private playlists on Youtube from the [discogs monthly data dumps](http://data.discogs.com/).
 
+Go here to try it out: [http://bec48fd6.ngrok.io/](http://bec48fd6.ngrok.io/)
+
 ## Build Info - V1 (Python ETL)
 
 Basic premise:
@@ -10,28 +12,21 @@ Basic premise:
 2. Load into Mongo DB instances
 3. Extract the necessary data from Mongo DBs into Redis query instances
 4. Redis instances accesible from webserver via static IP RESTful APIs
-5. Query data (video urls) cached in Redis (TODO - API)
-6. Webserver for Youtube OAuth2 per User session (TODO)
+5. Query data (video urls) cached in Redis
+6. Webserver for Youtube OAuth2 per User session
 7. RESTful API for Youtube API call to create a private playlist for User (TODO)
+8. Nginx and uwsgi serving the flask application (TODO - lack of SSL / HTTPS breaks the oauth flow)
 
 Originally this was meant to be prototyped with Redis, but I ended up having so much fun with it I fell into the Redis rabbit hole. For a final production version of the webapp, a SQL/Hadoop system might want to be implemented.
 
-Redis performed MUCH faster than MongoDB on benchmark tests (redis circa 2 seconds with intersections in python between 3 redis dbs, MongoDB minimum 5 seconds, depending on size of query)
-
-TODOs:
-- Nginx serving flask app
-- Build query (intersections) on seperate RESTful API (docker network connected to Redis RESTful APIs)
+General TODOs:
 - Data is initially kept in mongo DB instances for redundancy purposes. This data dump files can be quite big. This may change in future (Added processing steps which don't otherwise add much use).
-- MongoDB APIs - single document (misc analysis) public RESTful APIs
+- Jenkins CI
 
 ### 1-discogs-dataget
 #### 1-downloads  - 0.0.5
-- Only needs to run once a month to get new files (DB exports uplaoded monthly - usually 1st of month)
-- Does the following actions:
-  - Curls the required files (uploaded in a `"discogs_"$yearmonth"01_"$filename".xml.gz"` format) from discogs data dump site
-  - Pipe curl output to gzip
-  - Write xml to disk (docker volume `discogs-db-xmls`)
-- Dockerfile has a CMD command as of version 0.0.5
+Curls the required files, pipes output to gzip, writes xml to disk (docker volume `discogs-db-xmls`). Only needs to run once a month to get new files (DB exports uplaoded monthly - usually 1st of month).
+
 
 TODOs:
 - `download_xmls.sh`: What if the data is not uploaded on the 01 of the month? It isn't always!
@@ -60,127 +55,39 @@ TODOs:
 None! Yay!
 
 #### 2-xmls2mongo
-- Take the files from `discogs-db-xmls`
-- Parses xmls with `xmltodict` python library
-- Loads each document (entity) using `pymongo` import
-- Lots of ETL going on here - flattening the nested dictionaries & renaming keys mostly
-- `docker_run.sh` file is set up with a `CMD` so is executable
+Take the files from `discogs-db-xmls`, parse with `xmltodict` & load each document into seperate mongo instances per discogs file
 
 TODOs:
-- `Dockerfile`: Create an entrypoint so can test different ETL scripts 
-- `Dockerfile`: Docker `build-then-run.sh` script so don't have to keep changing this file - how to do version number? Jenkins?
-- `mongo_ETL.py`: Database name should be something relevant to file's date information e.g. `179` for `20170901`
-  - How would this be accessed by things like the redis-loads?
-- `mongo_ETL.py`: Data files don't necessarily upload on `01` of month.
-  - input: `/home/xmls/discogs_20170901_masters.xml`
-  - expected output: `masters`
-  - line affected: `collection_choice = infile.split('01_')[1].split('.xml')[0]`
-  - solution: Need to do some form of regex that matches the numbers from `20170101_` and splits
-- DONE > `mongo_ETL.py`: Is all the releases data covered?
-- DONE > `mongo_ETL.py`: If the releases file, only keep certain elements to save memory usage (mongo eats it up on my 16GB box)
+- Database name should be something relevant to file's date information e.g. `179` for `20170901`
+- Data files don't necessarily upload on `01` of month.
 
 #### 3- redis-metadata-ids
-- sets up redis instances for caches, hashes, queryable data and site metadata
-
-TODOs:
-- AUTOMATE! Get Jenkins on the go.
+Sets up redis instances for caches, hashes, queryable data and site metadata
+Redis performed MUCH faster than MongoDB on benchmark tests (redis circa 2 seconds with intersections in python between 3 redis dbs, MongoDB minimum 5 seconds, depending on size of query)
 
 #### 6- redis-ETL
-- Take necessary data from mongo db collections, import into redis instances.
-- This has been modularised
-  - Previously there was one big python ETL script that took 2 hours to run
-  - Now there are more `docker_run.sh` scripts w/ argument inputs
-  - Run time is much less, code is cleaner
-  - However, number of Redis instances is increasing dramatically... Redis is fast, but maybe Hadoop/SQL is the best choice?
+Take necessary data from mongo db collections, import into redis instances.
 
 TODO:
-- Redis autocomplete - ZSORE logic w/ pipelining, will this function correctly?
 - Change to a SQL or Hadoop DB location? Redis is getting complicated with the number of DBs
 
 ### 3-discogs-site
-#### 1-get-metadata-redis
-- no docker image built yet (not needed for testing)
-- tester to get some video files
-- should be used for the webpage logic
+All code for serving the site
+#### 1-py-serving
+Flask server that handles the query building & api logic
 
-## Build Info - V2 (Hadoop Ecosystem)
-- This is a "data product" (existing data will be used to generate more data - economic feedback model)
-- So could be argued that it should live on the hadoop ecosystem
-- Possible to parse xml files with Apache Pig
+#### x-nginx
+TODO Nginx + uwsgi server
 
-TODO:
-- Existing data already lives in a convenient format in Mongo instances
-  - Can Hadoop pull data from Mongo? Apparantly yes https://stackoverflow.com/questions/32043696/how-to-stream-data-from-mongodb-to-hadoop
+TODOs:
+- Build query (intersections) on seperate RESTful API
+- Nginx + uwsgi server (SSL/HTTPS currently breaks the oauth flow)
 
-## UI notes
-### Filters
-#### Random searches
-These masters filters could primarily be used to filter down results. But, that means forcing users to *know* what they are searching for first.
-A better option is including ALL filter choices together.
-E.g. Artist search (with aliases) then also filter by year and style
+### 4-apis
+RESTful APIs the webserver connects to Redis instances through
 
-- Masters file (currently have):
-  - Year
-  - Genre
-  - Style
-
-- Masters file (could use):
-  - Artists
-  - Data Quality
-
-- Releases file:
-  - Format (vinyl etc.)
-  - Country 
-  - Release DATE (yy-mm-dd)
-  - Companies involved + their entity type (pressed by, recorded at)
-
-- Artists file:
-  - Possible linking to secondary artist names (aliases)
-
-- Labels file:
-  - Possible linking to sublabels
-
-#### Specific choices
-- All videos for specified / list of EITHER:
-  - artist
-  - label
-  - release
-  
-- THIS IS WHAT REDIS WAS BUILT FOR!
-- This is a simple search query, can include auto-complete example
-  - Find a specfic key (i.e. "James Holden")
-  - Return all the master ids for this search
-  - Then can use other filtering methods if required (year, include aliases etc.)
-  
-Data model:
-
-3x databases (artist, label, release)
-Keys: entity name
-Values: master ids
-
-#### Query Results
-
-- Currently only outputting list of youtube videos
-- Need a better results output
-- With other metadata, could do a per entity results summary e.g.
-  - Label name : number of results
-  - Artist name : number of results
-- This would allow for further fine tuning of filtering
-
-## JSON notes
-### Masters
-- Main release refers to the "main" release for the master in the releases json data.
-- There are several releases per master, but only one of them is a "main" release.
-- Doesn't have an 'ID' json attribute, is a tag of each element:
-```xml
-<master id="18500">
-```
-- Need to find a way to extract this!! DONE via xmltodict library
-
-### Releases
-- Doesn't have an 'ID' json attribute.
-- Must be a tag of each elelemt - ```<master id="18500">```
-- Need to find a way to extract this!!
-```xml
-<release id="1" status="Accepted">
-```
+TODOs:
+- Build query (intersections) on seperate RESTful API
+- Build youtube data on seperate RESTful API (POST request with no return response?)
+- Clear videos cache for session id
+- MongoDB APIs - single document (misc analysis) public RESTful APIs
