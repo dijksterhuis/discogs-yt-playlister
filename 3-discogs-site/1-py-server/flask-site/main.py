@@ -262,8 +262,8 @@ def send_to_yt():
 			except:
 				responses['video'] = 'NOT ADDED'
 		print(responses)
-		clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
-		session.clear()
+		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
+		#session.clear()
 		return render_template( '/playlist_added.html' \
 												, pl_title=title \
 												, pl_desc=desc \
