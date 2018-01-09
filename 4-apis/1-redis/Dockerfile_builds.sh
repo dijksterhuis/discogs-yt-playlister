@@ -11,7 +11,7 @@ echo 'Building: base image'
 docker-build-contextual ./0-base/
 for file in * ; \
     do \
-        if [ -d $file ] ; \
+        if [ -d $file ] && [ $file != '0-base' ] ; \
             then \
                 echo "-------------------------------------------------"
                 echo 'Building: '$file ; \
