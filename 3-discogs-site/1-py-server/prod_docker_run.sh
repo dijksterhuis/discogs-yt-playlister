@@ -14,4 +14,3 @@ docker run \
     $image_name":"$image_tag
 
 docker network connect --ip=172.23.0.2 $api_net $container_name
-docker network connect $webserve_net $container_name

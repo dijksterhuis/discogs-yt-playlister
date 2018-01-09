@@ -104,7 +104,7 @@ def api_post(host_string, r_json):
 # server logic
 # --------------------------------------------------
 
-@app.route('/welcome',methods=['GET'])
+@app.route('/',methods=['GET'])
 def index():
 	return redirect('home')
 
