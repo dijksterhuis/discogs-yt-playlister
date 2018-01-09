@@ -264,11 +264,13 @@ def send_to_yt():
 				
 		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
 		#session.clear()
+		
+		# wait 5 seconds so youtube updates...
+		
+		time.sleep(5)
+		
 		return render_template( '/playlist_added.html' \
-												, pl_title=title \
-												, pl_desc=desc \
-												, pl_link=playlist_result['id']
-										)
+										, pl_title=title, pl_desc=desc, pl_link=playlist_result['id'], first_vid=video_ids[0] )
 
 if __name__ == '__main__':
 	os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'

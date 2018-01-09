@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Results:</h1>
-<p>{{pl_title}} </p>
-<p>{{pl_desc}} </p>
-<p>{{pl_link}}</p>
-
+<h1>{{pl_title}} - {{pl_desc}}</h1>
+<a href="https://www.youtube.com/watch?v={{first_vid}}&list={{pl_link}}">URL to playlist</a>
+<br>
 <iframe id="ytplayer" type="text/html" width="720" height="405"
-src="https://www.youtube.com/embed/?listType=playlist&list={{pl_link}}"
+src="https://www.youtube.com/embed/?listType=playlist&list={{pl_link}}&listType=playlist&modestbranding=1&playsinline=1"
 frameborder="0" allowfullscreen>
 
 {% endblock %}
