@@ -10,8 +10,8 @@ from werkzeug import generate_password_hash, check_password_hash
 import os
 
 #import google.oauth2.credentials
-#import oauth2client
-import google_auth_oauthlib.flow
+#import google_auth_oauthlib.flow
+import oauth2client
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -106,7 +106,7 @@ def api_post(host_string, r_json):
 
 @app.route('/',methods=['GET'])
 def index():
-	return redirect('home')
+	return redirect('welcome')
 
 @app.route('/welcome',methods=['GET'])
 def home():
