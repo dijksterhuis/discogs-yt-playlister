@@ -168,7 +168,7 @@ def get_video_ids_cache(session_id):
 	if ping_check != True:
 		return make_response( ping_check, 500 )
 	
-	result = list(r.smembers(session_id))
+	result = [str(video_id) for video_id in r.smembers(session_id)]
 	
 	return make_json_resp(result,200)
 	
