@@ -255,11 +255,11 @@ def send_to_yt():
 		print(playlist_result)
 		responses = dict()
 		for idx, video_id in enumerate(video_ids):
-			responses[idx]['video_id'] = video_id
+			responses[str(idx)] = { 'video_id' : video_id }
 			try:
-				responses[idx]['video'] = insert_videos(client, playlist_result , video_id )
+				responses[str(idx)] = { 'video' : insert_videos(client, playlist_result , video_id ) }
 			except:
-				responses[idx]['video'] = 'NOT ADDED'
+				responses[str(idx)] = { 'video' : 'NOT ADDED' }
 		print(responses)
 		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
 		#session.clear()
