@@ -12,7 +12,6 @@ METADATA_ID_ARGS = { 'year' : fields.List(fields.Str(required=True)) \
 						, 'genre' : fields.List(fields.Str(required=True)) \
 					}
 V_CACHE_ARGS = { 'session_id' : fields.Str(required=True) , 'video_ids' : fields.List(fields.Str()) }
-CLEAR_V_CACHE_ARGS = {'session_id' : fields.Str(required=True)}
 
 
 #### EXECUTION DEFs:

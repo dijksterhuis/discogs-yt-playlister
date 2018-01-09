@@ -248,7 +248,7 @@ def send_to_yt():
 		print(credentials)
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 		print(client)
-		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'])
+		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
 		playlist_result = create_playlist(client, title, desc)
 		print(playlist_result)
 		responses = [ \
@@ -260,7 +260,7 @@ def send_to_yt():
 								]
 						
 		print(reponses)
-		clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], session['session_id'])
+		clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
 		session.clear()
 		return render_template( '/added.html' \
 												, pl_title=title \
