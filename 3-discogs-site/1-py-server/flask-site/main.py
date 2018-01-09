@@ -177,18 +177,21 @@ def query_builder():
 		# ---- Get video urls
 		
 		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': master_ids} )
+		
 		numb_links = len(all_links)
 		
-		if numb_links > 400:
-			flash('Too many videos in query... There were '+str(numb_links)+'. Limit is 400.','message')
-			return redirect(url_for('query_builder'))
-		
 		if numb_links == 0:
-			flash("No videos found for query - but there were Discogs releases. Some releases don't have any video links..." ,'message')
+			flash("No videos found for query - but there were Discogs releases. Some releases don't have any video links." ,'message')
 			return redirect(url_for('query_builder'))
-		
-		if 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
-		else: session['numb_videos'] += numb_links
+		if 'numb_videos' not in session.keys():
+			session['numb_videos'] = numb_links
+		else:
+			numb_playlist_vids = session['numb_videos'] + numb_links
+			if numb_playlist_vids > 400:
+				flash('Too many videos in query. You have '+str(numb_playlist_vids)+' in your playlist. Playlist limit is 400.','message')
+				return redirect(url_for('query_builder'))
+			else:
+				session['numb_videos'] = numb_playlist_vids
 		
 		# ---- Add to redis cache
 		
@@ -197,13 +200,10 @@ def query_builder():
 													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
 												)
 		
-		flash(str(numb_links)+' video links added.','message')
+		flash(str(numb_links)+' video links added. '+str(session['numb_videos'])+' videos in your playlist.','message')
 		
 		uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], {'tag':tag} ) for tag in TAGS }
 		return redirect(url_for('query_builder'))
-		#
-		#
-		#return render_template('/videos_added.html',nav_links=NAV, intersex=all_links,total_count=numb_links)
 
 @app.route('/current_urls',methods=["GET"])
 def current_vids():
