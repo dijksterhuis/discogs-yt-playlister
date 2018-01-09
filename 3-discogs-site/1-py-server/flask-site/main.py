@@ -110,7 +110,7 @@ def query():
 		f.write(str(session))
 	if 'session_id' not in session:
 		# TODO
-		session['session_id'] = randint(0,1000000000)
+		session['session_id'] = randint(0,1000)
 		
 	if request.method == 'GET':
 		print('GET',request)
@@ -169,9 +169,7 @@ def current_vids():
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
-	if 'session_id' not in session:
-		session['session_id'] = os.urandom(24)
-		
+	
 	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 	
 	# Create a flow instance to manage the OAuth 2.0 Authorization Grant Flow
