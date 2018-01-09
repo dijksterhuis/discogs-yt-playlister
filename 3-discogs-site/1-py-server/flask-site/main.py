@@ -228,7 +228,7 @@ def oauth2callback():
 									
 	return redirect(url_for('query'))
 
-@app.route('/create_playlist',methods=['GET'])
+@app.route('/create_playlist',methods=['GET','POST'])
 def send_to_yt():
 	
 	if 'credentials' not in session: return redirect('authorize')
