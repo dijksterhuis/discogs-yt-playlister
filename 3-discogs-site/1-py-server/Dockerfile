@@ -9,7 +9,7 @@ COPY flask-site/ /app
 WORKDIR /app
 COPY reqs.txt /app/
 RUN pip install --upgrade -r reqs.txt
-RUN rm /app/reqs.txt
+RUN rm /home/reqs.txt
 #RUN apt-get update ; apt-get install -y python-certbot-nginx
 EXPOSE 80
 #EXPOSE 443
