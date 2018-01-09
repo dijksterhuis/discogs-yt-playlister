@@ -144,10 +144,10 @@ def query():
 		# ---- Get video urls
 		
 		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': master_ids} )
-		
+		print(all_links)
 		if len(all_links) == 0:
 			return render_template('/no-results.html')
-			
+		
 		# ---- Add to redis cache
 		
 		redis_query_cache_adds = api_put_requests( \
@@ -164,7 +164,7 @@ def current_vids():
 @app.route('/authorize',methods=['GET'])
 def authorize():
 	
-	session['session_id'] = randint(0,1000)
+	session['session_id'] = 'query:'+str(randint(0,1000))
 	
 	print(session['session_id'])
 	
