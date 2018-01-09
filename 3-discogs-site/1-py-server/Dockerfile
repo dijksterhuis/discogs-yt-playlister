@@ -17,4 +17,5 @@ EXPOSE 80
 #RUN export OAUTHLIB_INSECURE_TRANSPORT=1
 #ENTRYPOINT ['/bin/bash']
 #CMD ['certbot','--nginx']
-CMD ["/home/main.py"]
+ENTRYPOINT ['python']
+CMD ['main.py']
