@@ -249,7 +249,7 @@ def send_to_yt():
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 		print(client)
 		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
-		video_ids = [ video.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
+		video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
 		print(video_ids)
 		playlist_result = create_playlist(client, title, desc)
 		print(playlist_result)
