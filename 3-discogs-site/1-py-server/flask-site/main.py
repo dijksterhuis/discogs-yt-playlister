@@ -31,7 +31,7 @@ app.secret_key = os.urandom(24)
 
 # https://developers.google.com/youtube/v3/quickstart/python#further_reading
 
-CLIENT_SECRETS_FILE = "/app/client_secrets.json"
+CLIENT_SECRETS_FILE = "/home/site/client_secrets.json"
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
