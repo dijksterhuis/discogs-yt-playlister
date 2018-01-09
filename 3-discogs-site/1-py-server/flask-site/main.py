@@ -33,7 +33,7 @@ app.secret_key = os.urandom(24)
 
 CLIENT_SECRETS_FILE = "/app/client_secrets.json"
 
-SCOPES = ['http://www.googleapis.com/auth/youtube.force-ssl']
+SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 
@@ -102,6 +102,10 @@ def api_post(host_string, r_json):
 # server logic
 # --------------------------------------------------
 
+@app.route('/',methods=['GET'])
+def index():
+	redirect('home')
+
 @app.route('/welcome',methods=['GET'])
 def home():
 	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
@@ -111,6 +115,7 @@ def home():
 									, latest_count=len(video_ids) \
 									, total_count=session['numb_videos'] \
 							)
+
 
 
 @app.route('/query_builder',methods=['GET','POST'])
