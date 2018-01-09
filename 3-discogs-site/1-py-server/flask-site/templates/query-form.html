@@ -48,21 +48,36 @@
     <br>
 -->
     <fieldset id="selections">
+      <table>
+        <tr>
+          <th>Year Released</th>
+          <th>Genre</th>
+          <th>Style</th>
+        </tr>
+        <tr>
+          <td>
             <select multiple id="Years" name="query:year" size="20">
               {% for year in years %}
                 <option value="{{year}}">{{year}}</option>
               {% endfor %}
             </select>
+          </td>
+          <td>
             <select multiple id="Genres" name="query:genre" size="20">
               {% for genre in genres %}
                 <option value="{{genre}}">{{genre}}</option>
               {% endfor %}
             </select>
+          </td>
+          <td>
             <select multiple id="Styles" name="query:style" size="20">
               {% for style in styles %}
                 <option value="{{style}}">{{style}}</option>
               {% endfor %}
             </select>
+          </td>
+        </tr>
+      </table>
     </fieldset>
   </form>
 </div>
