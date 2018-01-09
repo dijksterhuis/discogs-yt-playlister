@@ -198,8 +198,13 @@ def query_builder():
 													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
 												)
 		
+		flash(str(numb_links)+' video links added.','message')
 		
-		return render_template('/videos_added.html',nav_links=NAV, intersex=all_links,total_count=numb_links)
+		uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], {'tag':tag} ) for tag in TAGS }
+		return redirect(url_for('query_builder'))
+		#
+		#
+		#return render_template('/videos_added.html',nav_links=NAV, intersex=all_links,total_count=numb_links)
 
 @app.route('/current_urls',methods=["GET"])
 def current_vids():
