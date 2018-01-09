@@ -9,10 +9,11 @@ from werkzeug import generate_password_hash, check_password_hash
 
 import os
 
-import google.oauth2.credentials as oauth2_credentials
-import google_auth_oauthlib.flow as google_auth_flow
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
 import oauth2client
 from googleapiclient.discovery import build as google_client_build
+from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 from youtube_playlist_gen import create_playlist, insert_videos
 # --------------------------------------------------
@@ -239,7 +240,7 @@ def oauth2callback():
 	# verify the authorization server response.
 	
 	state = session['state']
-	flow = google_auth_flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
+	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
 	flow.redirect_uri = url_for('oauth2callback', _external=True)
 	
 	# Use the authorization server's response to fetch the OAuth 2.0 tokens.
@@ -283,7 +284,7 @@ def send_to_yt():
 		
 		# ---- Load the credentials from the session.
 		
-		credentials = oauth2_credentials.Credentials(**session['credentials'])
+		credentials = google.oauth2.credentials.Credentials(**session['credentials'])
 		client = google_client_build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 		
 		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
