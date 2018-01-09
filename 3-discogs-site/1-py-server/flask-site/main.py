@@ -9,7 +9,7 @@ from werkzeug import generate_password_hash, check_password_hash
 
 import os
 
-#import google.oauth2.credentials
+import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import oauth2client
 from googleapiclient.discovery import build
@@ -170,12 +170,6 @@ def query_builder():
 		
 		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': master_ids} )
 		numb_links = len(all_links)
-		
-		if numb_links > 400:
-			flash('Too many videos in query... There were '+str(numb_links)+'. Limit is 400.','message')
-			return redirect('query_builder')
-		
-		if numb_links == 0: return render_template('/no-results.html')
 		
 		if numb_links > 400:
 			flash('Too many videos in query... There were '+str(numb_links)+'. Limit is 400.','message')
