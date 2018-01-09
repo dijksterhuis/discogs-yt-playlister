@@ -33,7 +33,7 @@ app.secret_key = os.urandom(24)
 
 CLIENT_SECRETS_FILE = "/app/client_secrets.json"
 
-SCOPES = ['http://www.googleapis.com/auth/youtube.force-ssl']
+SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 
