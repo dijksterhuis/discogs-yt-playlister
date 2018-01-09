@@ -106,12 +106,6 @@ def home():
 def query():
 	
 	if 'credentials' not in session: return redirect('authorize')
-	
-	with open('tmp.txt','a+') as f:
-		f.write(str(session))
-	if 'session_id' not in session:
-		# TODO
-		session['session_id'] = randint(0,1000)
 		
 	if request.method == 'GET':
 		print('GET',request)
@@ -170,6 +164,10 @@ def current_vids():
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
+	
+	session['session_id'] = randint(0,1000)
+	
+	print(session['session_id'])
 	
 	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 	
