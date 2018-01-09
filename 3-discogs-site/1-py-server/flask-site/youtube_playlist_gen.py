@@ -122,7 +122,7 @@ def insert_videos(client, playlists_insert_response,video_id):
 	if isinstance(video_id,str) and len(video_id) > 0:
 		responses = playlist_items_insert( \
 											client, { \
-														'snippet.playlistId': pl_id\
+														'snippet.playlistId': pl_id \
 														, 'snippet.resourceId.kind': 'youtube#video' \
 														, 'snippet.resourceId.videoId': video_id \
 													} \

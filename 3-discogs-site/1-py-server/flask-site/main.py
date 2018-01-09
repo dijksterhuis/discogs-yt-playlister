@@ -278,7 +278,8 @@ def send_to_yt():
 		
 	if request.method == 'POST':
 		
-		title, desc = request.form.get('playlist_title'), request.form.get('playlist_desc')+'\n\nGenereated with the discogs-yt-playlister'
+		title = request.form.get('playlist_title',type=str,default='Discogs Playlist')
+		desc = request.form.get('playlist_desc',type=str,default='')+'\n\nGenerated with the discogs-yt-playlister'
 		
 		# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 		
@@ -297,7 +298,13 @@ def send_to_yt():
 		# ---- add the videos
 		# - TODO move off to a seperate API (big queries results page times out)
 		
-		video_result = [ insert_videos(client, playlist_result , video_id ) for video_id in video_ids ]
+		results = dict()
+		
+		for idx,video_id in enumerate(video_ids):
+			try:
+				results[idx] = {video_id : insert_videos(client, playlist_result , video_id )}
+			except:
+				results[idx] = {video_id : "ERROR" }
 		
 		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
 		#session.clear()
