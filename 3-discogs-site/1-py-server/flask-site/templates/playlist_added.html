@@ -4,7 +4,10 @@
 <h1>Results:</h1>
 <p>{{pl_title}} </p>
 <p>{{pl_desc}} </p>
-<p>{{pl_resp}}</p>
-<p>{{v_resp}}</p>
+<p>{{pl_link}}</p>
+
+<iframe id="ytplayer" type="text/html" width="720" height="405"
+src="https://www.youtube.com/embed/?listType=playlist&list={{pl_link}}"
+frameborder="0" allowfullscreen>
 
 {% endblock %}

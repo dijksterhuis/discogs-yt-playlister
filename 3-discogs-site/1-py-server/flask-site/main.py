@@ -267,8 +267,7 @@ def send_to_yt():
 		return render_template( '/playlist_added.html' \
 												, pl_title=title \
 												, pl_desc=desc \
-												, pl_resp=playlist_result \
-												, v_resp=responses \
+												, pl_link=playlist_result['id']
 										)
 
 if __name__ == '__main__':

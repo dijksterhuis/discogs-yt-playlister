@@ -103,7 +103,7 @@ def playlist_items_insert(client, properties, **kwargs):
 	return response
 
 def add_playlist(youtube, pl_title, pl_description):
-	body = dict( snippet=dict( title=pl_title, description=pl_description ), status=dict( privacyStatus='private' ) ) 
+	body = dict( snippet=dict( title=pl_title, description=pl_description ), status=dict( privacyStatus='public' ) ) 
 	playlists_insert_response = youtube.playlists().insert( part='snippet,status', body=body ).execute()
 	print('New playlist ID: %s' % playlists_insert_response['id'])
 	return playlists_insert_response
