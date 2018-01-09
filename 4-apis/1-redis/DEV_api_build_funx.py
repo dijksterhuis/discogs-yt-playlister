@@ -14,6 +14,7 @@ METADATA_ID_ARGS = { 'year' : fields.List(fields.Str(required=True)) \
 V_CACHE_ARGS = { 'session_id' : fields.Str(required=True) , 'video_ids' : fields.List(fields.Str()) }
 CLEAR_V_CACHE_ARGS = {'session_id' : fields.Str(required=True)}
 
+
 #### EXECUTION DEFs:
 
 class timer:
@@ -184,4 +185,16 @@ def clear_video_ids_cache(session_id):
 	
 	result = r.delete(session_id)
 	
+	return make_json_resp(result,200)
+	
+def clear_video_ids_cache(session_id):
+
+	r = redis_host('discogs-session-query-cache')
+
+	ping_check = redis_conn_check(r)
+	if ping_check != True:
+		return make_response( ping_check, 500 )
+	keys = [k.lstrip('query:') for k in get_redis_keys(r)]
+	result = 'query:'+str(max(keys))
+
 	return make_json_resp(result,200)

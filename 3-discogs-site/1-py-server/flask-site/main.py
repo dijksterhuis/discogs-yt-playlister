@@ -73,19 +73,19 @@ def api_get_requests(host_string, r_json):
 	r = requests.get( host_string , json = r_json , headers = api_call_headers)
 	r_data = r.json()
 	if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
-		output = json.loads(r.json())
+		output = json.loads(r_data)
 	else:
-		output = r.json()
+		output = r_data
 	return output
 
 def api_put_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
-	r = requests.put( host_string , json = jsonify( r_json ) , headers = api_call_headers)
+	r = requests.put( host_string , json = r_json , headers = api_call_headers)
 	#r_data = r.json()
 	#if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
-	#	output = json.loads(r.json())
+	#	output = json.loads(r_data)
 	#else:
-	#	output = r.text
+	#	output = r_data
 	#return output
 
 def redis_host(value):
@@ -127,7 +127,7 @@ def query():
 		
 		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
 		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
-		#label_ids = api_get_requests('http://172.23.0.3/get_ids_from_name', {'name_type':'label','name':release_name} )
+		#label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':release_name} )
 		master_ids_dict = api_get_requests(API_URLS['ids_from_metadata'], wide_query_dict )
 		
 		# ---- Calculate Query (TODO move off to a seperate API ?)

@@ -48,6 +48,14 @@ def vid_cache(args):
 	print('request time taken', req_time.time_taken() )
 	return result.encode('utf-8')
 
+@app.route('/max_query_id', methods=['GET'])
+def vid_cache():
+	req_time = timer()
+	result = max_query_id()
+	print('request time taken', req_time.time_taken() )
+	return result.encode('utf-8')
+
+
 if __name__ == '__main__':
 	#app.run(host='0.0.0.0',port=5000,debug=True)
 	app.run(host='0.0.0.0',port=80,debug=False)
