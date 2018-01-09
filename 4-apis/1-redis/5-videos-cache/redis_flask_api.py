@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, get_video_ids_cache, put_video_ids_cache, clear_video_ids_cache, max_query_id, V_CACHE_ARGS
+from api_build_funx import timer, make_json_resp, get_video_ids_cache, put_video_ids_cache, clear_video_ids_cache, V_CACHE_ARGS #, max_query_id
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -50,9 +50,9 @@ def vid_cache_clear(args):
 @app.route('/max_query_id', methods=['GET'])
 def vid_cache_max():
 	req_time = timer()
-	result = max_query_id()
+	#result = max_query_id()
 	print('request time taken', req_time.time_taken() )
-	return result
+	#return result
 
 if __name__ == '__main__':
 	#app.run(host='0.0.0.0',port=5000,debug=True)

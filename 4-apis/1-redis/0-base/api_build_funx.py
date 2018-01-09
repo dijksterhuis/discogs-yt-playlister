@@ -188,14 +188,18 @@ def clear_video_ids_cache(session_id):
 	else:
 		return make_json_resp( { 'session_id' : session_id, 'result' : 'NOT CLEARED' } , 200 )
 
-def max_query_id():
-	
-	r = redis_host('discogs-session-query-cache')
-	
-	ping_check = redis_conn_check(r)
-	if ping_check != True:
-		return make_response( ping_check, 500 )
-	
-	max_key = max([int(k.lstrip('query:')) for k in get_redis_keys(r)])
-	
-	return make_json_resp('query:'+str(max_key),200)
+#def max_query_id():
+#	
+#	r = redis_host('discogs-session-query-cache')
+#	
+#	ping_check = redis_conn_check(r)
+#	if ping_check != True:
+#		return make_response( ping_check, 500 )
+#		
+#	if len(get_redis_keys(r)) == 0:
+#		max_key = 1
+#	else:
+#		max_key = max([int(k.lstrip('query:')) for k in get_redis_keys(r)])
+#	
+#	return make_json_resp('query:'+str(max_key),200)
+
