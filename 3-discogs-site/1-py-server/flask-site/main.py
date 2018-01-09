@@ -80,7 +80,7 @@ def api_get_requests(host_string, r_json):
 
 def api_put_requests(host_string, r_json):
 	api_call_headers = {"Content-Type": "application/json"}
-	r = requests.put( host_string , json = r_json , headers = api_call_headers)
+	r = requests.put( host_string , json = jsonify( r_json ) , headers = api_call_headers)
 	#r_data = r.json()
 	#if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
 	#	output = json.loads(r.json())
@@ -152,8 +152,7 @@ def query():
 		
 		redis_query_cache_adds = api_put_requests( \
 													API_URLS['video_query_cache'] \
-													, { 'session_id' : session['session_id'] \
-													, 'video_ids': all_links } \
+													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
 												)
 		
 		return render_template('/added.html',intersex=all_links,total_count=len(all_links))
