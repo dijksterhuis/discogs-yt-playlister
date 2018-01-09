@@ -1,4 +1,4 @@
-FROM python:3-slim-jessie
+FROM python:debian
 LABEL author="michael robeson (Dijksterhuis)" \
       project="discogs playlister" \
       name="discogs-flask-server" \
@@ -10,6 +10,7 @@ RUN mkdir /home/data/
 COPY flask-site/ /home/site/
 WORKDIR /home
 COPY reqs.txt /home/
+RUN apt-get install -y build-essential python-dev
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
 # https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html#deploying-flask
