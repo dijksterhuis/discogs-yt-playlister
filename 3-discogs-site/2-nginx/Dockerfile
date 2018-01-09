@@ -14,4 +14,4 @@ VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", "/etc/nginx/conf.d", "/v
 EXPOSE 80
 EXPOSE 443
 EXPOSE 3031
-ENTRYPOINT ['nginx']
+#ENTRYPOINT ['nginx']
