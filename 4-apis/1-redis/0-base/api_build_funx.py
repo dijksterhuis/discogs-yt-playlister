@@ -174,7 +174,6 @@ def get_video_ids_cache(session_id):
 	
 	return make_json_resp(result,200)
 
-
 def clear_video_ids_cache(session_id):
 	
 	r = redis_host('discogs-session-query-cache')
