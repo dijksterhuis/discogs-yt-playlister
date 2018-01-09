@@ -8,11 +8,11 @@
     <fieldset id="searches">
       <table>
         <tr>
-          <td align="right">Max Videos to Return - </td>
+          <td align="left">Max Videos to Return - </td>
           <td align="left"><input type="number" name="query:max_results"></td>
         </tr>
         <tr>
-          <td align="right">Artist Name - </td>
+          <td align="left">Artist Name - </td>
           <td align="left"><input type="search" name="search:artist_name"></td>
         </tr>
         <tr>
@@ -42,21 +42,21 @@
       <table>
         <tr>
           <td>
-            <select multiple id="Years" name="query:year" size="20" style="width: 100%">
+            <select multiple id="Years" name="query:year">
               {% for year in years %}
                 <option value="{{year}}">{{year}}</option>
               {% endfor %}
             </select>
           </td>  
           <td>
-            <select multiple id="Genres" name="query:genre" size="20" style="width: 100%">
+            <select multiple id="Genres" name="query:genre">
               {% for genre in genres %}
                 <option value="{{genre}}">{{genre}}</option>
               {% endfor %}
             </select>
           </td>
           <td>
-            <select multiple id="Styles" name="query:style" size="20" style="width: 100%">
+            <select multiple id="Styles" name="query:style">
               {% for style in styles %}
                 <option value="{{style}}">{{style}}</option>
               {% endfor %}
