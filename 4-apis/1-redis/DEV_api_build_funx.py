@@ -184,4 +184,4 @@ def clear_video_ids_cache(session_id):
 	
 	result = r.delete(session_id)
 	
-	return make_json_resp(result.encode('utf-8'),200)
+	return make_json_resp(result,200)

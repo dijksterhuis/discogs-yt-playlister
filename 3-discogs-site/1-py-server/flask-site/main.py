@@ -155,7 +155,7 @@ def query():
 		
 		redis_query_cache_adds = api_put_requests( \
 													API_URLS['video_query_cache'] \
-													, { 'session_id' : session['session_id'].encode('utf-8') \
+													, { 'session_id' : session['session_id'].decode('utf-8') \
 													, 'video_ids': all_links } \
 												)
 		
@@ -233,7 +233,7 @@ def send_to_yt():
 	if 'session_id' not in session: return redirect('query')
 	
 	if request.method == 'GET':
-		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'].encode('utf-8') )
+		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'].decode('utf-8') )
 		return render_template('/playlist_details.html', numb_videos = len(video_ids))
 		
 	if request.method == 'POST':
@@ -247,13 +247,13 @@ def send_to_yt():
 		print(credentials)
 		client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 		print(client)
-		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'].encode('utf-8'))
+		video_ids = api_get_requests(API_URLS['video_query_cache'], session['session_id'].decode('utf-8'))
 		playlist_result = create_playlist(client, title, desc)
 		print(playlist_result)
 		responses = [ insert_videos(client, playlist_result , video_id) for video_id in video_ids ]
 		print(reponses)
-		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'])
-		#session.clear() ??
+		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], session['session_id'].decode('utf-8'))
+		#session.clear()
 		return render_template( '/added.html' \
 												, pl_title=title \
 												, pl_desc=desc \
