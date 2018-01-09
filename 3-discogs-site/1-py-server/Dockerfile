@@ -18,4 +18,4 @@ EXPOSE 80
 EXPOSE 3031
 EXPOSE 9191
 ENTRYPOINT ["uwsgi"]
-CMD ["--socket 127.0.0.1:3031 --wsgi-file /home/site/main.py --callable app --processes 4 --threads 2 --stats 127.0.0.1:9191"]
+CMD ["--socket","127.0.0.1:3031","--wsgi-file","/home/site/main.py","--callable","app","--processes","4","--threads","2","--stats","127.0.0.1:9191"]
