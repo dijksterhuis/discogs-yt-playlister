@@ -1,5 +1,6 @@
 # general imports
 import json, os, datetime, time, redis, requests
+from random import randint
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 
 # site imports
@@ -108,7 +109,8 @@ def query():
 	with open('tmp.txt','a+') as f:
 		f.write(str(session))
 	if 'session_id' not in session:
-		session['session_id'] = os.urandom(24)
+		# TODO
+		session['session_id'] = randint(0,1000000000)
 		
 	if request.method == 'GET':
 		print('GET',request)
