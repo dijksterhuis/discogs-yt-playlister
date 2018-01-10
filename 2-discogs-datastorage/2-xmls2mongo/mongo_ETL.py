@@ -211,7 +211,7 @@ def handle_elements(path, element):
 	
 	# ---- Create YEAR, MONTH & DATE entries for release date (releases only)
 	if 'released' in element.keys():
-		if '-' in element['released']:
+		if element['released'].count('-') > 1:
 			element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
 			element['released-yearmonth'] = element['released-year'] + '-' + element['released-month']
 			element['released-date'] = element.pop('released')
