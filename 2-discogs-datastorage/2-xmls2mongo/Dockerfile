@@ -12,11 +12,10 @@ RUN mkdir /home/xmls
 COPY *.py /home/
 RUN chmod a+x /home/*.py
 COPY reqs.txt /home/
-WORKDIR /home
-
 # install required python libraries
-RUN pip install --upgrade reqs.txt
+RUN pip install --upgrade -r /home/reqs.txt
 RUN rm /home/reqs.txt
+WORKDIR /home
 # Execution command
 # TODO: Create an entrypoint so can test different ETL scripts 
 # TODO: Docker build-then-run script so don't have to keep changing this file - how to do version number? Jenkins?
