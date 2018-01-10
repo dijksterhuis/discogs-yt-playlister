@@ -93,10 +93,6 @@ def redis_connect(redis_conn_host):
 	
 	init_redis_dbsize = redis_conn.dbsize()
 	
-	if init_redis_dbsize == 0:
-		print('NO DATA IN '+redis_conn_host+'. EXITING.')
-		exit(0)
-		
 	print('Currently '+str(init_redis_dbsize)+' keys in '+redis_conn_host)
 	
 	print_verbose('Setting up Redis Pipeline.')
