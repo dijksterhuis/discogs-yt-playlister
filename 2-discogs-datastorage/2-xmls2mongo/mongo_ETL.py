@@ -211,10 +211,18 @@ def handle_elements(path, element):
 	
 	# ---- Create YEAR, MONTH & DATE entries for release date (releases only)
 	if 'released' in element.keys():
-		if element['released'].count('-') > 1:
-			element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
-			element['released-yearmonth'] = element['released-year'] + '-' + element['released-month']
+		if isinstance(element['released'], str):
 			element['released-date'] = element.pop('released')
+			
+			if element['released'].count('-') > 1:
+				
+				if element['released'].count('-') == 2:
+					element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
+				
+				elif element['released'].count('-') == 1:
+					element['released-year'], element['released-month'] = element['released'].split('-')
+				
+				element['released-yearmonth'] = element['released-year'] + '-' + element['released-month']
 		else:
 			element.__delitem__('released')
 	
@@ -265,8 +273,18 @@ def handle_elements(path, element):
 	correct_changes += correct_changes_per_iter
 	skipped_keys += skipped_keys_per_iter
 	
-	console.write('\r{} inserted, {} title change, {} key search empty {} skipped insert'.format( \
-																	counter, correct_changes , skipped_keys , duplicate_keys ))
+	console.write( \
+						'\r{:,d} inserted' \
+						+ ', {:,d} title change,' \
+						+ ' {:,d} key search empty' \
+						+ ' {:,d} skipped insert'\
+						.format( \
+									counter \
+									, correct_changes \
+									, skipped_keys \
+									, duplicate_keys \
+								) \
+					)
 	console.flush()
 	
 	return True
@@ -295,7 +313,7 @@ def main(args):
 				}
 			
 		mongo_collection, indexes, ping_result = mongo_cli(db_dict)
-		print('\nmongo conn: ', db_dict,'\nmongo conn ping t/f: ', ping_result,'\nmongo indexes: ', indexes)
+		print('\nmongo conn: {}\nmongo conn ping t/f: {}\nmongo indexes: {}'.format(db_dict,ping_result,indexes))
 		
 		with open(infile,'rb') as f_in_xml:
 			print_verbose('\nParsing '+infile+' with xmltodict - writing to mongo collection: '+s(db_dict['coll']))

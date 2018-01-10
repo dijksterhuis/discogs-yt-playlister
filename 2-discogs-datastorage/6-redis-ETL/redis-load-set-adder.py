@@ -187,7 +187,7 @@ def main(args):
 				
 		# ---- stats
 		
-		console.write( "\r{} proc / {} mongo dox".format( idx, mongo_conn.count() ))
+		console.write( "\r{:,d} proc / {:,d} mongo dox".format( idx, mongo_conn.count() ))
 		console.flush()
 	
 	# ---- execute redis pipeline
@@ -199,9 +199,9 @@ def main(args):
 	
 	elapsed_time, redis_additions = dt.now() - starttime, redis_conn.dbsize() - init_redis_dbsize
 	print('\nExtraction complete!')
-	print_verbose( str(redis_additions) + ' keys were actually added to the ' + redis_conn_host + ' Redis DB')
-	print_verbose( 'Redis counter is at: '+ str(counter) +'. Does this match?' )
-	print_verbose('Time taken (mins): ' + str(elapsed_time.total_seconds()//60) )
+	print_verbose( '{:,d} keys were actually added to the {:s} Redis DB'.format(redis_additions, redis_conn_host) )
+	print_verbose( 'Redis counter is at: {:,d}. Does this match?'.format(counter) )
+	print_verbose('Time taken (mins): {:,d}'.format(elapsed_time.total_seconds()//60) )
 
 if __name__ == '__main__':
 	
