@@ -7,10 +7,13 @@ LABEL author="michael robeson (Dijksterhuis)" \
 
 RUN apk update ; apk upgrade ; apk add --no-cache curl
 
-RUN mkdir /home/downloads ; mkdir /home/old_downloads
+ADD COPY root /etc/crontabs/root
+RUN chmod 0644 /etc/crontabs/root
+RUN touch /var/log/cron.log
 
+RUN mkdir /home/downloads ; mkdir /home/old_downloads
 COPY download_xmls.sh /home
 RUN chmod a+x /home/download_xmls.sh
+WORKDIR /home/
 
-WORKDIR /home
-CMD ['./download_xmls.sh']
+CMD ['/bin/ash']
