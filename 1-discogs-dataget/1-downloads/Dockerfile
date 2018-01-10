@@ -5,13 +5,12 @@ LABEL author="michael robeson (Dijksterhuis)" \
       purpose="Download the latest discogs db xmls" \
       version="0.0.5"
 
-RUN apk update && apk upgrade && apk add --no-cache curl
+RUN apk update ; apk upgrade ; apk add --no-cache curl
 
-RUN mkdir /home/downloads && mkdir /home/old_downloads
-#VOLUME ["/home/downloads","/home/old_downloads"]
+RUN mkdir /home/downloads ; mkdir /home/old_downloads
 
 COPY download_xmls.sh /home
 RUN chmod a+x /home/download_xmls.sh
 
 WORKDIR /home
-CMD ['/bin/ash','-c','./download_xmls.sh']
+CMD ['./download_xmls.sh']
