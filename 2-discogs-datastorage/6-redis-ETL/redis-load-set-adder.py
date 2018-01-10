@@ -64,13 +64,18 @@ def mongo_connect(mongo_conn_host):
 	Connect to Mongo instance
 	"""
 	
-	print_verbose( ['Setting up Mongo DB connection to: ', mongo_conn_host] )
+	print_verbose( 'Setting up Mongo DB connection to: '+ mongo_conn_host )
 	mongo_conn_dict = { 'host' : 'mongo-discogs-' + mongo_conn_host, 'port' : 27017, 'db' : 'discogs', 'coll' : mongo_conn_host }
 	
 	m = pymongo.MongoClient(mongo_conn_dict['host'],mongo_conn_dict['port'])
 	db = m[mongo_conn_dict['db']]
-	print_verbose(['Mongo connection ping result: ',db.command('ping')])
+	print_verbose('Mongo connection ping result: {}'.format(db.command('ping')))
 	c = db[mongo_conn_dict['coll']]
+	print_verbose('{:,d} Mongo documents'.format(c.count()))
+	
+	if c.count() == 0:
+		print('No data in Mongo instance '+mongo_conn_host+'. Exiting.')
+		exit(0)
 	
 	return c
 
@@ -80,12 +85,12 @@ def redis_connect(redis_conn_host):
 	Connect to Redis instance
 	"""
 	
-	print_verbose( ['Setting up Redis Connection to: ', redis_conn_host] )
+	print_verbose( 'Setting up Redis Connection to: ' + redis_conn_host )
 	redis_conn = redis.Redis( host=redis_conn_host, port=6379 )
 	outputs = [ redis_conn ]
 	
 	ping_result = redis_conn.ping()
-	print_verbose( ['Redis connection ping result: ',ping_result ] )
+	print_verbose( 'Redis connection ping result: {}'.format(ping_result) )
 	
 	if ping_result is False:
 		print('COULD NOT CONNECT TO '+redis_conn_host+'. EXITING.')
@@ -93,7 +98,7 @@ def redis_connect(redis_conn_host):
 	
 	init_redis_dbsize = redis_conn.dbsize()
 	
-	print('Currently '+str(init_redis_dbsize)+' keys in '+redis_conn_host)
+	print_verbose('Currently '+str(init_redis_dbsize)+' keys in '+redis_conn_host)
 	
 	print_verbose('Setting up Redis Pipeline.')
 	
