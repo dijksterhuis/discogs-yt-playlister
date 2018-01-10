@@ -273,17 +273,8 @@ def handle_elements(path, element):
 	correct_changes += correct_changes_per_iter
 	skipped_keys += skipped_keys_per_iter
 	
-	console.write( \
-						'\r{:,d} inserted' \
-						+ ', {:,d} title change,' \
-						+ ' {:,d} key search empty' \
-						+ ' {:,d} skipped insert'\
-						.format( \
-									counter \
-									, correct_changes \
-									, skipped_keys \
-									, duplicate_keys \
-								) \
+	console.write( '\r{:,d} inserted, {:,d} title change, {:,d} key search empty {:,d} skipped insert' \
+							.format( counter , correct_changes , skipped_keys , duplicate_keys ) \
 					)
 	console.flush()
 	
