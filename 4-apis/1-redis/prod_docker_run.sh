@@ -45,3 +45,4 @@ function bring_up_container {
 for tag in $tags ; \
     do bring_up_container ; \
 done
+
