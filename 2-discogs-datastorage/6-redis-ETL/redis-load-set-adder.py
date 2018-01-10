@@ -154,12 +154,7 @@ def main(args):
 		
 		# ---- add to redis
 		
-		if inserts[r_value] == None or inserts[r_key] == None:
-			
-			print('Missing key and/or value:')
-			print(r_key, inserts[r_key])
-			print(r_value, inserts[r_value])
-			print('\n')
+		if inserts[r_value] == None or inserts[r_key] == None: pass
 			
 		elif run_type == 'simple_set':
 			
