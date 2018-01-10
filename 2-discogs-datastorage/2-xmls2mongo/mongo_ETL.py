@@ -141,6 +141,7 @@ def handle_elements(path, element):
 	# ---- Create YEAR, MONTH & DATE entries for release date (releases only)
 	if 'released' in element.keys()
 		element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
+		element['released-yearmonth'] = element['released-year'] + '-' + element['released-month']
 		element['released-date'] = element.pop('released')
 	
 	elif None not in path[1]:
