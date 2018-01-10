@@ -197,7 +197,7 @@ def main(args):
 	print('\nExtraction complete!')
 	print_verbose( '{:,d} keys were actually added to the {:s} Redis DB'.format(redis_additions, redis_conn_host) )
 	print_verbose( 'Redis counter is at: {:,d}. Does this match?'.format(counter) )
-	print_verbose('Time taken (mins): {:,d}'.format(elapsed_time.total_seconds()//60) )
+	print_verbose('Time taken (mins): {:,f}'.format(elapsed_time.total_seconds()//60) )
 
 if __name__ == '__main__':
 	

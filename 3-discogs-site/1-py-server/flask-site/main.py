@@ -7,8 +7,6 @@ from random import randint
 from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from werkzeug import generate_password_hash, check_password_hash
 
-import os
-
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import oauth2client

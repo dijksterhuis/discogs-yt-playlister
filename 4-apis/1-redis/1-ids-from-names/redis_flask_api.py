@@ -39,8 +39,7 @@ def get_ids(args):
 		result = get_smembers('redis-masters-ids', args['name'])
 		
 	elif args['name_type'] == 'label': 
-		result = make_json_resp( {'ERROR': 'NOT IMPLEMENTED YET' } , 500 )
-		#result = get_smembers('redis-labels-ids', args['name'])
+		result = get_smembers('redis-labels-ids', args['name'])
 		
 	print('request time taken', req_time.time_taken() )
 	return result

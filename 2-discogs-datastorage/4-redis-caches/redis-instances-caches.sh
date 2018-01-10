@@ -1,7 +1,7 @@
 #!/bin/bash
 
 network='discogs-redis-caches'
-container_names='discogs-session-query-cache discogs-user-session-cache' 
+container_names='discogs-session-query-cache discogs-user-session-cache discogs-user-wantlist-cache discogs-user-customlist-cache'
 port=7200
 docker network create $network
 
