@@ -19,20 +19,10 @@ Basic premise:
 
 Originally this was meant to be prototyped with Redis, but I ended up having so much fun with it I fell into the Redis rabbit hole. For a final production version of the webapp, a SQL/Hadoop system might want to be implemented.
 
-General TODOs:
-- Data is initially kept in mongo DB instances for redundancy purposes. This data dump files can be quite big. This may change in future (Added processing steps which don't otherwise add much use).
-- Jenkins CI
 
 ### 1-discogs-dataget
-#### 1-downloads  - 0.0.5
+### 1-downloads  - 0.0.5
 Curls the required files, pipes output to gzip, writes xml to disk (docker volume `discogs-db-xmls`). Only needs to run once a month to get new files (DB exports uplaoded monthly - usually 1st of month).
-
-
-TODOs:
-- `download_xmls.sh`: What if the data is not uploaded on the 01 of the month? It isn't always!
-  - Run a batch job every day checking for a file?
-  - No xml file exists, quit, else download?
-  - Need to look at curl usage/html response from incorrect address...
 
 ### 2-discogs-datastorage
 #### 1-mongo
@@ -50,16 +40,9 @@ Script doc string:
   ./test.sh labels
   ./test.sh labels releases
   ```
-
-TODOs:
-None! Yay!
-
+  
 #### 2-xmls2mongo
 Take the files from `discogs-db-xmls`, parse with `xmltodict` & load each document into seperate mongo instances per discogs file
-
-TODOs:
-- Database name should be something relevant to file's date information e.g. `179` for `20170901`
-- Data files don't necessarily upload on `01` of month.
 
 #### 3- redis-metadata-ids
 Sets up redis instances for caches, hashes, queryable data and site metadata
@@ -68,15 +51,8 @@ Redis performed MUCH faster than MongoDB on benchmark tests (redis circa 2 secon
 #### 6- redis-ETL
 Take necessary data from mongo db collections, import into redis instances.
 
-TODO:
-- Change to a SQL or Hadoop DB location? Redis is getting complicated with the number of DBs
-
 ### 3-discogs-site
 All code for serving the site
-
-TODOs:
-- Build query (intersections) on seperate RESTful API
-- Nginx + uwsgi server (SSL/HTTPS currently breaks the oauth flow)
 
 #### 1-py-serving
 Flask server that handles the query building & api logic
@@ -84,12 +60,5 @@ Flask server that handles the query building & api logic
 #### x-nginx
 TODO Nginx + uwsgi server
 
-
 ### 4-apis
 RESTful APIs the webserver connects to Redis instances through
-
-TODOs:
-- Build query (intersections) on seperate RESTful API
-- Build youtube data on seperate RESTful API (POST request with no return response?)
-- Clear videos cache for session id
-- MongoDB APIs - single document (misc analysis) public RESTful APIs
