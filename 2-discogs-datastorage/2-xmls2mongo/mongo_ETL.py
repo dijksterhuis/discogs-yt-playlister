@@ -301,7 +301,7 @@ def main(args):
 	
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="XML to JSON file converter")	
-	parser.add_argument('inputfiles',type=str,nargs='+',dest='inputfiles',help="Names of discogs xml files to process")
+	parser.add_argument('inputfiles',type=str,nargs='+',help="Names of discogs xml files to process")
 	parser.add_argument('--verbose',action='store_true',help="Print output verbosely")
 	parser.add_argument('--indexing',action='store_true',help="Create mongo indexes on concatenation of collection_name & _id")
 	args = parser.parse_args()
