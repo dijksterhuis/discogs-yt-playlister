@@ -137,7 +137,12 @@ def handle_elements(path, element):
 	
 	if type(element) is None or element is None:
 		print('\nNo data in xml element!!\n')
-
+	
+	# ---- Create YEAR, MONTH & DATE entries for release date (releases only)
+	if 'released' in element.keys()
+		element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
+		element['released-date'] = element.pop('released')
+	
 	elif None not in path[1]:
 		# ---- Add id attribute of streamed entry to element dict
 		if 'id' in path[1][1].keys():

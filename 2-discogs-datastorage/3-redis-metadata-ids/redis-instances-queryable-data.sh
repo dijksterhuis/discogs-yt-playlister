@@ -1,7 +1,7 @@
 #!/bin/bash
 
 network='discogs-redis-site-queries'
-container_names='redis-masterids-titles redis-metadata-filtering redis-video-id-urls redis-mainrel-masterid redis-mastersid-artistname redis-artists-ids redis-masters-ids redis-metadata-unique-genre redis-metadata-unique-style redis-metadata-unique-year redis-metadata-unique-reldate'
+container_names='redis-masterids-titles redis-video-id-urls redis-mainrel-masterid redis-mastersid-artistname redis-artists-ids redis-masters-ids redis-metadata-unique-genre redis-metadata-unique-style redis-metadata-unique-year redis-metadata-unique-reldate redis-labels-ids redis-mastersid-labelname'
 port=7000
 docker network create $network
 

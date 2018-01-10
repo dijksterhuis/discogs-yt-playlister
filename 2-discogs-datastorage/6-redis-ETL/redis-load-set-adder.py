@@ -16,17 +16,11 @@ def print_verbose(string):
 		if type(string) is list: print(*string)
 		else: print(string)
 
-def mongo_cli(db_dict):
-	m = pymongo.MongoClient(db_dict['host'],db_dict['port'])
-	db = m[db_dict['db']]
-	print_verbose(['Mongo connection ping result: ',db.command('ping')])
-	c = db[db_dict['coll']]
-	return c
-
 def recursive_gen(in_json,tag,rec_counter):
 	
 	"""
-	Looking for tags: @src, genre, style, year, artist_id etc.
+	Recursively look for and yield tags from Mongo documents
+	@src, genre, style, year, artist_id etc.
 	"""
 	# -- we've gone down one level of nesting / recursion
 	
@@ -57,99 +51,143 @@ def recursive_gen(in_json,tag,rec_counter):
 	else: pass
 
 def get_values(metadata_tags,document):
+	
 	for tag in metadata_tags:
 		val = [value for value in recursive_gen(document,tag,0)]
 		if len(val) > 1: yield (tag, val)
 		elif len(val) == 0: yield (tag, None)
 		else: yield (tag,val[0])
 
+def mongo_connect(mongo_conn_host):
+	
+	"""
+	Connect to Mongo instance
+	"""
+	
+	print_verbose( ['Setting up Mongo DB connection to: ', mongo_conn_host] )
+	mongo_conn_dict = { 'host' : 'mongo-discogs-' + mongo_conn_host, 'port' : 27017, 'db' : 'discogs', 'coll' : mongo_conn_host }
+	
+	m = pymongo.MongoClient(mongo_conn_dict['host'],mongo_conn_dict['port'])
+	db = m[mongo_conn_dict['db']]
+	print_verbose(['Mongo connection ping result: ',db.command('ping')])
+	c = db[mongo_conn_dict['coll']]
+	
+	return c
+
+def redis_connect(redis_conn_host):
+	
+	"""
+	Connect to Redis instance
+	"""
+	
+	print_verbose( ['Setting up Redis Connection to: ', redis_conn_host] )
+	redis_conn = redis.Redis( host=redis_conn_host, port=6379 )
+	outputs = [ redis_conn ]
+	
+	ping_result = redis_conn.ping()
+	print_verbose( ['Redis connection ping result: ',ping_result ] )
+	
+	if ping_result is False:
+		print('COULD NOT CONNECT TO '+redis_conn_host+'. EXITING.')
+		exit(500)
+	
+	init_redis_dbsize = redis_conn.dbsize()
+	
+	if init_redis_dbsize == 0:
+		print('NO DATA IN '+redis_conn_host+'. EXITING.')
+		exit(0)
+		
+	print('Currently '+str(init_redis_dbsize)+' keys in '+redis_conn_host)
+	
+	print_verbose('Setting up Redis Pipeline.')
+	
+	return redis_conn, redis_conn.pipeline(), init_redis_dbsize
+
+def redis_inserts(redis_conn, key, value, list_check = None ):
+	
+	""" 
+	Simple set insert logic for Redis
+	------------------------------------------------
+	- Videos come in a list, so VALUE must be iterated over. (master_id : video_urls )
+	- Genres come in a list, so KEY must be iterated over. (genre : master_id)
+	"""
+	
+	if list_check == 'key' and isinstance(key, list):
+		adds = sum([ redis_conn.sadd( str(key_item), str(value) ) for key_item in key ])
+		
+	elif list_check == 'value' and isinstance(value, list):
+		adds = sum([ redis_conn.sadd( str(key) , str(list_item) ) for list_item in value ])
+		
+	else:
+		adds = redis_conn.sadd( str(key), str(value) )
+		
+	return adds
+
 def main(args):
 	
 	"""
 	1. Open a redis connection
-	2. Open connection to a mongo instance
-	3. Open connection to a redis instance
-	4. Get the required bits from mongo and insert into redis
+	2. Open a mongo connection
+	3. Iterate over mongo dox
+	4. Get the required bits from mongo
+	5. Insert into redis
 	5. Stats print out
 	"""
 	
 	run_type, redis_conn_host, mongo_conn_host, r_key, r_value = \
-		 	args.run_type[0], args.redis_connection_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
+		 	args.run_type[0], args.redis_insert_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
 	
 	print('\nSetting up database connections.')
 	
-	starttime = dt.now()
-	
-	# ---- set up redis connection
-	
-	print_verbose( ['Setting up Redis Connection to: ', redis_conn_host] )
-	redis_conn = redis.Redis( host=redis_conn_host, port=6379 )
-	print_verbose( ['Redis connection ping result: ', redis_conn.ping()] )
-	init_redis_dbsize = redis_conn.dbsize()
-	print_verbose( 'Setting up Redis Pipeline.' )
-	r_pipeline = redis_conn.pipeline()
-	
-	# ---- set up mongo connection
-	
-	print_verbose( ['Setting up Mongo DB connection to: ', mongo_conn_host] )
-	mongo_conn_dict = { 'host' : 'mongo-discogs-' + mongo_conn_host, 'port' : 27017, 'db' : 'discogs', 'coll' : mongo_conn_host }
-	mongo_conn = mongo_cli( mongo_conn_dict )
-	dataset = mongo_conn.find()
+	redis_conn, r_pipeline, init_redis_dbsize = redis_connect(redis_conn_host)
+	mongo_conn = mongo_connect(mongo_conn_host)
 	
 	print('DB connections set up, beginning data extraction...\n')
 	
-	# ---- iterate over mongodb documents
+	dataset, starttime, counter = mongo_conn.find(), dt.now(), 0
 	
 	for idx, document in enumerate( dataset ):
 		
 		metadata_tags = [ r_key, r_value ]
 		inserts = { key: value for key, value in get_values( metadata_tags,document ) }
+		
 		# ---- add to redis
 		
-		if inserts[r_value] == None: pass
-		else:
-			# TODO sorted sets logic for autocomplete searches...
-			# TODO can simple set and meta unique be combined? is it an either/or logic for type(inserts[r_xxx]) == list?
-			if run_type == 'simple_set':
+		if inserts[r_value] == None or inserts[r_key] == None:
+			
+			print('Missing key and/or value:')
+			print(r_key, inserts[r_key])
+			print(r_value, inserts[r_value])
+			print('\n')
+			
+		elif run_type == 'simple_set':
+			
+			# ---- Simple set inserts e.g. release_title : masters_id
+			counter += redis_inserts(redis_conn, inserts[r_key], inserts[r_value], list_check = 'value' )
+			
+		elif run_type == 'meta_uniq_set':
+			
+			# ---- Metadata inserts e.g. genre (list) : masters_id
+			# - N.B. inserts[r_key] is passed here instead of inserts
+			counter += redis_inserts(redis_conn, inserts[r_key], inserts[r_value], list_check = 'key' )
+			
+		elif run_type == 'autocomplete':
+			
+			# ---- autocomplete redis logic e.g. artist-name : ( Holden , 5 )
+			# - TODO - this needs work... bigger issues to get on with...
+			# - ZSCORE returns None if members doesn't exist in set
+			# - Set initial score to 1, increment for each additional occurance
+			# - This will rank release titles (for example) by number of occurances
+			# - More common names then turn up higher in the autocomplete searches
+			
+			if redis_conn.zscore( r_value, inserts[r_value] ) == None:
+				counter += redis_conn.zadd( r_value, inserts[r_value], 0)
+			else:
+				redis_conn.zincrby( r_value, inserts[r_value], amount = 1)
 				
-				# ---- Simple set inserts e.g. release_title : masters_id
-				# ---- Video urls come in as lists, so have to fix
-				
-				if type(inserts[r_value]) is list:
-					for list_item in inserts[r_value]:
-						redis_conn.sadd( str(inserts[r_key]) , str(list_item) )
-				else:
-					redis_conn.sadd( str(inserts[r_key]) , str(inserts[r_value]) )
-				
-			elif run_type == 'meta_uniq_set':
-				
-				# ---- N.B. inserts[r_key] is passed here instead of inserts
-				# to extract each genre/style/year/reldate as keys for redis
-				# rather than the list of them
-				
-				if type(inserts[r_key]) is list:
-					for key_item in inserts[r_key]:
-						redis_conn.sadd( str(key_item), str(inserts[r_value]) )
-				else:
-					redis_conn.sadd( str(inserts[r_key]), str(inserts[r_value]) )
-					
-			elif run_type == 'autocomplete':
-				
-				# ---- autocomplete redis logic e.g. artist-name : ( Holden , 5 )
-				# TODO - this needs work... bigger issues to get on with...
-				# ZSCORE returns None if members doesn't exist in set
-				# Set initial score to 1, increment for each additional occurance
-				# This will rank release titles (for example) by number of occurances
-				# More common names then turn up higher in the autocomplete searches
-				
-				if redis_conn.zscore( r_value, inserts[r_value] ) == None:
-					redis_conn.zadd( r_value, inserts[r_value], 0)
-				else:
-					redis_conn.zincrby( r_value, inserts[r_value], amount = 1)
-					
 		# ---- stats
 		
-		console.write( "\r{} proc / {} mongo dox".format(idx,mongo_conn.count()))
+		console.write( "\r{} proc / {} mongo dox".format( idx, mongo_conn.count() ))
 		console.flush()
 	
 	# ---- execute redis pipeline
@@ -161,16 +199,17 @@ def main(args):
 	
 	elapsed_time, redis_additions = dt.now() - starttime, redis_conn.dbsize() - init_redis_dbsize
 	print('\nExtraction complete!')
-	print_verbose( str(redis_additions) + ' keys were added to the ' + redis_conn_host + ' Redis DB')
+	print_verbose( str(redis_additions) + ' keys were actually added to the ' + redis_conn_host + ' Redis DB')
+	print_verbose( 'Redis counter is at: '+ str(counter) +'. Does this match?' )
 	print_verbose('Time taken (mins): ' + str(elapsed_time.total_seconds()//60) )
 
 if __name__ == '__main__':
 	
-	parser = argparse.ArgumentParser(description="REDIS *SET* INSERTS: Get data from a Mongo collection and load into a Redis instance")
+	parser = argparse.ArgumentParser(description="REDIS *SET* INSERTS: Get data from Mongo and load into Redis")
 	
 	parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_uniq_set','autocomplete'])
 	parser.add_argument('mongo_connection_host',type=str,nargs=1,choices=['masters','labels','releases','artists'])
-	parser.add_argument('redis_connection_host',type=str,nargs=1)
+	parser.add_argument('redis_insert_host',type=str,nargs=1)
 	parser.add_argument('redis_key',type=str,nargs=1)
 	parser.add_argument('redis_value',type=str,nargs=1)
 	parser.add_argument('--verbose','-v',action='store_true')
