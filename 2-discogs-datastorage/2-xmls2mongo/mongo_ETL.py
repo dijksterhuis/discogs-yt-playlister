@@ -25,9 +25,80 @@ TODO
 	- country ?
 """
 
+KEY_CHANGES = [ \
+			(('title',) , 'release_title') \
+			, (('urls',) , 'artist_urls')
+			, (('profile',) , 'artist_profile') \
+			, (('name',) , 'artist_name') \
+			, (('realname',) , 'artist_realname') \
+			, (('members', 'id' ) , 'member_id') \
+			, (('members', 'name' ) , 'member_name') \
+			, (('aliases', 'name') , 'alias_name') \
+			, (('artist_urls', 'url') , 'artist_url') \
+			, (('sublabels', 'label') , 'sublabel_name') \
+			, (('artists', 'artist','id' ) , 'artist_id') \
+			, (('artists', 'artist', 'name' ) , 'artist_name') \
+			, (('artists', 'artist', 'tracks' ) , 'artist_tracks') \
+			, (('artists', 'artist', 'join' ) , 'artist_join') \
+			, (('artists', 'artist', 'role' ) , 'artist_role') \
+			, (('artists', 'artist', 'anv' ) , 'artist_anv') \
+			, (('extraartists', 'artist','id' ) , 'extra_artist_id') \
+			, (('extraartists', 'artist', 'name' ) , 'extra_artist_name') \
+			, (('extraartists', 'artist', 'tracks' ) , 'extra_artist_tracks') \
+			, (('extraartists', 'artist', 'join' ) , 'extra_artist_join') \
+			, (('extraartists', 'artist', 'role' ) , 'extra_artist_role') \
+			, (('extraartists', 'artist', 'anv' ) , 'extra_artist_anv') \
+			, (('labels', 'label', 'id' ) , 'label_id') \
+			, (('videos', 'video', 'title' ) , 'video_title') \
+			, (('videos', 'video', 'description' ) , 'video_desc') \
+			, (('videos', 'video', '@duration' ) , 'video_duration') \
+			, (('videos', 'video', '@src' ) , 'video_url') \
+			, (('videos', 'video', '@embed' ) , 'video_embedded') \
+			, (('labels', 'label', '@catno' ) , 'label_catno') \
+			, (('labels', 'label', '@id' ) , 'label_id') \
+			, (('labels', 'label', '@name' ) , 'label_name') \
+			, (('namevariations', 'name') , 'namevar_name') \
+			, (('companies', 'company', 'id' ) , 'company_id') \
+			, (('companies', 'company', 'name' ) , 'company_name') \
+			, (('images', 'image', '@uri' ) , 'image_url') \
+			, (('images', 'image', '@type' ) , 'image_type') \
+			, (('images', 'image', '@width' ) , 'image_width') \
+			, (('images', 'image', '@height' ) , 'image_height') \
+			, (('images', 'image', '@uri150' ) , 'image_url_150') \
+			, (('tracks', 'track', 'title' ) , 'track_title') \
+			, (('tracks', 'track', 'duration' ) , 'track_duration') \
+			, (('tracklist', 'track', 'position' ) , 'tracklist_position') \
+			, (('tracklist', 'track', 'title' ) , 'tracklist_title') \
+			, (('tracklist', 'track', 'duration' ) , 'tracklist_duration') \
+			, (('identifiers', 'identifier', '@description' ) , 'identifier_desc') \
+			, (('identifiers', 'identifier', '@type' ) , 'identifier_type') \
+			, (('identifiers', 'identifier', '@value' ) , 'identifier_value') \
+			, (('formats', 'format', '@name' ) , 'format_name') \
+			, (('formats', 'format', '@qt' ) , 'format_quantity') \
+			, (('formats', 'format', '@text' ) , 'format_text') \
+			, (('formats', 'format', 'descriptions', 'description' ) , 'format_descriptors') \
+		]
+
+DROP_KEYS = [ \
+				'images' \
+				,'tracks' \
+				,'identifiers' \
+				,'formats' \
+				,'namevariations' \
+				,'tracklist' \
+				,'companies' \
+				,'aliases' \
+				,'urls' \
+				,'sublabels' \
+				,'notes' \
+				,'profile' \
+			]
+
+RELEASE_DROP_KEYS = DROP_KEYS + ['videos', 'artists']
+
 def s(string):
 	"""
-	I like saving space across my screen
+	I like saving horizontal typing space
 	"""
 	return str(string)
 
@@ -153,85 +224,18 @@ def handle_elements(path, element):
 	
 	# remove non-useful elements (if they exist)
 	# e.g. get rid of images and tracks data, we don't need it
-	
-	keys_to_drop = [ \
-					'images' \
-					,'tracks' \
-					,'identifiers' \
-					,'formats' \
-					,'namevariations' \
-					,'tracklist' \
-					,'companies' \
-					,'aliases' \
-					,'urls' \
-					,'sublabels' \
-					,'notes' \
-					,'profile' \
-				]
+	if collection_choice == 'releases': keys_to_drop = RELEASE_DROP_KEYS
+	else: keys_to_drop = DROP_KEYS
 	
 	for key in keys_to_drop:
-		if key in element.keys():
-			element.pop(key)
+		if key in element.keys(): element.pop(key)
 	
 	# ---- Change titles of elements to more useful names for redis load recursive searching
 	# please note that any elements from keys_to_drop will not be looked for in the recursive searching
 	# (the keys are kept in the changes array for reference purposes / should the keys_to_drop need to change)
-	changes = [ \
-				(('title',) , 'release_title') \
-				, (('urls',) , 'artist_urls')
-				, (('profile',) , 'artist_profile') \
-				, (('name',) , 'artist_name') \
-				, (('realname',) , 'artist_realname') \
-				, (('members', 'id' ) , 'member_id') \
-				, (('members', 'name' ) , 'member_name') \
-				, (('aliases', 'name') , 'alias_name') \
-				, (('artist_urls', 'url') , 'artist_url') \
-				, (('sublabels', 'label') , 'sublabel_name') \
-				, (('artists', 'artist','id' ) , 'artist_id') \
-				, (('artists', 'artist', 'name' ) , 'artist_name') \
-				, (('artists', 'artist', 'tracks' ) , 'artist_tracks') \
-				, (('artists', 'artist', 'join' ) , 'artist_join') \
-				, (('artists', 'artist', 'role' ) , 'artist_role') \
-				, (('artists', 'artist', 'anv' ) , 'artist_anv') \
-				, (('extraartists', 'artist','id' ) , 'extra_artist_id') \
-				, (('extraartists', 'artist', 'name' ) , 'extra_artist_name') \
-				, (('extraartists', 'artist', 'tracks' ) , 'extra_artist_tracks') \
-				, (('extraartists', 'artist', 'join' ) , 'extra_artist_join') \
-				, (('extraartists', 'artist', 'role' ) , 'extra_artist_role') \
-				, (('extraartists', 'artist', 'anv' ) , 'extra_artist_anv') \
-				, (('labels', 'label', 'id' ) , 'label_id') \
-				, (('videos', 'video', 'title' ) , 'video_title') \
-				, (('videos', 'video', 'description' ) , 'video_desc') \
-				, (('videos', 'video', '@duration' ) , 'video_duration') \
-				, (('videos', 'video', '@src' ) , 'video_url') \
-				, (('videos', 'video', '@embed' ) , 'video_embedded') \
-				, (('labels', 'label', '@catno' ) , 'label_catno') \
-				, (('labels', 'label', '@id' ) , 'label_id') \
-				, (('labels', 'label', '@name' ) , 'label_name') \
-				, (('namevariations', 'name') , 'namevar_name') \
-				, (('companies', 'company', 'id' ) , 'company_id') \
-				, (('companies', 'company', 'name' ) , 'company_name') \
-				, (('images', 'image', '@uri' ) , 'image_url') \
-				, (('images', 'image', '@type' ) , 'image_type') \
-				, (('images', 'image', '@width' ) , 'image_width') \
-				, (('images', 'image', '@height' ) , 'image_height') \
-				, (('images', 'image', '@uri150' ) , 'image_url_150') \
-				, (('tracks', 'track', 'title' ) , 'track_title') \
-				, (('tracks', 'track', 'duration' ) , 'track_duration') \
-				, (('tracklist', 'track', 'position' ) , 'tracklist_position') \
-				, (('tracklist', 'track', 'title' ) , 'tracklist_title') \
-				, (('tracklist', 'track', 'duration' ) , 'tracklist_duration') \
-				, (('identifiers', 'identifier', '@description' ) , 'identifier_desc') \
-				, (('identifiers', 'identifier', '@type' ) , 'identifier_type') \
-				, (('identifiers', 'identifier', '@value' ) , 'identifier_value') \
-				, (('formats', 'format', '@name' ) , 'format_name') \
-				, (('formats', 'format', '@qt' ) , 'format_quantity') \
-				, (('formats', 'format', '@text' ) , 'format_text') \
-				, (('formats', 'format', 'descriptions', 'description' ) , 'format_descriptors') \
-			]
-			
+	
 	correct_changes_per_iter, skipped_keys_per_iter = 0,0
-	for idx,pair in enumerate(changes):
+	for idx,pair in enumerate(KEY_CHANGES):
 		key_address, key_change_value = pair
 		if key_address[0] in keys_to_drop:
 			pass
@@ -258,7 +262,8 @@ def handle_elements(path, element):
 	correct_changes += correct_changes_per_iter
 	skipped_keys += skipped_keys_per_iter
 	
-	console.write('\r{} inserted, {} title change, {} key search empty {} skipped insert'.format(counter, correct_changes , skipped_keys , duplicate_keys ))
+	console.write('\r{} inserted, {} title change, {} key search empty {} skipped insert'.format( \
+																	counter, correct_changes , skipped_keys , duplicate_keys ))
 	console.flush()
 	
 	return True
