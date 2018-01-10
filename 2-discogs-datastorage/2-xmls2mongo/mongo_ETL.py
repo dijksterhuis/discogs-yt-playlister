@@ -210,7 +210,7 @@ def handle_elements(path, element):
 		print('\nNo data in xml element!!\n')
 	
 	# ---- Create YEAR, MONTH & DATE entries for release date (releases only)
-	if 'released' in element.keys()
+	if 'released' in element.keys():
 		element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
 		element['released-yearmonth'] = element['released-year'] + '-' + element['released-month']
 		element['released-date'] = element.pop('released')
