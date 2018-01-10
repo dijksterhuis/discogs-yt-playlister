@@ -1,5 +1,8 @@
 ## TODOs
 
+- Downloads md5checksum
+  - How to log/automate a flag if the checksum isn't right?
+
 - Youtube API
   - Playlist gen
   - Video additions (is POST request with no return data possible? - will playlist\_added.html load?)
