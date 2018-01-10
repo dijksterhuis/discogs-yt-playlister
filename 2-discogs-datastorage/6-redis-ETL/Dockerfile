@@ -9,5 +9,5 @@ COPY redis-load*.py /home/
 COPY reqs.txt /home
 RUN chmod u+x /home/*.py
 WORKDIR /home
-RUN pip install --upgrade reqs.txt
+RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
