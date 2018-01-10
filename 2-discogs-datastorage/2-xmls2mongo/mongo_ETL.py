@@ -295,8 +295,8 @@ def main(args):
 		print('\nmongo conn: ', db_dict,'\nmongo conn ping t/f: ', ping_result,'\nmongo indexes: ', indexes)
 		
 		with open(infile,'rb') as f_in_xml:
-			print_verbose('\nParsing '+s(f_in_xml)+' with xmltodict - writing to mongo collection: '+s(db_dict['coll']))
-			xmltodict.parse(infile,item_depth=2,process_namespaces=True,item_callback=handle_elements)
+			print_verbose('\nParsing '+infile+' with xmltodict - writing to mongo collection: '+s(db_dict['coll']))
+			xmltodict.parse(f_in_xml,item_depth=2,process_namespaces=True,item_callback=handle_elements)
 			print_verbose('\nWritten to mongo collection: '+s(db_dict['coll']))
 	
 if __name__ == '__main__':
