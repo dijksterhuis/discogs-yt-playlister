@@ -210,21 +210,21 @@ def handle_elements(path, element):
 		print('\nNo data in xml element!!\n')
 	
 	# ---- Create YEAR, MONTH & DATE entries for release date (releases only)
-	if 'released' in element.keys():
-		if isinstance(element['released'], str):
-			if element['released'].count('-') > 1:
-				
-				if element['released'].count('-') == 2:
-					element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
-				
-				elif element['released'].count('-') == 1:
-					element['released-year'], element['released-month'] = element['released'].split('-')
-				
-				element['released-yearmonth'] = element['released-year'] + '-' + element['released-month']
-				
-			element['released-date'] = element.pop('released')
-		else:
-			element.__delitem__('released')
+	#if 'released' in element.keys():
+	#	if isinstance(element['released'], str):
+	#		if element['released'].count('-') > 1:
+	#			
+	#			if element['released'].count('-') == 2:
+	#				element['released-year'], element['released-month'], element['released-dotm'] = element['released'].split('-')
+	#			
+	#			elif element['released'].count('-') == 1:
+	#				element['released-year'], element['released-month'] = element['released'].split('-')
+	#			
+	#			element['released-yearmonth'] = element['released-year'] + '-' + element['released-month']
+	#			
+	#		element['released-date'] = element.pop('released')
+	#	else:
+	#		element.__delitem__('released')
 	
 	elif None not in path[1]:
 		# ---- Add id attribute of streamed entry to element dict
