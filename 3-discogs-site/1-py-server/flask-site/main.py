@@ -154,7 +154,7 @@ def query_builder():
 		
 		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
 		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
-		label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':release_name} )
+		label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':label_name} )
 		
 		if len(artist_ids) == 0 and len(release_ids) == 0 and len(label_ids) == 0:
 			flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')
