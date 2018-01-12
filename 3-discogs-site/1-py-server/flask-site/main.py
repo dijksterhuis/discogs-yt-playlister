@@ -150,6 +150,7 @@ def query_builder():
 		label_name = request.form.get('search:label_name', type=str, default='')
 		
 		# ---- Get master IDs from APIs
+		# - TODO change to a generator expy then generate a set?
 		
 		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
 		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
@@ -165,8 +166,7 @@ def query_builder():
 		
 		wide_query_sets = list_of_sets(master_ids_dict.values())
 		
-		if len(wide_query_sets) == 0: to_intersect = [artist_ids,release_ids]
-		
+		if len(wide_query_sets) == 0: to_intersect = [artist_ids,release_ids,label_ids]
 		else: to_intersect = [artist_ids,release_ids,set.intersection(*wide_query_sets)]
 		
 		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
