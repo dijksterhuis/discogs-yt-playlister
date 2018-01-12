@@ -185,24 +185,21 @@ def query_builder():
 		if numb_links == 0:
 			flash("No videos found - but found Discogs releases. Some releases don't have any video links :(" ,'message')
 			return redirect(url_for('query_builder'))
+		
+		elif numb_links > VIDEO_LIMIT:
 			
-		if 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
+			flash(\
+						'Too many videos in query. You have ' \
+						+ str(numb_links)+' in your playlist. Playlist limit is ' \
+						+ str(VIDEO_LIMIT)+ '.' \
+						,'message' \
+					)
+					
+			return redirect(url_for('query_builder'))
 			
 		else:
-			numb_playlist_vids = session['numb_videos'] + numb_links
-			
-			if numb_playlist_vids > VIDEO_LIMIT:
-				
-				flash(\
-							'Too many videos in query. You have ' \
-							+ str(numb_playlist_vids)+' in your playlist. Playlist limit is ' \
-							+ str(VIDEO_LIMIT)+ '.' \
-							,'message' \
-						)
-						
-				return redirect(url_for('query_builder'))
-				
-			else: session['numb_videos'] = numb_playlist_vids
+			if 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
+			else: session['numb_videos'] = session['numb_videos'] + numb_links
 		
 		# ---- Add to redis cache
 		

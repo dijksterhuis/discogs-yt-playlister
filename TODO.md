@@ -5,6 +5,10 @@
 - Playlist creation
   - add to existing playlists?
 
+- SessionID logic
+  - not randint!
+  - Max query API...
+
 - Youtube API
   - Playlist gen
   - Video additions
