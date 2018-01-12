@@ -167,7 +167,7 @@ def query_builder():
 		wide_query_sets = list_of_sets(master_ids_dict.values())
 		
 		if len(wide_query_sets) == 0: to_intersect = [artist_ids,release_ids,label_ids]
-		else: to_intersect = [artist_ids,release_ids,set.intersection(*wide_query_sets)]
+		else: to_intersect = [artist_ids,release_ids,label_ids,set.intersection(*wide_query_sets)]
 		
 		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
 		
