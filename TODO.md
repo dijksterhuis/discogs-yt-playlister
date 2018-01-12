@@ -1,29 +1,54 @@
 ## TODOs
 
+- ERROR HANDLING!
+
+- Playlist creation
+  - add to existing playlists?
+
 - Youtube API
   - Playlist gen
-  - Video additions (is POST request with no return data possible? - will playlist\_added.html load?)
+  - Video additions
+    - Is POST request with no response data possible?
+    - Will "/playlist\_added.html" load?
 
 - Clear videos cache for session id after playlist build
 
-- Build query (intersections) on seperate RESTful API
+- Build query (intersections) on seperate RESTful API ?
 
 - Release date filtering:
+  - Release dates are really dirty!!!
   - Design release date query logic (Y & M & D set intersection? or YYYY-MM choice in redis?)
   - Rerun mongo releases script (updated date logic)
   - Run release date redis inserts
   - Add release date query fields
 
-- Labels Data:
-  - TEST redis loads
-  - Add labels API
-
-- Country data - Acid Techno from Germany!
+- Country data
+  - Acid Techno from Germany!
 
 - Redis Inserts:
-  - TEST new Mongo + Redis conn functions, Data insert functions
   - Sorted set logic for autocomplete searches
-  - Switch databases on inserts ? Check how Redis handles multiple I/O requests ?
+  - Check how Redis handles multiple I/O requests ?
+    - Load to DB 1, switch DB 0 to DB 1, then flush DB 1 after inserts ? 
+  - Updates !?
+    - Currently assume a master title/label won't change. It could!
+
+- Autocomplete on text searches:
+  - javascript
+    - AJAX / JQuery...
+      - <https://jqueryui.com/autocomplete/>
+      - <http://flask.pocoo.org/docs/0.12/patterns/jquery/>
+      - <https://stackoverflow.com/questions/15310644/flask-ajax-autocomplete>
+  - redis APIs
+  - Lexographical queries:
+    - Reformat redis Text to UPPER:Original ?
+    - How many many results to display ?
+
+- NGINX + USWGI
+  - Nginx config set up nerd out...
+  - Build own ? 2 container method preffered (nginx scaling)
+  - How to SSL it ?
+    - oauth breaks using tiangulo docker image.
+  - Any other options ?
 
 - `download_xmls.sh`
   - How to log/automate a flag if the md5checksum results aren't right?
@@ -34,18 +59,16 @@
 
 - Mongo Inserts
   - Does data need to be kept in Mongo ? Do straight ETL ?
-  - Database name should be something relevant to file's date information e.g. `179` for `20170901` - how to pass on to Redis inserts?
+  - Database name should be something relevant to file's date information e.g. `179` for `20170901`
+    - how to pass on to Redis inserts?
   - Data files don't necessarily upload on `01` of month.
   - Does releases data fit into 10GB of memeory?
+    - 8 million records = 42% memory usage (0.42 * 15.6 = 6.5 GB...)
+    - Mongo version is 3.4
+    - So SHOULD default to WiredTiger enginer
+    - Shouldn't use more than 50% system memory!
 
 - Jenkins CI
-
-- Autocomplete on text searches:
-  - node.js
-  - redis APIs
-  - Lexographical queries:
-    - Reformat redis Text to UPPER:Original ? 
-    - How many many results to display ?
 
 - Finish styling:
   - bootstrap?
@@ -59,21 +82,16 @@
   - Lighter back colour for inputs
   - Turn off autocomplete suggestions from browser
 
-- FAQ / landing page
+- FAQ / Landing / Welcome page
 
 - Privacy Policy
 
 - Query Javascript loading query script... Give the user something to look at!
 
-- **REAL** artist name ? Covering all of an artists aliases ?
+- **REAL** artist names ?
+  - Covering all of an artists aliases...
+  - Requires artists file + linking to masters file...
 
-- Hadoop w/ Hive or SQL implementation?
-
-- NGINX + USWGI
-  - Nginx config set up nerd out...
-  - Build own ? 2 container method preffered (nginx scaling)
-  - How to SSL it ?
-    - oauth breaks using tiangulo docker image.
-  - Any other options ?
+- Hadoop w/ Hive / SQL implementation ?
 
 - MongoDB APIs - single document (misc analysis) public RESTful APIs

@@ -35,12 +35,12 @@ app = Flask(__name__)
 # Super secret cookie session key
 app.secret_key = os.urandom(24)
 
-
 # --------------------------------------------------
 # My vars
 # --------------------------------------------------
 
 # reldate?
+VIDEO_LIMIT = 1000
 BASE_API_URL = 'http://172.23.0.'
 TAGS = ['year','genre','style']
 NAV = { 'Authorise' : '/authorize' ,'Build A Query' : '/query_builder' ,'FAQ' : '/faq' ,'Current Videos' : '/current_urls'}
@@ -106,10 +106,13 @@ def api_post(host_string, r_json):
 def index():
 	return redirect('welcome')
 
+
 @app.route('/welcome',methods=['GET'])
 def home():
 	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
+	
 	video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+	
 	return render_template('/videos_added.html' \
 									, nav_links=NAV \
 									, intersex=video_ids \
@@ -126,7 +129,9 @@ def query_builder():
 	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
 	
 	if request.method == 'GET':
+		
 		uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], {'tag':tag} ) for tag in TAGS }
+		
 		return render_template('/query-form.html' \
 										, nav_links=NAV \
 										, years=uniq_params['year'] \
@@ -148,11 +153,10 @@ def query_builder():
 		
 		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
 		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
-		#label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':release_name} )
+		label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':release_name} )
 		
-		#and len(label_ids) == 0:
-		if len(artist_ids) == 0 and len(release_ids) == 0:
-			flash('You must provide an input for at least one text search field (artist, release or label name).','message')
+		if len(artist_ids) == 0 and len(release_ids) == 0 and len(label_ids) == 0:
+			flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')
 			return redirect(url_for('query_builder'))
 		
 		master_ids_dict = api_get_requests(API_URLS['ids_from_metadata'], wide_query_dict )
@@ -161,14 +165,14 @@ def query_builder():
 		
 		wide_query_sets = list_of_sets(master_ids_dict.values())
 		
-		if len(wide_query_sets) == 0:
-			to_intersect = [artist_ids,release_ids]
-		else:
-			to_intersect = [artist_ids,release_ids,set.intersection(*wide_query_sets)]
+		if len(wide_query_sets) == 0: to_intersect = [artist_ids,release_ids]
+		
+		else: to_intersect = [artist_ids,release_ids,set.intersection(*wide_query_sets)]
 		
 		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
 		
 		if len(master_ids) == 0:
+			
 			flash('No discogs master releases found for your query.','message')
 			return redirect(url_for('query_builder'))
 		
@@ -179,17 +183,26 @@ def query_builder():
 		numb_links = len(all_links)
 		
 		if numb_links == 0:
-			flash("No videos found for query - but there were Discogs releases. Some releases don't have any video links." ,'message')
+			flash("No videos found - but found Discogs releases. Some releases don't have any video links :(" ,'message')
 			return redirect(url_for('query_builder'))
-		if 'numb_videos' not in session.keys():
-			session['numb_videos'] = numb_links
+			
+		if 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
+			
 		else:
 			numb_playlist_vids = session['numb_videos'] + numb_links
-			if numb_playlist_vids > 400:
-				flash('Too many videos in query. You have '+str(numb_playlist_vids)+' in your playlist. Playlist limit is 400.','message')
+			
+			if numb_playlist_vids > VIDEO_LIMIT:
+				
+				flash(\
+							'Too many videos in query. You have ' \
+							+ str(numb_playlist_vids)+' in your playlist. Playlist limit is ' \
+							+ str(VIDEO_LIMIT)+ '.' \
+							,'message' \
+						)
+						
 				return redirect(url_for('query_builder'))
-			else:
-				session['numb_videos'] = numb_playlist_vids
+				
+			else: session['numb_videos'] = numb_playlist_vids
 		
 		# ---- Add to redis cache
 		
@@ -205,6 +218,7 @@ def query_builder():
 
 @app.route('/current_urls',methods=["GET"])
 def current_vids():
+	
 	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
 	
 	video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
@@ -285,7 +299,11 @@ def send_to_yt():
 	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
 	
 	if request.method == 'GET':
+		
 		video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
+		
+		# ---- TODO add to an existing playlist?
+		
 		return render_template('/playlist_details.html' \
 										, nav_links=NAV \
 										, numb_videos = len(video_ids)\
