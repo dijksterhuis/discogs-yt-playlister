@@ -147,28 +147,15 @@ def query_builder():
 		
 		# ---- Query parameters
 		
-		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in TAGS}
-		
+		metadata_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in TAGS}
 		names = {name : request.form.get('search:'+name+'_name', type=str, default='') for name in NAME_FIELDS}
-		#artist_name = request.form.get('search:artist_name', type=str, default='')
-		#release_name = request.form.get('search:release_name', type=str, default='')
-		#label_name = request.form.get('search:label_name', type=str, default='')
 		
 		if sum([len(v) for v in names.values()]) == 0:
 			flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')
 			return redirect(url_for('query_builder'))
-			
-		#if len(artist_name) == 0 and len(release_name) == 0 and len(label_name) == 0:
-		#	flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')
-		#	return redirect(url_for('query_builder'))
-		
 		
 		# ---- Get master IDs from APIs
 		# - TODO change to a generator expy then generate a set?
-		
-		#artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
-		#release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
-		#label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':label_name} )
 		
 		name_ids = { name : api_get_requests(API_URLS['ids_from_name'], {'name_type':name,'name':names[name]} ) for name in NAME_FIELDS }
 		
@@ -176,20 +163,17 @@ def query_builder():
 			flash('No results found for your text input. Please try another search.','message')
 			return redirect(url_for('query_builder'))
 		
-		#if len(artist_ids) == 0 and len(release_ids) == 0 and len(label_ids) == 0:
-		#	flash('No results found for your text input. Please try another search.','message')
-		#	return redirect(url_for('query_builder'))
-		
-		master_ids_dict = api_get_requests(API_URLS['ids_from_metadata'], wide_query_dict )
+		metatadata_ids = api_get_requests(API_URLS['ids_from_metadata'], metadata_query_dict )
 		
 		# ---- Calculate Query (TODO move off to a seperate API ?)
 		
-		wide_query_sets = list_of_sets(master_ids_dict.values())
+		metadata_intersections = set.intersection(*list_of_sets(metadata_ids.values()))
+		name_intersections = set.intersection(*list_of_sets(name_ids.values()))
 		
-		if len(wide_query_sets) == 0: to_intersect = [artist_ids,release_ids,label_ids]
-		else: to_intersect = [artist_ids,release_ids,label_ids,set.intersection(*wide_query_sets)]
+		if len(metadata_intersections) == 0: master_ids = list(name_intersections)
+		else: master_ids = list(set.intersection(name_intersections,metadata_intersections))
 		
-		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
+		#master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
 		
 		if len(master_ids) == 0:
 			flash('No discogs master releases found for your query.','message')
