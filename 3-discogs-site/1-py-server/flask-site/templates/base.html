@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-
+<title>Discogs-YT-Playlister</title>
 <head>
   
 {% block head %}
@@ -24,139 +24,174 @@
 
 <style>
 
-body {
-    background-color: rgb(20,20,20);
-}
-
-h1 {
-    color: white;
-}
-
-h2 {
-    color: white;
-}
-h3 {
-    color: white;
-}
-h4 {
-    color: white;
-}
-
-p {
-    color: white;
-}
-
-li {
-    color: white;
-}
-
-div[id=form_input] {
-    height: 100%; width: 100%;
-}
-
-input { 
-    text-align: center ; background-color: LightGray; color: black ; border-radius: 1px ; border-style: hidden; 
-}
-
-input:focus { 
-    text-align: center ; background-color: LightGray; color: black ; border-radius: 1px; outline: none; border-right: 2px solid red ;
-}
-
-select{
-    background-color: LightGray; color: black; border-radius: 4px;
-}
-
-/*select:focus {
-    outline: none;
-}*/
-
-fieldset[id=selections] {
-  margin : auto ; padding: 50px ; /*margin: 30px 50px ;*/
-}
-
-table {
-    color: white;
-}
-
-td{ 
-    color: white ; padding: 2px 15px;
-}
-
 #navmenu ul 
 {
+  text-align : center ;
   background: grey; 
-  margin: 10px; 
-  padding: 10px; 
+  margin: 1% 1% ;
+  padding: 2% ; 
 	list-style-type: none;
   list-style-image: none; 
 }
+#navmenu li {
+    text-align : justify ; 
+    display: inline ;
+    padding: 1% ;
+}
 
-#navmenu li {display: inline; padding: 10px 75px 5px 20px}
-#navmenu a {text-decoration:none; color: white; }
-#navmenu a:hover {color: orange;}
+#navmenu a {
+    text-decoration : none ;
+    color: white ;
+}
 
-.btn-lg 
-  {
-  background-color: white;
-  color: blue;
-  border-color: none;
-  border-radius: 5px;
-  font-size: xx-large;
-  }
+#navmenu a:hover {
+    color: orange;
+}
 
-.btn-block 
-  {
-  background-color: white;
-  color: blue;
-  border-color: none;
-  border-radius: 5px;
-  font-size: xx-large;
-  }
+body {background-color: rgb(20,20,20);}
+h1 {color: white;}
+h2 {color: white;}
+h3 {color: white;}
+h4 {color: white;}
+p  {color: white;}
+li {color: white;}
+a {color: lightblue}
 
-.btn-default 
-  {
-  background-color: Grey;
-  color: white;
-  border-color: none;
-  border-radius: 0px;
-  font-size: x-large;
-  }
+table {
+    color: white ;
+    width: 95% ;
+    text-align: left ;
+    border-width : 2% ;
+    border-style : hidden ;
+    padding: 5px 5px; 
+}
+
+td {
+    color: white ;
+    padding: 5px 5px 5px 5px;
+    border-width : 0% ;
+    border-style : hidden ;
+}
+
+th {
+    text-align : center ;
+}
+
+div[id=form_input] {
+    height: 90% ;
+    width: 95% ;
+}
+
+div[id=message_flashes] {
+    text-align : center ; 
+    height : 10% ;
+    width: 100% ;
+    margin: 30% ;
+}
+
+input { 
+    padding : 3% 3% ;
+    text-align: center ;
+    background-color: LightGray ;
+    color: black ;
+    border-radius: 2px ;
+    border-style: hidden ;
+    border-bottom: 2px ;
+    box-sizing : border-box ;
+    
+}
+
+input:focus { 
+    outline: none ;
+    border-bottom: 2px solid red ;
+}
+
+select{
+    text-align : center ;
+    height : 100% ;
+    width : 90% ; 
+    background-color: LightGray ;
+    color: black ;
+}
+
+input[type=radio] { 
+    text-align: center ;
+    background-color: LightGray ;
+    color: White ;
+    /*border-radius: 1px ; border-style: hidden; */
+}
+
+input[type=number] { 
+    text-align: center ;
+    background-color: LightGray ;
+    color: black ;
+    width : 90% ;
+    /*border-radius: 1px ; border-style: hidden; */
+}
+
+input[type=search] { 
+    text-align: center ;
+    background-color: LightGray ;
+    color: black;
+    width : 90% ;
+    /*border-radius: 1px ; border-style: hidden; */
+}
+
+fieldset {
+  height : 100% ;
+    width : 100% ;
+    /*margin: 30px 50px ;*/
+}
+
+fieldset[id=searches] {
+    height : 50% ;
+}
+
+fieldset[id=selections] {
+    height : 40% ;
+}
+
+.btn-lg {
+    background-color: white;
+    color: blue;
+    border-color: none;
+    border-radius: 3px;
+    font-size: xx-large;
+}
+
+.btn-block {
+    background-color: white;
+    color: blue;
+    border-color: none;
+    border-radius: 3px;
+    font-size: xx-large;
+}
+
+.btn-default {
+    align : center ;
+    background-color: Grey;
+    color: white;
+    border-color: none;
+    border-radius: 10px;
+    font-size: large;
+}
   
-.btn-default2 
-  {
-  background-color: Grey;
-  size: large;
-  color: white;
-  position: absolute;
-  right: 0px;
-  border-color: none;
-  border-radius: 0px;
-  font-size: large;
-  }
-
-.btn-watch 
-  {
-    background-color: black;
+.btn-default2 {
+    background-color: Grey;
     size: large;
     color: white;
+    position: absolute;
+    right: 0px;
     border-color: none;
     border-radius: 0px;
     font-size: large;
-    }
+}
 
-#cat-vid-container 
-  {
-  background-color: white;
-  color: blue;
-  border-color: none;
-  border-radius: 5px;
-  padding: 10px 75px 5px 20px;
-  }
 
-a {color: lightblue}
 
 </style>
 
+<!--
 <link rel="apple-touch-icon" sizes="57x57" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-60x60.png">
 <link rel="apple-touch-icon" sizes="72x72" href="static/34e09c05eed5d87c56eeccd0df2d14e0.ico/apple-icon-72x72.png">
@@ -174,19 +209,48 @@ a {color: lightblue}
 <meta name="msapplication-TileColor" content="#ffffff">
 <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
 <meta name="theme-color" content="#ffffff">
+-->
 
 </head>
 
 <body>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- navigation menu -->  
+  <div id="navmenu">
+      <ul>
+        {% for link in nav_links %}
+      	<li><a href="{{nav_links[link]}}">{{link}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  
+  <!-- message flashing -->
+  <div class="message_flashes">
+    {% with messages = get_flashed_messages(["message"]) %}
+      {% if messages %}
+        <ul class=flashes>
+          {% for category, message in messages %}
+            {% if category == 'message' %}
+              <p>{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+  
+  <!-- main page div -->  
   <div class="container">
     <!-- child template -->
     {% block content %}{% endblock %}
-  <br>
+    <br>
+    
     <!-- errors -->
+    {% with errors = get_flashed_messages(category_filter=["error"]) %}
     {% if error %}
     <p class="error"><strong>Error:</strong> {{ error }}</p>
     {% endif %}
+    {% endwith %}
   </div>
   
 </body>

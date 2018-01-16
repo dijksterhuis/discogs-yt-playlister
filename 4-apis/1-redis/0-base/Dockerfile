@@ -3,10 +3,13 @@ LABEL author="michael robeson (Dijksterhuis)" \
       project="discogs playlister" \
       name="discogs-flask-redis-api" \
       purpose="Get the required data from redis" \
-      version="dev"
+      version="base"
 RUN mkdir /logging/
 COPY *.py /home/
 RUN chmod a+x /home/*.py
-RUN apk update
-RUN pip install --upgrade flask requests redis werkzeug flask-httpauth flask_restful
+COPY reqs.txt /home
 WORKDIR /home
+RUN apk update ; apk upgrade
+RUN pip install --upgrade -r reqs.txt
+RUN rm /home/reqs.txt
+EXPOSE 80

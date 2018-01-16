@@ -6,6 +6,8 @@ LABEL author="michael robeson (Dijksterhuis)" \
       version="modularised-0.1"
 RUN mkdir /logging/
 COPY redis-load*.py /home/
+COPY reqs.txt /home
 RUN chmod u+x /home/*.py
-RUN pip install --upgrade argparse redis pymongo
 WORKDIR /home
+RUN pip install --upgrade -r reqs.txt
+RUN rm /home/reqs.txt
