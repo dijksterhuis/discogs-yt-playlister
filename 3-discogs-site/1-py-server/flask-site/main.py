@@ -171,7 +171,7 @@ def query_builder():
 		
 		name_intersections = set_from_dict(name_ids)
 		
-		if sum([len(v) for v in name_ids.values()]) != 0:
+		if sum([len(v) for v in metadata_query_dict.values()]) != 0:
 			metadata_ids = api_get_requests(API_URLS['ids_from_metadata'], metadata_query_dict )
 			metadata_intersections = set_from_dict(metadata_ids)
 			master_ids = set.intersection(name_intersections,metadata_intersections)
