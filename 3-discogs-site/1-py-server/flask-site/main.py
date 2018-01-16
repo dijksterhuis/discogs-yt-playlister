@@ -202,21 +202,23 @@ def query_builder():
 					
 			return redirect(url_for('query_builder'))
 		
-		elif 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
+		else:
+			
+			# ---- Add to redis cache
 		
-		else: session['numb_videos'] = session['numb_videos'] + numb_links
-		
-		# ---- Add to redis cache
-		
-		redis_query_cache_adds = api_put_requests( \
-													API_URLS['video_query_cache'] \
-													, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
-												)
-		
-		flash(str(numb_links)+' video links added. '+str(session['numb_videos'])+' videos in your playlist.','message')
-		
-		uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], {'tag':tag} ) for tag in TAGS }
-		return redirect(url_for('query_builder'))
+			redis_query_cache_adds = api_put_requests( \
+														API_URLS['video_query_cache'] \
+														, { 'session_id' : session['session_id'] , 'video_ids': all_links } \
+													)
+													
+			session['numb_videos'] = len( api_get_requests( \
+																API_URLS['video_query_cache'] \
+																, { 'session_id' : session['session_id'] } \
+															))
+																		
+			flash(str(numb_links)+' video links added. '+str(session['numb_videos'])+' unique videos in your playlist.','message')
+			
+			return redirect(url_for('query_builder'))
 
 @app.route('/current_urls',methods=["GET"])
 def current_vids():
