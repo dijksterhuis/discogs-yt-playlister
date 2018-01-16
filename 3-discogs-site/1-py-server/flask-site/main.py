@@ -149,7 +149,7 @@ def query_builder():
 		
 		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in TAGS}
 		
-		names = {name : request.form.get('search:'+name+'_name'),type=str, default='') for name in NAME_FIELDS}
+		names = {name : request.form.get('search:'+name+'_name', type=str, default='') for name in NAME_FIELDS}
 		#artist_name = request.form.get('search:artist_name', type=str, default='')
 		#release_name = request.form.get('search:release_name', type=str, default='')
 		#label_name = request.form.get('search:label_name', type=str, default='')
