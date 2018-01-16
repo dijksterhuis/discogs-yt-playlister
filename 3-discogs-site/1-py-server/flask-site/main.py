@@ -170,16 +170,13 @@ def query_builder():
 		# ---- Calculate Intersections (TODO move off to a seperate API ?)
 		
 		name_intersections = set_from_dict(name_ids)
-		del name_ids, names
 		
 		if sum([len(v) for v in name_ids.values()]) != 0:
 			metadata_ids = api_get_requests(API_URLS['ids_from_metadata'], metadata_query_dict )
 			metadata_intersections = set_from_dict(metadata_ids)
 			master_ids = set.intersection(name_intersections,metadata_intersections)
-			del name_intersections, metadata_intersections, metadata_ids, metadata_query_dict
 		else:
 			master_ids = name_intersections
-			del name_intersections, metadata_query_dict
 		
 		if len(master_ids) == 0:
 			flash('No discogs master releases found for your query.','message')
@@ -188,7 +185,6 @@ def query_builder():
 		# ---- Get video urls
 		
 		all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': list(master_ids) } )
-		del master_ids
 		numb_links = len(all_links)
 		
 		if numb_links == 0:
