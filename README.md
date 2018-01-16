@@ -40,6 +40,8 @@ Script doc string:
 ### 2-discogs-datastorage/2-xmls2mongo
 Take the files from `discogs-db-xmls`, parse with `xmltodict` & load each document into seperate mongo instances per discogs file
 
+N.B. There is a seperate feature branch to add logging and other functionality to the ETL load.
+
 ### 2-discogs-datastorage/3-redis-metadata-ids
 Sets up redis instances for caches, hashes, queryable data and site metadata
 Redis performed MUCH faster than MongoDB on benchmark tests (redis circa 2 seconds with intersections in python between 3 redis dbs, MongoDB minimum 5 seconds, depending on size of query)
