@@ -43,6 +43,7 @@ app.secret_key = os.urandom(24)
 VIDEO_LIMIT = 1000
 BASE_API_URL = 'http://172.23.0.'
 TAGS = ['year','genre','style']
+NAME_FIELDS = ['artist','release','label']
 NAV = { 'Authorise' : '/authorize' ,'Build A Query' : '/query_builder' ,'FAQ' : '/faq' ,'Current Videos' : '/current_urls'}
 API_URLS = { \
 				'unique_metadata' : BASE_API_URL+'6/unique_metadata' \
@@ -52,6 +53,8 @@ API_URLS = { \
 				, 'video_query_cache' : BASE_API_URL+'7/video_query_cache' \
 				, 'video_query_cache_clear' : BASE_API_URL+'7/video_query_cache_clear' \
 				, 'max_query_id' : BASE_API_URL+'7/max_query_id' \
+				, 'playlist_creator' : BASE_API_URL+'8/create_palylist' \
+				, 'video_adder' : BASE_API_URL+'8/insert_videos' \
 			}
 
 # --------------------------------------------------
@@ -106,7 +109,6 @@ def api_post(host_string, r_json):
 def index():
 	return redirect('welcome')
 
-
 @app.route('/welcome',methods=['GET'])
 def home():
 	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
@@ -120,13 +122,14 @@ def home():
 									, total_count=session['numb_videos'] \
 							)
 
-
 @app.route('/query_builder',methods=['GET','POST'])
 #@login_required
 #@subscription_required
 def query_builder():
 	
-	if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
+	if 'credentials' not in session: return redirect('authorize')
+	
+	if 'session_id' not in session: session['session_id'] = 'query:'+str(randint(0,1000))
 	
 	if request.method == 'GET':
 		
@@ -145,20 +148,37 @@ def query_builder():
 		# ---- Query parameters
 		
 		wide_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in TAGS}
-		artist_name = request.form.get('search:artist_name', type=str, default='')
-		release_name = request.form.get('search:release_name', type=str, default='')
-		label_name = request.form.get('search:label_name', type=str, default='')
+		
+		names = {name : request.form.get('search:'+name+'_name'),type=str, default='') for name in NAME_FIELDS}
+		#artist_name = request.form.get('search:artist_name', type=str, default='')
+		#release_name = request.form.get('search:release_name', type=str, default='')
+		#label_name = request.form.get('search:label_name', type=str, default='')
+		
+		if sum([len(v) for v in names.values()]) == 0:
+			flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')
+			return redirect(url_for('query_builder'))
+			
+		#if len(artist_name) == 0 and len(release_name) == 0 and len(label_name) == 0:
+		#	flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')
+		#	return redirect(url_for('query_builder'))
+		
 		
 		# ---- Get master IDs from APIs
 		# - TODO change to a generator expy then generate a set?
 		
-		artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
-		release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
-		label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':label_name} )
+		#artist_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'artist','name':artist_name} )
+		#release_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'release','name':release_name} )
+		#label_ids = api_get_requests(API_URLS['ids_from_name'], {'name_type':'label','name':label_name} )
 		
-		if len(artist_ids) == 0 and len(release_ids) == 0 and len(label_ids) == 0:
-			flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')
+		name_ids = { name : api_get_requests(API_URLS['ids_from_name'], {'name_type':name,'name':names[name]} ) for name in NAME_FIELDS }
+		
+		if sum([len(v) for v in name_ids.values()]) == 0:
+			flash('No results found for your text input. Please try another search.','message')
 			return redirect(url_for('query_builder'))
+		
+		#if len(artist_ids) == 0 and len(release_ids) == 0 and len(label_ids) == 0:
+		#	flash('No results found for your text input. Please try another search.','message')
+		#	return redirect(url_for('query_builder'))
 		
 		master_ids_dict = api_get_requests(API_URLS['ids_from_metadata'], wide_query_dict )
 		
@@ -172,7 +192,6 @@ def query_builder():
 		master_ids = list(set.intersection( *list_of_sets(to_intersect) ))
 		
 		if len(master_ids) == 0:
-			
 			flash('No discogs master releases found for your query.','message')
 			return redirect(url_for('query_builder'))
 		
@@ -196,10 +215,10 @@ def query_builder():
 					)
 					
 			return redirect(url_for('query_builder'))
-			
-		else:
-			if 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
-			else: session['numb_videos'] = session['numb_videos'] + numb_links
+		
+		elif 'numb_videos' not in session.keys(): session['numb_videos'] = numb_links
+		
+		else: session['numb_videos'] = session['numb_videos'] + numb_links
 		
 		# ---- Add to redis cache
 		
@@ -230,10 +249,6 @@ def current_vids():
 @app.route('/authorize',methods=['GET'])
 def authorize():
 	
-	session['session_id'] = 'query:'+str(randint(0,1000))
-	
-	print(session['session_id'])
-	
 	# https://developers.google.com/youtube/v3/quickstart/python#further_reading
 	
 	# Create a flow instance to manage the OAuth 2.0 Authorization Grant Flow
@@ -254,7 +269,6 @@ def authorize():
 	session['state'] = state
 	
 	return redirect(authorization_url)
-
 
 @app.route('/oauth2callback')
 def oauth2callback():
@@ -324,6 +338,11 @@ def send_to_yt():
 		# ---- create a playlist
 		
 		playlist_result = create_playlist(client, title, desc)
+		#playlist_result = api_get_requests(API_URLS['playlist_creator'], { \
+		#																		'credentials' : credentials \
+		#																		, 'title' : title \
+		#																		, 'description' : desc \
+		#																	} )
 		
 		# ---- add the videos
 		# - TODO move off to a seperate API (big queries results page times out)
@@ -336,10 +355,16 @@ def send_to_yt():
 			except:
 				results[idx] = {video_id : "ERROR" }
 		
-		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
-		#session.clear()
+		#api_get_requests(API_URLS['video_adder'], { \
+		#												'credentials' : credentials \
+		#												, 'playlist_id' : playlist_result['id'] \
+		#												, 'video_ids' : video_ids \
+		#											} )
 		
-		# wait 5 seconds so youtube updates...
+		session.pop('session_id')
+		#clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
+		
+		# wait 2 seconds so youtube updates...
 		
 		time.sleep(2)
 		
