@@ -1,0 +1,89 @@
+{
+    "masters": {
+        "master": {
+            "@id": "18500",
+            "artists": {
+                "artist": {
+                    "anv": "Samuel L",
+                    "id": "212070",
+                    "join": null,
+                    "name": "Samuel L Session",
+                    "role": null,
+                    "tracks": null
+                }
+            },
+            "data_quality": "Correct",
+            "genres": {
+                "genre": "Electronic"
+            },
+            "images": {
+                "image": {
+                    "@height": "588",
+                    "@type": "primary",
+                    "@uri": "",
+                    "@uri150": "",
+                    "@width": "600"
+                }
+            },
+            "main_release": "155102",
+            "styles": {
+                "style": "Techno"
+            },
+            "title": "New Soil",
+            "videos": {
+                "video": [
+                    {
+                        "@duration": "489",
+                        "@embed": "true",
+                        "@src": "https://www.youtube.com/watch?v=f05Ai921itM",
+                        "description": "Samuel L - Velvet",
+                        "title": "Samuel L - Velvet"
+                    },
+                    {
+                        "@duration": "348",
+                        "@embed": "true",
+                        "@src": "https://www.youtube.com/watch?v=v23rSPG_StA",
+                        "description": "Samuel L - Danses D'Afrique",
+                        "title": "Samuel L - Danses D'Afrique"
+                    },
+                    {
+                        "@duration": "288",
+                        "@embed": "true",
+                        "@src": "https://www.youtube.com/watch?v=tHo82ha6p40",
+                        "description": "Samuel L - Body N' Soul",
+                        "title": "Samuel L - Body N' Soul"
+                    },
+                    {
+                        "@duration": "331",
+                        "@embed": "true",
+                        "@src": "https://www.youtube.com/watch?v=KDcqzHca5dk",
+                        "description": "Samuel L - Into The Groove",
+                        "title": "Samuel L - Into The Groove"
+                    },
+                    {
+                        "@duration": "334",
+                        "@embed": "true",
+                        "@src": "https://www.youtube.com/watch?v=3DIYjJFl8Dk",
+                        "description": "Samuel L - Soul Syndrome",
+                        "title": "Samuel L - Soul Syndrome"
+                    },
+                    {
+                        "@duration": "325",
+                        "@embed": "true",
+                        "@src": "https://www.youtube.com/watch?v=_o8yZMPqvNg",
+                        "description": "Samuel L - Lush",
+                        "title": "Samuel L - Lush"
+                    },
+                    {
+                        "@duration": "346",
+                        "@embed": "true",
+                        "@src": "https://www.youtube.com/watch?v=JPwwJSc_-30",
+                        "description": "Samuel L - Velvet ( Direct Me )",
+                        "title": "Samuel L - Velvet ( Direct Me )"
+                    }
+                ]
+            },
+            "year": "2001"
+        }
+    }
+}

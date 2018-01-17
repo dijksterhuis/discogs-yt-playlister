@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<artists>
+  <artist>
+    <images>
+      <image height="450" type="secondary" uri="" uri150="" width="600"/>
+    </images>
+    <id>1</id>
+    <name>The Persuader</name>
+    <realname>Jesper Dahlb&#xE4;ck</realname>
+    <profile/>
+    <data_quality>Correct</data_quality>
+    <namevariations>
+      <name>Persuader</name>
+      <name>The Presuader</name>
+    </namevariations>
+    <aliases>
+      <name>Dick Track</name>
+      <name>Faxid</name>
+      <name>Groove Machine</name>
+      <name>Janne Me' Amazonen</name>
+      <name>Jesper Dahlb&#xE4;ck</name>
+      <name>Lenk</name>
+      <name>The Pinguin Man</name>
+    </aliases>
+  </artist>
+</artists>
