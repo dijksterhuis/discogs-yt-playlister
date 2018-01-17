@@ -1,5 +1,7 @@
 ## TODOs
 
+- Code clean up!
+
 - ERROR HANDLING!
 
 - Playlist creation
