@@ -1,4 +1,4 @@
-# Discogs DB Dataget
+# Discogs Youtube Playlist Generator
 
 A Web App to generate private playlists on Youtube from the [discogs monthly data dumps](http://data.discogs.com/).
 
