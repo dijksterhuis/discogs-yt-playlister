@@ -116,16 +116,7 @@ def index():
 
 @app.route('/welcome',methods=['GET'])
 def home():
-    if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
-    
-    video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
-    
-    return render_template('/videos_added.html' \
-                                    , nav_links=NAV \
-                                    , intersex=video_ids \
-                                    , latest_count=len(video_ids) \
-                                    , total_count=session['numb_videos'] \
-                            )
+    return render_template('/welcome.html')
 
 @app.route('/query_builder',methods=['GET','POST'])
 #@login_required
