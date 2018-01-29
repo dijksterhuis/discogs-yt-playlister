@@ -17,21 +17,21 @@
       <table>
         <col valign="middle" align="left" style="width : 30%;">
         <col valign="center" style="width : 70%;">
-        <!--><tr>
+        <!--<tr>
           <td valign="middle" align="right">Max Videos to Return </td>
           <td align="center"><input type="number" name="query:max_results"></td>
-        </tr>-->
+        </tr> -->
         <tr>
-          <td valign="middle" align="right">Artist Name </td>
-          <td align="center"><input type="search" name="search:artist_name"></td>
+          <td id="form" valign="middle" align="right">Artist Name </td>
+          <td id="form" align="center"><input type="search" name="search:artist_name"></td>
         </tr>
         <tr>
-          <td valign="middle" align="right">Release Name </td>
-          <td align="center"><input type="search" name="search:release_name"></td>
+          <td id="form" valign="middle" align="right">Release Name </td>
+          <td id="form" align="center"><input type="search" name="search:release_name"></td>
         </tr>
         <tr>
-          <td valign="middle" align="right">Label Name </p>
-          <td align="center"><input type="search" name="search:label_name"></td>
+          <td id="form" valign="middle" align="right">Label Name </p>
+          <td id="form" align="center"><input type="search" name="search:label_name"></td>
         </tr>
       </table>
     </fieldset>
@@ -60,21 +60,21 @@
           <th>Style</th>
         </tr>
         <tr>
-          <td align="center">
+          <td id="form" align="center">
             <select multiple id="Years" name="query:year" size="20">
               {% for year in years %}
                 <option value="{{year}}">{{year}}</option>
               {% endfor %}
             </select>
           </td>
-          <td align="center">
+          <td id="form" align="center">
             <select multiple id="Genres" name="query:genre" size="20">
               {% for genre in genres %}
                 <option value="{{genre}}">{{genre}}</option>
               {% endfor %}
             </select>
           </td>
-          <td align="center">
+          <td id="form" align="center">
 
             <select multiple id="Styles" name="query:style" size="20">
               {% for style in styles %}
