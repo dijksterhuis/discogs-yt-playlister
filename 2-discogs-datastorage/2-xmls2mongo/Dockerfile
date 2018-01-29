@@ -19,4 +19,4 @@ WORKDIR /home
 # TODO: Docker build-then-run script so don't have to keep changing this file - how to do version number? Jenkins?
 # CMD ['find','/home/xmls','-name','\*.xml','|','xargs','-r0','python','/home/mongo_ETL.py']
 CMD ['bin/ash/']
-ENTRYPOINT ['find','/home/xmls','-name','\*.xml','|','xargs','-r0','python','/home/mongo_ETL.py']
+ENTRYPOINT ['find','/home/xmls','-name','\*.xml','|','xargs','-r0','python','/home/mongo_ETL.py','--indexing']
