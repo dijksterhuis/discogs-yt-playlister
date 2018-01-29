@@ -235,7 +235,7 @@ def current_vids():
                             )
 
 @app.route('/faq',methods=["GET"])
-def current_vids():
+def faq():
     return render_template('/faq.html')
 
 @app.route('/authorize',methods=['GET'])
