@@ -56,6 +56,7 @@ API_URLS = { \
                 , 'playlist_creator' : BASE_API_URL+'8/create_palylist' \
                 , 'video_adder' : BASE_API_URL+'8/insert_videos' \
             }
+AD_STRING = '\n\nGenerated with discogs-youtube-playlister.com'
 
 # --------------------------------------------------
 # misc functions
@@ -315,7 +316,7 @@ def send_to_yt():
     if request.method == 'POST':
         
         title = request.form.get('playlist_title',type=str,default='Discogs Playlist')
-        desc = request.form.get('playlist_desc',type=str,default='')+'\n\nGenerated with the discogs-yt-playlister'
+        desc = request.form.get('playlist_desc',type=str,default='') + AD_STRING
         
         # https://developers.google.com/youtube/v3/quickstart/python#further_reading
         
@@ -361,11 +362,11 @@ def send_to_yt():
         time.sleep(2)
         
         return render_template('/playlist_added.html' \
-                                        , nav_links=NAV \
-                                        , pl_title=title \
-                                        , pl_desc = desc \
-                                        , pl_link=playlist_result['id']\
-                                        , first_vid=video_ids[0] \
+                                        , nav_links = NAV \
+                                        , pl_title = title \
+                                        , pl_desc = desc.rstrip(AD_STRING) \
+                                        , pl_link = playlist_result['id']\
+                                        , first_vid = video_ids[0] \
                                 )
 
 if __name__ == '__main__':
