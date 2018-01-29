@@ -116,7 +116,7 @@ def index():
 
 @app.route('/welcome',methods=['GET'])
 def home():
-    return render_template('/welcome.html')
+    return render_template('/welcome.html', nav_links=NAV)
 
 @app.route('/query_builder',methods=['GET','POST'])
 #@login_required
@@ -228,7 +228,7 @@ def current_vids():
 
 @app.route('/faq',methods=["GET"])
 def faq():
-    return render_template('/faq.html')
+    return render_template('/faq.html', nav_links=NAV)
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
