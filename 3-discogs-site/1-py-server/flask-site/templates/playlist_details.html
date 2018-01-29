@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>There are {{numb_videos}} videos currently in your playlist...</h2>
+<h2>Create Playlist</h2>
 <br>
+<p>There are {{numb_videos}} videos currently in your playlist.</p>
 <div id="form_input">
   <form style="height: 100%; width: 100%" method="POST" accept-charset="UTF-8">
     <fieldset id="playlist_info">
@@ -16,9 +17,9 @@
           <td align="left"><input type="search" name="playlist_desc"></td>
         </tr>
       </table>
+      <input class="btn btn-default" type="submit" value="Get Results">
+      <input class="btn btn-default" type="reset" value="Reset">
     </fieldset>
-  <input class="btn btn-default" type="submit" value="Get Results">
-  <input class="btn btn-default" type="reset" value="Reset">
   </form>
 </div>
 

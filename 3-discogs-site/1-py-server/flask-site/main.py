@@ -216,7 +216,7 @@ def query_builder():
                                                                 , { 'session_id' : session['session_id'] } \
                                                             ))
             
-            flash(str(numb_links)+' video links added. '+str(session['numb_videos'])+' unique videos in your playlist.','message')
+            flash(str(numb_links)+' video links found. '+str(session['numb_videos'])+' unique videos in your playlist.','message')
             
             return redirect(url_for('query_builder'))
 
@@ -233,6 +233,10 @@ def current_vids():
                                     , latest_count=len(video_ids) \
                                     , total_count=session['numb_videos'] \
                             )
+
+@app.route('/faq',methods=["GET"])
+def current_vids():
+    return render_template('/faq.html')
 
 @app.route('/authorize',methods=['GET'])
 def authorize():
