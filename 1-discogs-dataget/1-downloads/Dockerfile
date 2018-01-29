@@ -7,9 +7,9 @@ LABEL author="michael robeson (Dijksterhuis)" \
 
 RUN apk update ; apk upgrade ; apk add --no-cache curl
 
-ADD COPY root /etc/crontabs/root
-RUN chmod 0644 /etc/crontabs/root
-RUN touch /var/log/cron.log
+#ADD COPY root /etc/crontabs/root
+#RUN chmod 0644 /etc/crontabs/root
+#RUN touch /var/log/cron.log
 
 RUN mkdir /home/downloads ; mkdir /home/old_downloads
 COPY download_xmls.sh /home
@@ -17,3 +17,4 @@ RUN chmod a+x /home/download_xmls.sh
 WORKDIR /home/
 
 CMD ['/bin/ash']
+ENTRYPOINT ['./download_xmls.sh']

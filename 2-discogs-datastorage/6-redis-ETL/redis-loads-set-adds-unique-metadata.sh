@@ -7,7 +7,7 @@ image='dijksterhuis/redis-database-inserts:modularised-0.1' ;\
 container_name='redis-loads-unique-'$tag ;\
 container_command='./redis-load-set-adder.py ' ;\
 container_args='meta_uniq_set masters redis-metadata-unique-'$tag' '$tag' masters_id' ;\
-networks='discogs-metadata-stores discogs-mongo' ;\
+networks='discogs-redis-site-queries discogs-mongo' ;\
 echo $container_name ; echo $image ;\
         docker run -di \
             -w /home \
