@@ -16,5 +16,4 @@ COPY download_xmls.sh /home
 RUN chmod a+x /home/download_xmls.sh
 WORKDIR /home/
 
-CMD ['/bin/ash']
-ENTRYPOINT ['./download_xmls.sh']
+CMD ['./download_xmls.sh']
