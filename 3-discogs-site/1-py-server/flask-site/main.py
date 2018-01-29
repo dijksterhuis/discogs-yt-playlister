@@ -355,6 +355,8 @@ def send_to_yt():
         # wait 2 seconds so youtube updates...
         
         time.sleep(2)
+        if desc.rstrip(AD_STRING) == "": desc = "No description given."
+        else: desc = desc.rstrip(AD_STRING)
         
         return render_template('/playlist_added.html' \
                                         , nav_links = NAV \
