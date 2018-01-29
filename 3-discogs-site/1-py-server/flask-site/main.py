@@ -217,6 +217,10 @@ def current_vids():
     
     if 'credentials' not in session or 'session_id' not in session: return redirect('authorize')
     
+    if 'numb_videos' not in session:
+        flash("You haven't added any videos yet, please find some to add before trying to view a list of them." ,'message')
+        return redirect(url_for('query_builder'))
+    
     video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
     
     return render_template('/videos_added.html' \
