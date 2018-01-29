@@ -19,5 +19,5 @@ COPY docker-entrypoint.sh /home
 # TODO: Create an entrypoint so can test different ETL scripts 
 # TODO: Docker build-then-run script so don't have to keep changing this file - how to do version number? Jenkins?
 # CMD ['find','/home/xmls','-name','\*.xml','|','xargs','-r0','python','/home/mongo_ETL.py']
-ENTRYPOINT ['bin/ash/']
+ENTRYPOINT ['/bin/ash/']
 CMD ['./docker-entrypoint.sh']
