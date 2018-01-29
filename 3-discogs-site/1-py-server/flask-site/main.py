@@ -363,6 +363,7 @@ def send_to_yt():
         return render_template('/playlist_added.html' \
                                         , nav_links=NAV \
                                         , pl_title=title \
+                                        , pl_desc = desc \
                                         , pl_link=playlist_result['id']\
                                         , first_vid=video_ids[0] \
                                 )
