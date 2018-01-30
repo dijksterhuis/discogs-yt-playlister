@@ -330,7 +330,8 @@ def send_to_yt():
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
                                                                             } )
-                                                                            
+            r = future_playlist.result()
+            playlist_result = json_check(r.json())
             futures_videos = futures_session.post(API_URLS['video_adder'], json = { \
                                                                               'credentials' : session['credentials'] \
                                                                               , 'playlist_id' : playlist_result['id'] \
