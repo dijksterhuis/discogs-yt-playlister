@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/video_urls', methods=['GET'])
-@use_args(VIDEO_ARGS,locations=('json', 'form'))
+@use_args(VIDEO_ARGS,locations=('json'))
 def video_urls(args):
 	req_time = timer()
 	print(args)

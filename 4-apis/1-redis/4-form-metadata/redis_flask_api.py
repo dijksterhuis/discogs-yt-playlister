@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/unique_metadata', methods=['GET'])
-@use_args(TAG_ARGS,locations=('json', 'form'))
+@use_args(TAG_ARGS,locations=('json'))
 def unique_metadata(args):
 	req_time = timer()
 	print(args)

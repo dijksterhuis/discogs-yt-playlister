@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/video_query_cache', methods=['GET','PUT'])
-@use_args(V_CACHE_ARGS,locations=('json', 'form'))
+@use_args(V_CACHE_ARGS,locations=('json'))
 def vid_cache_add(args):
 	req_time = timer()
 	print(args)

@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/get_ids_from_name', methods=['GET'])
-@use_args(NAME_ARGS,locations=('json', 'form'))
+@use_args(NAME_ARGS,locations=('json'))
 def get_ids(args):
 	req_time = timer()
 	print(args)
