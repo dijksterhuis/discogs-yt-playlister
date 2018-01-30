@@ -313,35 +313,24 @@ def send_to_yt():
         title = request.form.get('playlist_title',type=str,default='Discogs Playlist')
         desc = request.form.get('playlist_desc',type=str,default='') + AD_STRING
         
-        # https://developers.google.com/youtube/v3/quickstart/python#further_reading
-        
         # ---- Load the credentials from the session.
         
         credentials = google.oauth2.credentials.Credentials(**session['credentials'])
         client = google_client_build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+        
+        # ---- get video list
         
         video_ids = api_get_requests(API_URLS['video_query_cache'], {'session_id' : session['session_id']} )
         video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
         
         # ---- create a playlist
         
-        #playlist_result = create_playlist(client, title, desc)
         playlist_result = api_get_requests(API_URLS['playlist_creator'], r_json = { \
                                                                                 'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
                                                                             } )
-        print(playlist_result)
-        # ---- add the videos
-        # - TODO move off to a seperate API (big queries results page times out)
-        
-        #results = dict()
-        #
-        #for idx,video_id in enumerate(video_ids):
-        #    try:
-        #        results[idx] = {video_id : insert_videos(client, playlist_result , video_id )}
-        #    except:
-        #        results[idx] = {video_id : "ERROR" }
+        # ---- add videos to playlist
         
         api_post(API_URLS['video_adder'], { \
                                                         'credentials' : session['credentials'] \
