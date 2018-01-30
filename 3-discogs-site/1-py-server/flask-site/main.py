@@ -103,7 +103,7 @@ def api_put_requests(host_string, r_json):
 
 def api_post(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
-    r = requests.post( host_string , json = r_json , headers = api_call_headers , stream=True)
+    r = requests.post( host_string , json = r_json , headers = api_call_headers , timeout=2)
     return True
 
 # --------------------------------------------------
@@ -324,33 +324,33 @@ def send_to_yt():
         video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
         
         # ---- create a playlist
-        with FuturesSession(max_workers=1) as futures_session:
-            future_playlist = futures_session.get(API_URLS['playlist_creator'], json = { \
-                                                                                'credentials' : session['credentials'] \
-                                                                                , 'title' : title \
-                                                                                , 'description' : desc \
-                                                                            } )
-            r = future_playlist.result()
-            playlist_result = json_check(r.json())
-            futures_videos = futures_session.post(API_URLS['video_adder'], json = { \
-                                                                              'credentials' : session['credentials'] \
-                                                                              , 'playlist_id' : playlist_result['id'] \
-                                                                              , 'video_ids' : video_ids \
-                                                                          } )
-        
-        
-        #playlist_result = api_get_requests(API_URLS['playlist_creator'], r_json = { \
+        #with FuturesSession(max_workers=1) as futures_session:
+        #    future_playlist = futures_session.get(API_URLS['playlist_creator'], json = { \
         #                                                                        'credentials' : session['credentials'] \
         #                                                                        , 'title' : title \
         #                                                                        , 'description' : desc \
         #                                                                    } )
+        #    r = future_playlist.result()
+        #    playlist_result = json_check(r.json())
+        #    futures_videos = futures_session.post(API_URLS['video_adder'], json = { \
+        #                                                                      'credentials' : session['credentials'] \
+        #                                                                      , 'playlist_id' : playlist_result['id'] \
+        #                                                                      , 'video_ids' : video_ids \
+        #                                                                  } )
+        
+        
+        playlist_result = api_get_requests(API_URLS['playlist_creator'], r_json = { \
+                                                                                'credentials' : session['credentials'] \
+                                                                                , 'title' : title \
+                                                                                , 'description' : desc \
+                                                                            } )
         # ---- add videos to playlist
-        #
-        #api_post(API_URLS['video_adder'], r_json = { \
-        #                                                'credentials' : session['credentials'] \
-        #                                                , 'playlist_id' : playlist_result['id'] \
-        #                                                , 'video_ids' : video_ids \
-        #                                            } )
+        
+        api_post(API_URLS['video_adder'], r_json = { \
+                                                        'credentials' : session['credentials'] \
+                                                        , 'playlist_id' : playlist_result['id'] \
+                                                        , 'video_ids' : video_ids \
+                                                    } )
         
         session.pop('session_id')
         #clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
