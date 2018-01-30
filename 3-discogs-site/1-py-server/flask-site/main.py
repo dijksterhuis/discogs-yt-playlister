@@ -328,7 +328,7 @@ def send_to_yt():
         # ---- create a playlist
         
         #playlist_result = create_playlist(client, title, desc)
-        playlist_result = api_post(API_URLS['playlist_creator'], { \
+        playlist_result = api_get_requests(API_URLS['playlist_creator'], { \
                                                                                 'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \

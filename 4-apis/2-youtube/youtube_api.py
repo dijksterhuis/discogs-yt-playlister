@@ -56,7 +56,7 @@ def alive():
     """ Is the API up and running check """
     return make_json_resp({'status': 'OK'}, 200)
 
-@APP.route('/create_playlist', methods=['POST'])
+@APP.route('/create_playlist', methods=['GET'])
 @use_args(PLAYLIST_ARGS, locations=('json',))
 def playlist_api(args):
     """ Create a new playlist using the given metadata and credentials
