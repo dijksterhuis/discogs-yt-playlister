@@ -19,4 +19,4 @@ RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
 # ---- Docker specific
 EXPOSE 80
-CMD ['./docker_entrypoint.sh']
+CMD ['/home/docker_entrypoint.sh']
