@@ -2,6 +2,8 @@
 
 - Code clean up!
 
+- logs to logging volume...
+
 - ERROR HANDLING!
 
 - Query for Terrekke, Plant Ages returns ~40 videos - should be 9?

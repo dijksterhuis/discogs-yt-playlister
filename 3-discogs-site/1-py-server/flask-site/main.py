@@ -106,11 +106,17 @@ def api_post(host_string, r_json):
 
 @app.route('/',methods=['GET'])
 def index():
-    return redirect('home')
+    return redirect('welcome')
 
 @app.route('/welcome',methods=['GET'])
 def home():
     return render_template('/welcome.html', nav_links=NAV)
+
+@app.route('/_query_autocomplete')
+def search():
+    search = request.args.get('search')
+    results = ['Hello',"world",'A','foo','bar']
+    return jsonify(results)
 
 @app.route('/query_builder',methods=['GET','POST'])
 #@login_required
