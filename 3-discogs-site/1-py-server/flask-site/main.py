@@ -6,6 +6,7 @@ from random import randint
 # site imports
 from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from werkzeug import generate_password_hash, check_password_hash
+from requests_futures.sessions import FuturesSession
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
@@ -103,9 +104,7 @@ def api_put_requests(host_string, r_json):
 def api_post(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
     r = requests.post( host_string , json = r_json , headers = api_call_headers , stream=True)
-    r.connection.close()
     return True
-
 
 # --------------------------------------------------
 # server logic
@@ -325,19 +324,33 @@ def send_to_yt():
         video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
         
         # ---- create a playlist
-        
-        playlist_result = api_get_requests(API_URLS['playlist_creator'], r_json = { \
+        with FuturesSession(max_workers=1) as session:
+            future_playlist = session.post(API_URLS['playlist_creator'], json = r_json { \
                                                                                 'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
                                                                             } )
-        # ---- add videos to playlist
+                                                                            
+            futures_videos = session.post(API_URLS['video_adder'], json = { \
+                                                                              'credentials' : session['credentials'] \
+                                                                              , 'title' : title \
+                                                                              , 'description' : desc \
+                                                                          } )
+            
+            response = future_playlist.result()
         
-        api_post(API_URLS['video_adder'], { \
-                                                        'credentials' : session['credentials'] \
-                                                        , 'playlist_id' : playlist_result['id'] \
-                                                        , 'video_ids' : video_ids \
-                                                    } )
+        #playlist_result = api_get_requests(API_URLS['playlist_creator'], r_json = { \
+        #                                                                        'credentials' : session['credentials'] \
+        #                                                                        , 'title' : title \
+        #                                                                        , 'description' : desc \
+        #                                                                    } )
+        # ---- add videos to playlist
+        #
+        #api_post(API_URLS['video_adder'], { \
+        #                                                'credentials' : session['credentials'] \
+        #                                                , 'playlist_id' : playlist_result['id'] \
+        #                                                , 'video_ids' : video_ids \
+        #                                            } )
         
         session.pop('session_id')
         #clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
