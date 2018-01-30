@@ -329,7 +329,7 @@ def send_to_yt():
         
         #playlist_result = create_playlist(client, title, desc)
         playlist_result = api_post(API_URLS['playlist_creator'], { \
-                                                                                'credentials' : credentials \
+                                                                                'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
                                                                             } )
@@ -346,7 +346,7 @@ def send_to_yt():
         #        results[idx] = {video_id : "ERROR" }
         
         api_post(API_URLS['video_adder'], { \
-                                                        'credentials' : credentials \
+                                                        'credentials' : session['credentials'] \
                                                         , 'playlist_id' : playlist_result['id'] \
                                                         , 'video_ids' : video_ids \
                                                     } )
