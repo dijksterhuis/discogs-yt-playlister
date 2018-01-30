@@ -331,7 +331,7 @@ def send_to_yt():
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
                                                                             } )
-        
+        print(playlist_result)
         # ---- add the videos
         # - TODO move off to a seperate API (big queries results page times out)
         
