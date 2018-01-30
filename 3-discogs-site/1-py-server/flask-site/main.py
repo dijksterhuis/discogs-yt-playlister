@@ -103,9 +103,7 @@ def api_put_requests(host_string, r_json):
 def api_post(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
     r = requests.post( host_string , json = r_json , headers = api_call_headers)
-    r_data = r.json()
-    if r_data: return json_check(r_data)
-    else: return True
+    return True
 
 
 # --------------------------------------------------
