@@ -2,34 +2,31 @@
 
 """ Youtube RESTful API with flask """
 
-#### EXTERNAL LIBRARY IMPORTS:
+#### ---- EXTERNAL LIBRARY IMPORTS:
 
 from flask import Flask, make_response, jsonify
 from flask_httpauth import HTTPBasicAuth
 from webargs.flaskparser import use_args
 from webargs import fields
 
-
-#### Youtube gen imports:
+#### ---- Youtube gen imports:
 
 import googleapiclient.discovery
 from googleapiclient.errors import HttpError
 import google.oauth2.credentials
 from youtube_playlist_gen import create_playlist, insert_videos
 
-#### Google API DEFs:
+#### ---- Google VAR DEFs:
 
-CLIENT_SECRETS_FILE = "/home/client_secrets.json"
-SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 
-#### APP DEFs:
+#### ---- APP DEFs:
 
 APP = Flask(__name__)
 AUTH = HTTPBasicAuth()
 
-#### API WEBARG DEFs:
+#### ---- API WEBARG DEFs:
 
 PLAYLIST_ARGS = { \
                     'credentials': fields.Dict(required=True) \
@@ -43,13 +40,13 @@ VIDEO_ARGS = { \
                 , 'video_ids': fields.List(fields.Str(required=True)) \
             }
 
-#### FUNCTION DEFs:
+#### ---- FUNCTION DEFs:
 
 def make_json_resp(in_data, resp):
     """ Turn in_data into a json response output """
     return make_response(jsonify(in_data), resp)
 
-#### ENDPOINT DEFs:
+#### ---- ENDPOINT DEFs:
 
 @APP.route('/', methods=['GET'])
 def alive():
@@ -79,6 +76,7 @@ def video_insert_api(args):
         except HttpError:
             print(idx, video_id, 'ERROR')
 
+#### ---- MAIN:
 
 if __name__ == '__main__':
     #app.run(host='0.0.0.0',port=5000,debug=True)
