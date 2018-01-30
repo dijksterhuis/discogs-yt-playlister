@@ -3,7 +3,7 @@
 
 <script type="text/javascript">
   $(function() {
-    $( "#search:artist_name" ).autocomplete({
+    $( "#artist_name" ).autocomplete({
       source: function( request, response ) {
           $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
               search: request
@@ -36,7 +36,10 @@
         </tr> -->
         <tr>
           <td id="form" valign="middle" align="right">Artist Name </td>
-          <td id="form" align="center"><input type="search" name="search:artist_name"></td>
+          <td id="form" align="center">
+            <label for "artist_name">Artist Name: </label>
+            <input type="search" id="artist_name" name="search:artist_name">
+          </td>
         </tr>
         <tr>
           <td id="form" valign="middle" align="right">Release Name </td>
