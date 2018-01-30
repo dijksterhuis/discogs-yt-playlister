@@ -67,7 +67,7 @@
       }
     });
   });
-
+   $(function() {
   $( "#release_name" ).autocomplete({
     source: function( request, response ) {
         $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
@@ -75,6 +75,8 @@
         }, response);
     }
   });
+  }); 
+  $(function() {
   $( "#label_name" ).autocomplete({
     source: function( request, response ) {
         $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
@@ -82,7 +84,7 @@
         }, response);
     }
   });
-
+}); 
   </script>
 
 
