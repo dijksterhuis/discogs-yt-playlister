@@ -114,6 +114,7 @@ def home():
 
 @app.route('/_query_autocomplete')
 def search():
+    #name_type
     search = request.args.get('search')
     results = ['Hello',"world",'A','foo','bar']
     return jsonify(results)
