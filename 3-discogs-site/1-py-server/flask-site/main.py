@@ -36,6 +36,7 @@ app.secret_key = os.urandom(24)
 VIDEO_LIMIT = 1000
 BASE_API_URL = 'http://172.23.0.'
 EXT_API_URL = 'http://172.25.0.'
+AUTO_API_URL = 'http://172.x.0.'
 TAGS = ['year','genre','style']
 NAME_FIELDS = ['artist','release','label']
 NAV = { \
@@ -54,6 +55,9 @@ API_URLS = { \
                 , 'max_query_id' : BASE_API_URL+'7/max_query_id' \
                 , 'playlist_creator' : EXT_API_URL+'3/create_playlist' \
                 , 'video_adder' : EXT_API_URL+'3/insert_videos' \
+                , 'auto_comp_names_artist' : AUTO_API_URL+'xxx' \
+                , 'auto_comp_names_release' : AUTO_API_URL+'xxx' \
+                , 'auto_comp_names_label' : AUTO_API_URL+'xxx' \
             }
 AD_STRING = '\n\nGenerated with discogs-youtube-playlister.com'
 
@@ -120,8 +124,10 @@ def home():
 @app.route('/_query_autocomplete')
 def search():
     #name_type
+    name_type = request.args.get('type')
     search = request.args.get('search')
-    results = ['Hello',"world",'A','foo','bar']
+    #results = api_get_requests('auto_comp_names_'+name_type, r_json=None)
+    results = ['Artefakt (1)','Artefakt (2)','Artefakt (3)']
     return jsonify(results)
 
 @app.route('/query_builder',methods=['GET','POST'])
