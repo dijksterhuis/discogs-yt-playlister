@@ -55,7 +55,7 @@ API_URLS = { \
                 , 'video_query_cache_clear' : BASE_API_URL+'7/video_query_cache_clear' \
                 , 'max_query_id' : BASE_API_URL+'7/max_query_id' \
                 , 'playlist_creator' : EXT_API_URL+'2/create_palylist' \
-                , 'video_adder' : EXY_API_URL+'2/insert_videos' \
+                , 'video_adder' : EXT_API_URL+'2/insert_videos' \
             }
 AD_STRING = '\n\nGenerated with discogs-youtube-playlister.com'
 
