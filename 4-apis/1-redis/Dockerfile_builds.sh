@@ -2,7 +2,7 @@
 
 # build and run all images / run scripts in lower directories
 cwd=$(pwd)
-pth=/home/dijksterhuis/Documents/discogs-yt-playlister/4-apis/1-redis
+pth=/home/ec2-user/discogs-yt-playlister/4-apis/1-redis
 cd $pth
 echo "-------------------------------------------------"
 echo 'Building api containers...'
