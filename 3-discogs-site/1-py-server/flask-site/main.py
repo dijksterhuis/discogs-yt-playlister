@@ -364,6 +364,7 @@ def send_to_yt():
                                         , pl_desc = desc.rstrip(AD_STRING) \
                                         , pl_link = playlist_result['id']\
                                         , first_vid = video_ids[0] \
+                                        , test = playlist_result \
                                 )
 
 if __name__ == '__main__':
