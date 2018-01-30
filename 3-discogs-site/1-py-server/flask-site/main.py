@@ -325,7 +325,7 @@ def send_to_yt():
         
         # ---- create a playlist
         with FuturesSession(max_workers=1) as futures_session:
-            future_playlist = futures_session.post(API_URLS['playlist_creator'], json = { \
+            future_playlist = futures_session.get(API_URLS['playlist_creator'], json = { \
                                                                                 'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
@@ -337,8 +337,7 @@ def send_to_yt():
                                                                               , 'playlist_id' : playlist_result['id'] \
                                                                               , 'video_ids' : video_ids \
                                                                           } )
-            
-            response = future_playlist.result()
+        
         
         #playlist_result = api_get_requests(API_URLS['playlist_creator'], r_json = { \
         #                                                                        'credentials' : session['credentials'] \
