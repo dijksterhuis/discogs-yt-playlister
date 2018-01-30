@@ -42,6 +42,7 @@ app.secret_key = os.urandom(24)
 # reldate?
 VIDEO_LIMIT = 1000
 BASE_API_URL = 'http://172.23.0.'
+EXT_API_URL = 'http://172.25.0.'
 TAGS = ['year','genre','style']
 NAME_FIELDS = ['artist','release','label']
 NAV = { 'Authorise' : '/authorize' ,'Build A Query' : '/query_builder' ,'FAQ' : '/faq' ,'Current Videos' : '/current_urls'}
@@ -53,8 +54,8 @@ API_URLS = { \
                 , 'video_query_cache' : BASE_API_URL+'7/video_query_cache' \
                 , 'video_query_cache_clear' : BASE_API_URL+'7/video_query_cache_clear' \
                 , 'max_query_id' : BASE_API_URL+'7/max_query_id' \
-                , 'playlist_creator' : BASE_API_URL+'8/create_palylist' \
-                , 'video_adder' : BASE_API_URL+'8/insert_videos' \
+                , 'playlist_creator' : EXT_API_URL+'2/create_palylist' \
+                , 'video_adder' : EXY_API_URL+'2/insert_videos' \
             }
 AD_STRING = '\n\nGenerated with discogs-youtube-playlister.com'
 
@@ -77,6 +78,13 @@ def list_of_sets(in_data):
 def set_from_dict(d):
     return set.intersection(*list_of_sets(d.values()))
 
+def json_check(r_data):
+    if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
+        output = json.loads(r_data)
+    else:
+        output = r_data
+    return output
+
 def api_get_requests(host_string, r_json=None):
     api_call_headers = {"Content-Type": "application/json"}
     if r_json != None:
@@ -84,26 +92,20 @@ def api_get_requests(host_string, r_json=None):
     else:
         r = requests.get( host_string )
     r_data = r.json()
-    if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
-        output = json.loads(r_data)
-    else:
-        output = r_data
-    return output
+    return json_check(r_data)
 
 def api_put_requests(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
     r = requests.put( host_string , json = r_json , headers = api_call_headers)
     r_data = r.json()
-    if isinstance(r_data,bytes) or isinstance(r_data,bytearray) or isinstance(r_data,str):
-        output = json.loads(r_data)
-    else:
-        output = r_data
-    return output
+    return json_check(r_data)
 
 def api_post(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
     r = requests.post( host_string , json = r_json , headers = api_call_headers)
-    return True
+    r_data = r.json()
+    if r_data: return json_check(r_data)
+    else: return True
 
 
 # --------------------------------------------------
@@ -325,29 +327,29 @@ def send_to_yt():
         
         # ---- create a playlist
         
-        playlist_result = create_playlist(client, title, desc)
-        #playlist_result = api_get_requests(API_URLS['playlist_creator'], { \
-        #                                                                        'credentials' : credentials \
-        #                                                                        , 'title' : title \
-        #                                                                        , 'description' : desc \
-        #                                                                    } )
+        #playlist_result = create_playlist(client, title, desc)
+        playlist_result = api_post(API_URLS['playlist_creator'], { \
+                                                                                'credentials' : credentials \
+                                                                                , 'title' : title \
+                                                                                , 'description' : desc \
+                                                                            } )
         
         # ---- add the videos
         # - TODO move off to a seperate API (big queries results page times out)
         
-        results = dict()
+        #results = dict()
+        #
+        #for idx,video_id in enumerate(video_ids):
+        #    try:
+        #        results[idx] = {video_id : insert_videos(client, playlist_result , video_id )}
+        #    except:
+        #        results[idx] = {video_id : "ERROR" }
         
-        for idx,video_id in enumerate(video_ids):
-            try:
-                results[idx] = {video_id : insert_videos(client, playlist_result , video_id )}
-            except:
-                results[idx] = {video_id : "ERROR" }
-        
-        #api_get_requests(API_URLS['video_adder'], { \
-        #                                                'credentials' : credentials \
-        #                                                , 'playlist_id' : playlist_result['id'] \
-        #                                                , 'video_ids' : video_ids \
-        #                                            } )
+        api_post(API_URLS['video_adder'], { \
+                                                        'credentials' : credentials \
+                                                        , 'playlist_id' : playlist_result['id'] \
+                                                        , 'video_ids' : video_ids \
+                                                    } )
         
         session.pop('session_id')
         #clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )

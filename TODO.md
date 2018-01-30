@@ -13,6 +13,8 @@
   - not randint!
   - Max query API...
 
+- Change around IP addresses of YOutbue API and webserver
+
 - Youtube API
   - Playlist gen
   - Video additions
