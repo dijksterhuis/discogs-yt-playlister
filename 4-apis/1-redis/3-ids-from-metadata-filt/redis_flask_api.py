@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/ids_from_metadata', methods=['GET'])
-@use_args(METADATA_ID_ARGS,locations=('json'))
+@use_args(METADATA_ID_ARGS,locations='json')
 def get_ids(args):
 	req_time = timer()
 	print(args)

@@ -57,7 +57,7 @@ def alive():
     return make_json_resp({'status': 'OK'}, 200)
 
 @APP.route('/create_playlist', methods=['POST'])
-@use_args(PLAYLIST_ARGS, locations=('json'))
+@use_args(PLAYLIST_ARGS, locations='json')
 def playlist_api(args):
     """ Create a new playlist using the given metadata and credentials
         Given a playlist metadata and user oauth credentials """
@@ -67,7 +67,7 @@ def playlist_api(args):
     return make_json_resp(playlist_result, 200)
 
 @APP.route('/insert_videos', methods=['POST'])
-@use_args(VIDEO_ARGS, locations=('json'))
+@use_args(VIDEO_ARGS, locations='json')
 def video_insert_api(args):
     """ Insert videos into a specified playlist id
         Given a list of video ids and user oauth credentials """
