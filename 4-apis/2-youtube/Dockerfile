@@ -14,5 +14,5 @@ RUN apk update ; apk upgrade
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
 EXPOSE 80
-ENTRYPOINT ['python']
-CMD ['youtube_api.py']
+ENTRYPOINT ['/bin/ash/']
+CMD ['python','youtube_api.py']
