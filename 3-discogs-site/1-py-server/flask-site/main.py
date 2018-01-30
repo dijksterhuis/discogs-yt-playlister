@@ -38,7 +38,12 @@ BASE_API_URL = 'http://172.23.0.'
 EXT_API_URL = 'http://172.25.0.'
 TAGS = ['year','genre','style']
 NAME_FIELDS = ['artist','release','label']
-NAV = { 'Authorise' : '/authorize' ,'Build A Query' : '/query_builder' ,'FAQ' : '/faq' ,'Current Videos' : '/current_urls'}
+NAV = { \
+            'Authorise' : '/authorise' \
+            ,'Build A Query' : '/query_builder' \
+            ,'FAQ' : '/faq' \
+            ,'Current Videos' : '/current_urls' \
+            , 'De-Authorise' : '/deauthorise'}
 API_URLS = { \
                 'unique_metadata' : BASE_API_URL+'6/unique_metadata' \
                 , 'ids_from_name' : BASE_API_URL+'3/get_ids_from_name' \
@@ -120,11 +125,9 @@ def search():
     return jsonify(results)
 
 @app.route('/query_builder',methods=['GET','POST'])
-#@login_required
-#@subscription_required
 def query_builder():
     
-    if 'credentials' not in session: return redirect('authorize')
+    if 'credentials' not in session: return redirect('authorise')
     
     if 'session_id' not in session: session['session_id'] = 'query:'+str(randint(0,1000))
     
@@ -233,8 +236,12 @@ def current_vids():
 def faq():
     return render_template('/faq.html', nav_links=NAV)
 
-@app.route('/authorize',methods=['GET'])
-def authorize():
+@app.route('/authorise',methods=['GET'])
+def authorise():
+    
+    if 'credentials' in session:
+        flash("You've already signed into a YouTube account. Click 'Deauthorise' in the Nav. Menu to sign into a new one.",'message')
+        return redirect(url_for('query_builder'))
     
     # https://developers.google.com/youtube/v3/quickstart/python#further_reading
     
@@ -253,6 +260,12 @@ def authorize():
     session['state'] = state
     
     return redirect(authorization_url)
+
+@app.route('/deauthorise',methods=['GET'])
+def deauthorise():
+    flash('You have deauthorised the YouTube account. Please authorise another account to use the service.','message')
+    session.clear()
+    return redirect('welcome')
 
 @app.route('/oauth2callback')
 def oauth2callback():
