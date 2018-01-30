@@ -325,7 +325,7 @@ def send_to_yt():
         
         # ---- create a playlist
         with FuturesSession(max_workers=1) as session:
-            future_playlist = session.post(API_URLS['playlist_creator'], json = r_json { \
+            future_playlist = session.post(API_URLS['playlist_creator'], json = { \
                                                                                 'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
