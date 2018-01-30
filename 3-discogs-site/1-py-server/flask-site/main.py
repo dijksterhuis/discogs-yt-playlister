@@ -102,7 +102,7 @@ def api_put_requests(host_string, r_json):
 
 def api_post(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
-    r = requests.post( host_string , json = r_json , headers = api_call_headers)
+    r = requests.post( host_string , json = r_json , headers = api_call_headers , stream=True)
     return True
 
 

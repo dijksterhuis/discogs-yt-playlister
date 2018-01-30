@@ -9,6 +9,10 @@
 - Playlist creation
   - add to existing playlists?
 
+- Requests timeouts - requests.get('http://github.com', timeout=0.001)
+
+- Requests streaming? - http://docs.python-requests.org/en/master/user/quickstart/#raw-response-content
+
 - SessionID logic
   - not randint!
   - Max query API...
