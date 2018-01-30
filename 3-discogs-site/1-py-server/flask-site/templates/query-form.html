@@ -67,6 +67,24 @@
       }
     });
   });
+  $(function() {
+    $( "#release_name" ).autocomplete({
+      source: function( request, response ) {
+          $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
+              search: request
+          }, response);
+      }
+    });
+  });
+  $(function() {
+    $( "#label_name" ).autocomplete({
+      source: function( request, response ) {
+          $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
+              search: request
+          }, response);
+      }
+    });
+  });
   </script>
 
 
@@ -92,18 +110,16 @@
         </tr> -->
         <tr>
           <td id="form" valign="middle" align="right">Artist Name </td>
-          <td id="form" align="center">
-            <label for "artist_name">Artist Name: </label>
-            <input type="search" id="artist_name" name="search:artist_name">
+          <td id="form" align="center"><input type="search" id="artist_name" name="search:artist_name">
           </td>
         </tr>
         <tr>
           <td id="form" valign="middle" align="right">Release Name </td>
-          <td id="form" align="center"><input type="search" name="search:release_name"></td>
+          <td id="form" align="center"><input id="release_name" type="search" name="search:release_name"></td>
         </tr>
         <tr>
           <td id="form" valign="middle" align="right">Label Name </p>
-          <td id="form" align="center"><input type="search" name="search:label_name"></td>
+          <td id="form" align="center"><input id="label_name" type="search" name="search:label_name"></td>
         </tr>
       </table>
     </fieldset>
