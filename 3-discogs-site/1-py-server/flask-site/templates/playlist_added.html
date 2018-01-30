@@ -8,9 +8,9 @@
 <p>You can access your playlist here - <a href="https://www.youtube.com/watch?v={{first_vid}}&list={{pl_link}}">URL to playlist</a></p>
 <p>Or, play it below:</p>
 <br>
-<iframe id="ytplayer" type="text/html" width="720" height="405"
+<!--<iframe id="ytplayer" type="text/html" width="720" height="405"
 src="https://www.youtube.com/embed/?listType=playlist&list={{pl_link}}&listType=playlist&modestbranding=1&playsinline=1"
-frameborder="0" allowfullscreen>
-<br>
-<p>{{test}}</p>
+frameborder="0" allowfullscreen>-->
+<iframe id="ytplayer" width="80%" height="50%" src="https://www.youtube.com/embed/videoseries?list={{pl_link}}&amp;ecver=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
 {% endblock %}
