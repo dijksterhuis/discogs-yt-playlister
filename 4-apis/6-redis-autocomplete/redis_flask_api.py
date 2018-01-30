@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, AUTOCOMPLETE_ARGS
+from api_build_funx import timer, make_json_resp, get_autocomplete, AUTOCOMPLETE_ARGS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -31,7 +31,7 @@ def alive():
 def artist(args):
     req_time = timer()
     if request.method == 'GET':
-        result = get_video_ids_cache( 'artist', args['value'] )
+        result = get_autocomplete( 'artist', args['value'] )
     print('request time taken', req_time.time_taken() )
     return result
 
@@ -40,7 +40,7 @@ def artist(args):
 def release(args):
     req_time = timer()
     if request.method == 'GET':
-        result = get_video_ids_cache( 'release', args['value'] )
+        result = get_autocomplete( 'release', args['value'] )
     print('request time taken', req_time.time_taken() )
     return result
 
@@ -50,7 +50,7 @@ def release(args):
 def label(args):
     req_time = timer()
     if request.method == 'GET':
-        result = get_video_ids_cache( 'label', args['value'] )
+        result = get_autocomplete( 'label', args['value'] )
     print('request time taken', req_time.time_taken() )
     return result
 
