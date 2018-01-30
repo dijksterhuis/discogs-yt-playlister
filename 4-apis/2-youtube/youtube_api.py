@@ -63,7 +63,7 @@ def playlist_api(args):
         Given a playlist metadata and user oauth credentials """
     credentials = google.oauth2.credentials.Credentials(**args['credentials'])
     client = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-    playlist_result = create_playlist(client, args['title'], args['desc'])
+    playlist_result = create_playlist(client, args['title'], args['description'])
     return make_json_resp(playlist_result, 200)
 
 @APP.route('/insert_videos', methods=['POST'])

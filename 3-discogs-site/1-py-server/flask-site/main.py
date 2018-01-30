@@ -54,7 +54,7 @@ API_URLS = { \
                 , 'video_query_cache' : BASE_API_URL+'7/video_query_cache' \
                 , 'video_query_cache_clear' : BASE_API_URL+'7/video_query_cache_clear' \
                 , 'max_query_id' : BASE_API_URL+'7/max_query_id' \
-                , 'playlist_creator' : EXT_API_URL+'2/create_palylist' \
+                , 'playlist_creator' : EXT_API_URL+'2/create_playlist' \
                 , 'video_adder' : EXT_API_URL+'2/insert_videos' \
             }
 AD_STRING = '\n\nGenerated with discogs-youtube-playlister.com'
@@ -328,7 +328,7 @@ def send_to_yt():
         # ---- create a playlist
         
         #playlist_result = create_playlist(client, title, desc)
-        playlist_result = api_get_requests(API_URLS['playlist_creator'], { \
+        playlist_result = api_get_requests(API_URLS['playlist_creator'], r_json = { \
                                                                                 'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
@@ -354,9 +354,9 @@ def send_to_yt():
         session.pop('session_id')
         #clear_cache = api_get_requests(API_URLS['video_query_cache_clear'], {'session_id' : session['session_id']} )
         
-        # wait 2 seconds so youtube updates...
+        # wait 3 seconds so youtube updates...
         
-        time.sleep(2)
+        time.sleep(3)
         if desc.rstrip(AD_STRING) == "": desc = "No description given."
         else: desc = desc.rstrip(AD_STRING)
         
