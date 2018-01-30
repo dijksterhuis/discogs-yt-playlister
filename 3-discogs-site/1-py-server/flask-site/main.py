@@ -324,14 +324,14 @@ def send_to_yt():
         video_ids = [ video_id.lstrip('https://www.youtube.com/watch?v=') for video_id in video_ids]
         
         # ---- create a playlist
-        with FuturesSession(max_workers=1) as session:
-            future_playlist = session.post(API_URLS['playlist_creator'], json = { \
+        with FuturesSession(max_workers=1) as futures_session:
+            future_playlist = futures_session.post(API_URLS['playlist_creator'], json = { \
                                                                                 'credentials' : session['credentials'] \
                                                                                 , 'title' : title \
                                                                                 , 'description' : desc \
                                                                             } )
                                                                             
-            futures_videos = session.post(API_URLS['video_adder'], json = { \
+            futures_videos = futures_session.post(API_URLS['video_adder'], json = { \
                                                                               'credentials' : session['credentials'] \
                                                                               , 'playlist_id' : playlist_result['id'] \
                                                                               , 'video_ids' : video_ids \
@@ -346,7 +346,7 @@ def send_to_yt():
         #                                                                    } )
         # ---- add videos to playlist
         #
-        #api_post(API_URLS['video_adder'], { \
+        #api_post(API_URLS['video_adder'], r_json = { \
         #                                                'credentials' : session['credentials'] \
         #                                                , 'playlist_id' : playlist_result['id'] \
         #                                                , 'video_ids' : video_ids \
