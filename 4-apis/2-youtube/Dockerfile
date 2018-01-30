@@ -13,6 +13,7 @@ COPY reqs.txt /home
 COPY docker-entrypoint.sh /home
 # ---- DoDoDo
 RUN chmod a+x /home/*.py
+RUN chmod a+x docker-entrypoint.sh
 RUN apk update ; apk upgrade
 RUN pip install --upgrade -r reqs.txt
 RUN rm /home/reqs.txt
