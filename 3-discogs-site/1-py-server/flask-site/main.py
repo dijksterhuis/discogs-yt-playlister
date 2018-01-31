@@ -120,19 +120,19 @@ def home():
     return render_template('/welcome.html', nav_links=NAV)
 
 @app.route('/_query_autocomplete_artist')
-def _artist_search():
+def artist_search():
     search = request.args.get('search')
     results = api_get_requests(API_URLS['auto_comp_names']+'artist', r_json={ 'value' : search })
     return jsonify(results)
 
 @app.route('/_query_autocomplete_release')
-def _release_search():
+def release_search():
     search = request.args.get('search')
     results = api_get_requests(API_URLS['auto_comp_names']+'release', r_json={ 'value' : search })
     return jsonify(results)
 
 @app.route('/_query_autocomplete_label')
-def _label_search():
+def label_search():
     search = request.args.get('search')
     results = api_get_requests(API_URLS['auto_comp_names']+'label', r_json={ 'value' : search })
     return jsonify(results)
