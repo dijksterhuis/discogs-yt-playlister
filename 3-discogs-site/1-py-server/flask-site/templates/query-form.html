@@ -61,19 +61,19 @@
   
   $(function() {
     $( "#artist_name" ).autocomplete({
-      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request , t:'artist' }, response);}
+      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { s: request , t:'artist' }, response);}
     });
   });
   
   $(function() {
     $( "#release_name" ).autocomplete({
-      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request }, response);}
+      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { s: request }, response);}
     });
   });
    
   $(function() {
     $( "#label_name" ).autocomplete({
-      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request }, response); }
+      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { s: request }, response); }
     });
   }); 
   </script>

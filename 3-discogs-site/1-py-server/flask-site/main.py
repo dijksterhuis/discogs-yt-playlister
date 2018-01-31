@@ -3,6 +3,9 @@ import json, os, datetime, time, requests
 from random import randint
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 
+from __future__ import print_function
+import sys
+
 # site imports
 from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify, make_response
 from werkzeug import generate_password_hash, check_password_hash
@@ -121,7 +124,8 @@ def home():
     return render_template('/welcome.html', nav_links=NAV)
 
 @app.route('/_query_autocomplete')
-def query_autocomplete(search):
+def query_autocomplete(s,t):
+    print(s,t file=sys.stderr)
     #search = request.args.get('search', type=str)
     r = requests.get( 'http://172.23.0.10/artist' , json = { 'value' : search } , headers = API_CALL_HEADERS)
     results = r.json()
