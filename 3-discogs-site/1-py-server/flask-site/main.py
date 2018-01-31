@@ -120,8 +120,8 @@ def home():
     return render_template('/welcome.html', nav_links=NAV)
 
 @app.route('/_query_autocomplete')
-def search():
-    name_type, search = request.args.get('type'), request.args.get('search')
+def search(name_type):
+    search = request.args.get('search')
     results = api_get_requests(API_URLS['auto_comp_names']+name_type, r_json={ 'value' : search})
     return jsonify(results)
 
