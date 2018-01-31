@@ -87,12 +87,12 @@ def json_check(r_data):
 
 def api_get_requests(host_string, r_json=None):
     api_call_headers = {"Content-Type": "application/json"}
-    if r_json != None:
-        r = requests.get( host_string , json = r_json , headers = api_call_headers)
-    else:
-        r = requests.get( host_string )
-    r_data = r.json()
-    return json_check(r_data)
+    if r_json != None: r = requests.get( host_string , json = r_json , headers = api_call_headers)
+    else: r = requests.get( host_string )
+    if r.status_code == 200:
+        r_data = r.json()
+        return json_check(r_data)
+    else: return jsonify('500 internal service error')
 
 def api_put_requests(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
