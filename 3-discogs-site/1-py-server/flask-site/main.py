@@ -123,6 +123,7 @@ def home():
 @app.route('/_query_autocomplete')
 def search():
     search = request.args.get('search')
+    flash(search+' was search','message')
     results = api_get_requests(AUTOCOMPLETE_URLS['artist'], { 'value' : search } )
     return results
 
