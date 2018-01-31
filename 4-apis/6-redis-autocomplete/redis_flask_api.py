@@ -32,8 +32,9 @@ def artist(args):
     req_time = timer()
     if request.method == 'GET':
         result = get_autocomplete( 'artist', args['value'] )
-    print('request time taken', req_time.time_taken() )
-    return result
+        print('request time taken', req_time.time_taken() )
+        return result
+    else: return make_json_resp("none",500)
 
 @app.route('/release', methods=['GET'])
 @use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
@@ -41,9 +42,9 @@ def release(args):
     req_time = timer()
     if request.method == 'GET':
         result = get_autocomplete( 'release', args['value'] )
-    print('request time taken', req_time.time_taken() )
-    return result
-
+        print('request time taken', req_time.time_taken() )
+        return result
+    else: return make_json_resp("none",500)
 
 @app.route('/label', methods=['GET'])
 @use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
@@ -51,8 +52,9 @@ def label(args):
     req_time = timer()
     if request.method == 'GET':
         result = get_autocomplete( 'label', args['value'] )
-    print('request time taken', req_time.time_taken() )
-    return result
+        print('request time taken', req_time.time_taken() )
+        return result
+    else: return make_json_resp("none",500)
 
 
 if __name__ == '__main__':
