@@ -124,7 +124,7 @@ def home():
 def search():
     search = request.args.get('search')
     results = api_get_requests(AUTOCOMPLETE_URLS['artist'], r_json = { 'value' : search } )
-    return jsonify(['a','b'])
+    return results
 
 #@app.route('/_query_autocomplete')
 #def search():
