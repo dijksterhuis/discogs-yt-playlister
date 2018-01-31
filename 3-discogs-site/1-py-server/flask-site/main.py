@@ -92,7 +92,9 @@ def api_get_requests(host_string, r_json=None):
     if r.status_code == 200:
         r_data = r.json()
         return json_check(r_data)
-    else: return jsonify(['GET API issue. PLease raise a bug report.'])
+    else:
+        flash('GET API issue. Please raise a bug report (TODO).','message')
+        return jsonify(['GET API issue. Please raise a bug report (TODO).'])
 
 def api_put_requests(host_string, r_json):
     r = requests.put( host_string , json = r_json , headers = API_CALL_HEADERS)
@@ -122,8 +124,9 @@ def home():
 def search():
     #search = request.args.get('search')
     #return jsonify([search])
-    r = requests.get( AUTOCOMPLETE_URLS['artist'] , json = jsonify({ 'value' : 'Art' }) , headers = API_CALL_HEADERS)
-    return jsonify(r.json())
+    r = requests.get( 'http://172.23.0.10/artist' , json = jsonify({ 'value' : 'Art' }) , headers = API_CALL_HEADERS)
+    #r = requests.get( AUTOCOMPLETE_URLS['artist'] , json = jsonify({ 'value' : 'Art' }) , headers = API_CALL_HEADERS)
+    return jsonify(json_check(r.json()))
 
 #@app.route('/_query_autocomplete')
 #def search():
