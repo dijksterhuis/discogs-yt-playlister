@@ -121,21 +121,16 @@ def home():
 
 @app.route('/_query_autocomplete')
 def artist_search():
-    search = request.args.get('search')
-    results = api_get_requests(API_URLS['auto_comp_names']+'artist', r_json={ 'value' : search })
+    search = request.args.get('artist_search')
+    results = api_get_requests(API_URLS['auto_comp_names']+'artist', r_json={ 'value' : search})
     return jsonify(results)
 
-@app.route('/_query_autocomplete_release')
-def release_search():
-    search = request.args.get('search')
-    results = api_get_requests(API_URLS['auto_comp_names']+'release', r_json={ 'value' : search })
-    return jsonify(results)
+#@app.route('/_query_autocomplete')
+#def search():
+#    name_type, search = request.args.get('type'), request.args.get('search')
+#    results = api_get_requests(API_URLS['auto_comp_names']+name_type, r_json={ 'value' : search})
+#    return jsonify(results)
 
-@app.route('/_query_autocomplete_label')
-def label_search():
-    search = request.args.get('search')
-    results = api_get_requests(API_URLS['auto_comp_names']+'label', r_json={ 'value' : search })
-    return jsonify(results)
 
 @app.route('/query_builder',methods=['GET','POST'])
 def query_builder():
