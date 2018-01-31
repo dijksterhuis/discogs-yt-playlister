@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, get_video_ids_cache, put_video_ids_cache, clear_video_ids_cache, V_CACHE_ARGS #, max_query_id
+from api_build_funx import timer, make_json_resp, get_video_ids_cache, put_video_ids_cache, clear_video_ids_cache, V_CACHE_ARGS, IN_DATA_LOCS #, max_query_id
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/video_query_cache', methods=['GET','PUT'])
-@use_args(V_CACHE_ARGS,locations='json')
+@use_args(V_CACHE_ARGS,locations=IN_DATA_LOCS)
 def vid_cache_add(args):
 	req_time = timer()
 	print(args)
@@ -39,7 +39,7 @@ def vid_cache_add(args):
 	return result
 
 @app.route('/video_query_cache_clear', methods=['GET'])
-@use_args(V_CACHE_ARGS,locations='json')
+@use_args(V_CACHE_ARGS,locations=IN_DATA_LOCS)
 def vid_cache_clear(args):
 	req_time = timer()
 	print(args)

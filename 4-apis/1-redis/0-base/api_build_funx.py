@@ -3,6 +3,7 @@ from flask import make_response, jsonify
 from webargs import fields
 
 #### WEBARGS ARG DEfs:
+IN_DATA_LOCS=('json',)
 
 NAME_ARGS = { 'name_type' : fields.Str(required=True), 'name': fields.Str(required=True) }
 TAG_ARGS = { 'tag' : fields.Str(required=True) }

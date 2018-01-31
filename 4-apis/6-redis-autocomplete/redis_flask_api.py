@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, get_autocomplete, AUTOCOMPLETE_ARGS
+from api_build_funx import timer, make_json_resp, get_autocomplete, AUTOCOMPLETE_ARGS, IN_DATA_LOCS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -27,7 +27,7 @@ def alive():
     return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/artist', methods=['GET'])
-@use_args(AUTOCOMPLETE_ARGS,locations='json')
+@use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
 def artist(args):
     req_time = timer()
     if request.method == 'GET':
@@ -36,7 +36,7 @@ def artist(args):
     return result
 
 @app.route('/release', methods=['GET'])
-@use_args(AUTOCOMPLETE_ARGS,locations='json')
+@use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
 def release(args):
     req_time = timer()
     if request.method == 'GET':
@@ -46,7 +46,7 @@ def release(args):
 
 
 @app.route('/label', methods=['GET'])
-@use_args(AUTOCOMPLETE_ARGS,locations='json')
+@use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
 def label(args):
     req_time = timer()
     if request.method == 'GET':

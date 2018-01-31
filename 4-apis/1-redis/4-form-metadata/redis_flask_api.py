@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, get_unique_metadata, TAG_ARGS
+from api_build_funx import timer, make_json_resp, get_unique_metadata, TAG_ARGS, IN_DATA_LOCS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/unique_metadata', methods=['GET'])
-@use_args(TAG_ARGS,locations='json')
+@use_args(TAG_ARGS,locations=IN_DATA_LOCS)
 def unique_metadata(args):
 	req_time = timer()
 	print(args)

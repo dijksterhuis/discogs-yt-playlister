@@ -8,7 +8,7 @@ from webargs.flaskparser import use_args
 
 #### CUSTOM BUILD FUNCTION IMPORTS:
 
-from api_build_funx import timer, make_json_resp, redis_host, get_smembers, NAME_ARGS
+from api_build_funx import timer, make_json_resp, redis_host, get_smembers, NAME_ARGS, IN_DATA_LOCS
 
 """
 https://flask-restful.readthedocs.io/en/0.3.5/index.html
@@ -27,7 +27,7 @@ def alive():
 	return make_json_resp( {'status': 'OK'} , 200 )
 
 @app.route('/get_ids_from_name', methods=['GET'])
-@use_args(NAME_ARGS,locations='json')
+@use_args(NAME_ARGS,locations=IN_DATA_LOCS)
 def get_ids(args):
 	req_time = timer()
 	print(args)
