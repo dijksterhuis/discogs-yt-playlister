@@ -125,8 +125,9 @@ def search():
     #search = request.args.get('search')
     #return jsonify([search])
     r = requests.get( 'http://172.23.0.10/artist' , json = { 'value' : 'Art' } , headers = API_CALL_HEADERS)
-    output = jsonify(r.json())
-    return output['search_results']
+    results = r.json()
+    output = jsonify(results['search_results'])
+    return output
 
 #@app.route('/_query_autocomplete')
 #def search():
