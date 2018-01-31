@@ -57,6 +57,7 @@ API_URLS = { \
                 , 'video_adder' : EXT_API_URL+'3/insert_videos' \
                 , 'auto_comp_names' : BASE_API_URL+'10/' \
             }
+AUTOCOMPLETE_URLS = { 'artist' : BASE_API_URL+'10/artist', 'release' : BASE_API_URL+'10/release', 'label' : BASE_API_URL+'10/label' }
 AD_STRING = '\n\nGenerated with discogs-youtube-playlister.com'
 
 # --------------------------------------------------
@@ -122,7 +123,7 @@ def home():
 @app.route('/_query_autocomplete')
 def search():
     search = request.args.get('search')
-    results = api_get_requests(API_URLS['auto_comp_names']+'artist', r_json={ 'value' : search })
+    results = api_get_requests(AUTOCOMPLETE_URLS['artist'], r_json = { 'value' : search } )
     return jsonify(results['search_results'])
 
 #@app.route('/_query_autocomplete')
