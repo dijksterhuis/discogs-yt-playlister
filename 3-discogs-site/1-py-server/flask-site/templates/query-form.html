@@ -61,8 +61,8 @@
   $(function() {
     $( "#artist_name" ).autocomplete({
       source: function( request, response ) {
-          $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
-            search: request, name_type: 'artist'
+          $.getJSON($SCRIPT_ROOT + "/_query_autocomplete_artist", {
+              search: request
           }, response);
       }
     });
@@ -70,8 +70,8 @@
    $(function() {
   $( "#release_name" ).autocomplete({
     source: function( request, response ) {
-        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
-            search: request, name_type: 'release'
+        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete_release", {
+            search: request
         }, response);
     }
   });
@@ -79,8 +79,8 @@
   $(function() {
   $( "#label_name" ).autocomplete({
     source: function( request, response ) {
-        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
-            search: request, name_type: 'label'
+        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete_label", {
+            search: request
         }, response);
     }
   });
