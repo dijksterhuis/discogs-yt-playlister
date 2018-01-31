@@ -125,9 +125,11 @@ def home():
     return render_template('/welcome.html', nav_links=NAV)
 
 @app.route('/_query_autocomplete')
-def query_autocomplete(s,t):
-    print(s,t, file=sys.stderr)
-    #search = request.args.get('search', type=str)
+def query_autocomplete():
+    
+    s, t = request.args.get('s'), request.args.get('t')
+    sys.stdout.write('{} {}'.format(s,t))
+    sys.stdout.flush()
     r = requests.get( 'http://172.23.0.10/artist' , json = { 'value' : search } , headers = API_CALL_HEADERS)
     results = r.json()
     output = jsonify(results['search_results'])
