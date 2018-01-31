@@ -219,6 +219,8 @@ def get_autocomplete(host, value):
     ping_check = redis_conn_check(r)
     if ping_check != True:
         return make_response( ping_check, 500 )
-    result = [i.decode('utf-8') for i in list(r.zrangebylex( host+'_name', '['+value, '['+value+'z\xff', start=0, num=5))]
+    result = list()
+    data = list(r.zrangebylex( host+'_name', '['+value, '['+value+'z\xff', start=0, num=5))
+    for i in data: result.append(i.decode('utf-8'))
     return make_json_resp(result,200)
     
