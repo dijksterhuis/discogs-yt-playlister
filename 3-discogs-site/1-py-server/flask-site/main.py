@@ -1,9 +1,10 @@
+from __future__ import print_function
 # general imports
 import json, os, datetime, time, requests
 from random import randint
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 
-from __future__ import print_function
+
 import sys
 
 # site imports
