@@ -4,7 +4,7 @@ from random import randint
 #from werkzeug.datastructures import ImmutableOrderedMultiDict
 
 # site imports
-from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify
+from flask import  Flask, render_template, redirect, url_for, request, session, flash, jsonify, make_response
 from werkzeug import generate_password_hash, check_password_hash
 
 # google imports
@@ -125,7 +125,7 @@ def search():
     search = request.args.get('search')
     print(search)
     #results = api_get_requests(AUTOCOMPLETE_URLS['artist'], { 'value' : search } )
-    return search
+    return make_response(jsonify(search),200)
 
 #@app.route('/_query_autocomplete')
 #def search():
