@@ -61,7 +61,7 @@
   $(function() {
     $( "#artist_name" ).autocomplete({
       source: function( request, response ) {
-          $.getJSON($SCRIPT_ROOT + "/_query_autocomplete_artist", {
+          $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", {
               search: request
           }, response);
       }

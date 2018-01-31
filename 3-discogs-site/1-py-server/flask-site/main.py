@@ -119,7 +119,7 @@ def index():
 def home():
     return render_template('/welcome.html', nav_links=NAV)
 
-@app.route('/_query_autocomplete_artist')
+@app.route('/_query_autocomplete')
 def artist_search():
     search = request.args.get('search')
     results = api_get_requests(API_URLS['auto_comp_names']+'artist', r_json={ 'value' : search })
