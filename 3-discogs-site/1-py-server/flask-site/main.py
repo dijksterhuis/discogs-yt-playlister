@@ -45,6 +45,7 @@ NAV = { \
             ,'FAQ' : '/faq' \
             ,'Current Videos' : '/current_urls' \
             , 'De-Authorise' : '/deauthorise'}
+API_CALL_HEADERS = {"Content-Type": "application/json"}
 API_URLS = { \
                 'unique_metadata' : BASE_API_URL+'6/unique_metadata' \
                 , 'ids_from_name' : BASE_API_URL+'3/get_ids_from_name' \
@@ -86,8 +87,7 @@ def json_check(r_data):
     return output
 
 def api_get_requests(host_string, r_json=None):
-    api_call_headers = {"Content-Type": "application/json"}
-    if r_json != None: r = requests.get( host_string , json = r_json , headers = api_call_headers)
+    if r_json != None: r = requests.get( host_string , json = r_json , headers = API_CALL_HEADERS)
     else: r = requests.get( host_string )
     if r.status_code == 200:
         r_data = r.json()
@@ -123,9 +123,8 @@ def home():
 @app.route('/_query_autocomplete')
 def search():
     search = request.args.get('search')
-    print(search)
-    #results = api_get_requests(AUTOCOMPLETE_URLS['artist'], { 'value' : search } )
-    return make_response(jsonify(search),200)
+    r = requests.get( AUTOCOMPLETE_URLS['artist'] , json = { 'value' : search } , headers = API_CALL_HEADERS)
+    return make_response(r,200)
 
 #@app.route('/_query_autocomplete')
 #def search():
