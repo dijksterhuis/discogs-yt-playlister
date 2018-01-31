@@ -92,7 +92,7 @@ def api_get_requests(host_string, r_json=None):
     if r.status_code == 200:
         r_data = r.json()
         return json_check(r_data)
-    else: return jsonify(['500 internal service error'])
+    else: return jsonify(['GET API issue. PLease raise a bug report.'])
 
 def api_put_requests(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
@@ -123,7 +123,7 @@ def home():
 @app.route('/_query_autocomplete')
 def search():
     search = request.args.get('search')
-    results = api_get_requests(AUTOCOMPLETE_URLS['artist'], r_json = { 'value' : search } )
+    results = api_get_requests(AUTOCOMPLETE_URLS['artist'], { 'value' : search } )
     return results
 
 #@app.route('/_query_autocomplete')
