@@ -222,5 +222,5 @@ def get_autocomplete(host, value):
     result = list()
     data = list(r.zrangebylex( host+'_name', '['+value, '['+value+'z\xff', start=0, num=5))
     for i in data: result.append(i.decode('utf-8'))
-    return make_json_resp(result,200)
+    return make_json_resp({'search_results':result},200)
     
