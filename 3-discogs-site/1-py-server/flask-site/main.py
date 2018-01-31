@@ -130,7 +130,8 @@ def query_autocomplete():
     s, t = request.args.get('s'), request.args.get('t')
     sys.stdout.write('{} {}'.format(s,t))
     sys.stdout.flush()
-    r = requests.get( 'http://172.23.0.10/artist' , json = { 'value' : search } , headers = API_CALL_HEADERS)
+    print(s,t)
+    r = requests.get( 'http://172.23.0.10/artist' , json = { 'value' : s } , headers = API_CALL_HEADERS)
     results = r.json()
     output = jsonify(results['search_results'])
     return output
