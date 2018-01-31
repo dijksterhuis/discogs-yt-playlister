@@ -95,15 +95,13 @@ def api_get_requests(host_string, r_json=None):
     else: return jsonify(['GET API issue. PLease raise a bug report.'])
 
 def api_put_requests(host_string, r_json):
-    api_call_headers = {"Content-Type": "application/json"}
-    r = requests.put( host_string , json = r_json , headers = api_call_headers)
+    r = requests.put( host_string , json = r_json , headers = API_CALL_HEADERS)
     r_data = r.json()
     return json_check(r_data)
 
 def api_post(host_string, r_json):
-    api_call_headers = {"Content-Type": "application/json"}
     try:
-        r = requests.post( host_string , json = r_json , headers = api_call_headers , verify=False, timeout=(3.05,1))
+        r = requests.post( host_string , json = r_json , headers = API_CALL_HEADERS , verify=False, timeout=(3.05,1))
     except:
         return 'No response object for this query'
     return True
@@ -124,7 +122,7 @@ def home():
 def search():
     #search = request.args.get('search')
     #return jsonify([search])
-    r = requests.get( AUTOCOMPLETE_URLS['artist'] , json = { 'value' : 'Art' } , headers = API_CALL_HEADERS)
+    r = requests.get( AUTOCOMPLETE_URLS['artist'] , json = jsonify({ 'value' : 'Art' }) , headers = API_CALL_HEADERS)
     return jsonify(r.json())
 
 #@app.route('/_query_autocomplete')
