@@ -92,7 +92,7 @@ def api_get_requests(host_string, r_json=None):
     if r.status_code == 200:
         r_data = r.json()
         return json_check(r_data)
-    else: return jsonify('500 internal service error')
+    else: return jsonify(['500 internal service error'])
 
 def api_put_requests(host_string, r_json):
     api_call_headers = {"Content-Type": "application/json"}
