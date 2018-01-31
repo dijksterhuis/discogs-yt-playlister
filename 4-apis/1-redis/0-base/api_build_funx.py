@@ -214,7 +214,7 @@ def clear_video_ids_cache(session_id):
 #### ---- AUTOCOMPLETE:
 
 def get_autocomplete(host, value):
-    r = redis_host('discogs-discogs-get-autocomplete-'+host)
+    r = redis_host('discogs-redis-autocomplete-'+host)
     
     ping_check = redis_conn_check(r)
     if ping_check != True:
