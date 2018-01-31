@@ -123,7 +123,7 @@ def home():
 @app.route('/_query_autocomplete')
 def search():
     search = request.args.get('search')
-    return ['a','b']
+    return jsonify([search])
     #r = requests.get( AUTOCOMPLETE_URLS['artist'] , json = { 'value' : search } , headers = API_CALL_HEADERS)
     #return make_response(r.json(),200)
 
