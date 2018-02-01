@@ -127,7 +127,7 @@ def home():
 @app.route('/_query_autocomplete')
 def query_autocomplete():
     
-    s, t = request.args.get('s'), request.args.get('t')
+    s, t = request.args.get('s%5Bterm%5D'), request.args.get('t')
     sys.stdout.write('{} {}'.format(s,t))
     sys.stdout.flush()
     print(s,t)
