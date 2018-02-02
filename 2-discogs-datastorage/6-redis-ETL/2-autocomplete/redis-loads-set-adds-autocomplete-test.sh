@@ -3,7 +3,8 @@
 image='dijksterhuis/redis-database-inserts:modularised-0.1'
 container_name='redis-loads-autocomplete-artists'
 container_command='./redis-load-set-adder.py'
-container_args='autocomplete masters autocomplete-test masters_id artist_name'
+# run_type, primary_key, mongo instance, redis instance, key, value
+container_args='autocomplete value masters autocomplete-test masters_id artist_name'
 networks='discogs-redis-autocomplete discogs-mongo'
 
 docker run -di \

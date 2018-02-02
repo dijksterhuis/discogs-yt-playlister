@@ -3,7 +3,8 @@
 image='dijksterhuis/redis-database-inserts:modularised-0.1'
 container_name='redis-loads-masterid-artistname'
 container_command='./redis-load-set-adder.py'
-container_args='simple_set masters redis-mastersid-artistname masters_id artist_name'
+# run_type, primary_key, mongo instance, redis instance, key, value
+container_args='simple value masters redis-mastersid-artistname masters_id artist_name'
 networks='discogs-redis-site-queries discogs-mongo'
 
 docker run -di \
