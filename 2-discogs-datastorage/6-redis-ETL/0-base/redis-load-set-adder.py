@@ -226,7 +226,7 @@ def main(args):
                     try: counter += redis_conn.zadd( key, v, 0)
                     except Exception as e:
                         print('--- An exception occured.',e)
-                        logs.write_log_data([key, v, False , "Error"])
+                        logs.write_log_data([key, v, False , "Error: " +str(e)])
                     else: logs.write_log_data([key, v, True , False])
                     
                 else:
