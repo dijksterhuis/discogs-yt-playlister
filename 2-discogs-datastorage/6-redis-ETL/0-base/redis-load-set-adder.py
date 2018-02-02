@@ -239,11 +239,13 @@ def main(args):
             logs.write_log_data([inserts[r_key], inserts[r_value], False , True])
             
         elif run_type == 'key' or 'value':
-            redis_inserts(redis_conn,  inserts[r_key], inserts[r_value], logs, list_check = run_type )
+            counter += redis_inserts(redis_conn,  inserts[r_key], inserts[r_value], logs, list_check = run_type )
         
-        else run_type == 'autocomplete':
-            redis_inserts(redis_conn, r_value, inserts[r_value], logs, list_check = run_type )
-                
+        elif run_type == 'autocomplete':
+            counter += redis_inserts(redis_conn, r_value, inserts[r_value], logs, list_check = run_type )
+        
+        else:
+            pass
         # ---- stats
         
         console.write( "\r{:,d} proc / {:,d} mongo dox".format( idx, mongo_conn.count() ))
