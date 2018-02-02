@@ -1,39 +1,47 @@
 ## TODOs
-
-- MONGO > REDIS ETL ERRORS:
-  - ```bash 
-  ['James Holden', 'Julie Thompson']
-  ```
-  - This should not be inserted as a list! Should extract each value and insert them...
+- log to logging docker volume
+  - Mongo load
+  - Site usage
 - Code clean up!
   - Are redis ID -> name instances needed?!
-- ERROR HANDLING!
-- log to logging docker volume...
-- Query for Terrekke, Plant Ages returns ~40 videos - should be 9?
-- Autocomplete on text searches:
-  - jQuery - helper function so simple 'artist' or 'label' func where applicable.
-  - Lexographical queries:
-    - **NOT FUCNTIONING CORRECTLY**:
-      - 'James Hol' returns James Hollingworth **ONLY** -> no James Holden! Must be Redis API lexigraphical search code issue.
-    - Reformat redis Text to UPPER:Original ?
-    - How many many results to display ? Dynamic in Redis API ?
-    - Don't forget data is in Discogs format - e.g. Artefakt (2)
-- Playlist creation
-  - add to existing playlists?
+- Exception handling
+- Documentation
+  - What instnaces hold what data
+  - where data is used
+  - glossary of terms
+
 - SessionID logic
   - not randint!
   - Max query API...
 - Change around IP addresses of Youtbue API and webserver
 - Youtube API - how to thread video addition requests?
 - Clear videos cache for session id after playlist build
-- Build query (intersections) on seperate RESTful API ?
-- Country data - Acid Techno from Germany!
 - NGINX + USWGI
+  - ??? https://stackoverflow.com/questions/27920852/nginx-ssl-inside-a-docker-container
+  - https://hub.docker.com/r/zerossl/client/
   - Nginx config set up nerd out...
   - Build own ? 2 container method preffered (nginx scaling)
   - How to SSL it ?
     - oauth breaks using tiangulo docker image.
   - Any other options ?
+- Autocomplete on text searches:
+  - jQuery - helper function so simple 'artist' or 'label' func where applicable.
+  - Reformat redis Text to UPPER:Original ?
+  - How many many results to display ? Dynamic in Redis API ?
+  - Don't forget data is in Discogs format - e.g. Artefakt (2)
+
+- discogs api:
+  - lists
+  - collection
+  - wantlist
+
+- Playlist creation
+  - add to existing playlists?
+  - Manage existing youtube playlists?
+    - All playlists or only one user has added via discogs-yt
+      - Requires holding user data!
+- Build query (intersections) on seperate RESTful API ?
+- Country data - Acid Techno from Germany!
 - Release date filtering:
   - Release dates are really dirty!!!
   - Design release date query logic (Y & M & D set intersection? or YYYY-MM choice in redis?)
@@ -41,7 +49,6 @@
   - Run release date redis inserts
   - Add release date query fields
 - Redis Inserts:
-  - Sorted set logic for autocomplete searches
   - Check how Redis handles multiple I/O requests ?
     - Load to DB 1, switch DB 0 to DB 1, then flush DB 1 after inserts ? 
   - Updates !?
@@ -64,8 +71,7 @@
   - Calendar for date queries?
   - Lighter back colour for inputs
   - Turn off autocomplete suggestions from browser
-- FAQ / Landing / Welcome page - started
-- Privacy Policy
+- FAQ / Landing / Welcome / Privacy Policy pages - started
 - Query Javascript loading query script... Give the user something to look at?
 - **REAL** artist names ?
   - Covering all of an artists aliases...
@@ -96,9 +102,19 @@
       - <http://flask.pocoo.org/docs/0.12/patterns/jquery/>
       - <https://stackoverflow.com/questions/15310644/flask-ajax-autocomplete>
   - redis APIs
+  - Lexographical queries:
+    - **NOT FUCNTIONING CORRECTLY**:
+      - 'James Hol' returns James Hollingworth **ONLY** -> no James Holden! Must be Redis API lexigraphical search code issue.
+  
 - Requests timeouts - requests.get('http://github.com', timeout=0.001)
 - Youtube API
   - Playlist gen
   - Video additions
     - Is POST request with no response data possible?
     - Will "/playlist\_added.html" load?
+- MONGO > REDIS ETL ERRORS:
+  - This should not be inserted as a list! Should extract each value and insert them...
+- log to logging docker volume...
+  - Redis ETL
+- Redis inserts:
+  - Sorted set logic for autocomplete searches
