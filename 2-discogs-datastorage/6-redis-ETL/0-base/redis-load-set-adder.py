@@ -176,7 +176,7 @@ def main(args):
     
     print('Setting up logger.')
     if run_type == 'simple_set': headers = ['r_key','r_val','inserted','skipped']
-    elif run_type == 'meta_uniq_set': headers = ['r_key','r_val','inserted','skipped'])
+    elif run_type == 'meta_uniq_set': headers = ['r_key','r_val','inserted','skipped']
     elif run_type == 'autocomplete': headers = ['r_val','inserted','skipped']
     else: headers = None
     
