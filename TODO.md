@@ -1,5 +1,10 @@
 ## TODOs
 
+- MONGO > REDIS ETL ERRORS:
+  - ```bash 
+  ['James Holden', 'Julie Thompson']
+  ```
+  - This should not be inserted as a list! Should extract each value and insert them...
 - Code clean up!
   - Are redis ID -> name instances needed?!
 - ERROR HANDLING!
