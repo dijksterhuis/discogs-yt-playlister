@@ -7,6 +7,8 @@
 - Autocomplete on text searches:
   - jQuery - helper function so simple 'artist' or 'label' func where applicable.
   - Lexographical queries:
+    - **NOT FUCNTIONING CORRECTLY**:
+      - 'James Hol' returns James Hollingworth **ONLY** -> no James Holden! Must be Redis API lexigraphical search code issue.
     - Reformat redis Text to UPPER:Original ?
     - How many many results to display ? Dynamic in Redis API ?
     - Don't forget data is in Discogs format - e.g. Artefakt (2)
