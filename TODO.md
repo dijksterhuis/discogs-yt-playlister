@@ -1,6 +1,7 @@
 ## TODOs
 
 - Code clean up!
+  - Are redis ID -> name instances needed?!
 - ERROR HANDLING!
 - log to logging docker volume...
 - Query for Terrekke, Plant Ages returns ~40 videos - should be 9?
