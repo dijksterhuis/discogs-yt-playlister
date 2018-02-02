@@ -24,7 +24,7 @@ class MyLogger:
         if isinstance(self.headers, list): self.write_log_data(headers)
     
     def _exception_printing(print_string, error):
-        print(print_string'. Exception: '+e)
+        print(print_string+'. Exception: ',e)
     
     def write_log_data(self, data):
         if isinstance(data,list): log_data = ','.join(list(map(str, data)))
