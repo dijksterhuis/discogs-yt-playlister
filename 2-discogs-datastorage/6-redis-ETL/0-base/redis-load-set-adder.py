@@ -140,63 +140,11 @@ def redis_connect(redis_conn_host):
     
     return redis_conn, redis_conn.pipeline(), init_redis_dbsize
 
-def redis_inserts(redis_conn, key, value, logs, list_check = None ):
-    
-    """ 
-    Set insert logic for Redis
-    ------------------------------------------------
-    - Videos come in a list, so VALUE must be iterated over. (master_id : video_urls )
-    - Genres come in a list, so KEY must be iterated over. (genre : master_id)
-    """
-    
-    
-    if list_check == 'autocomplete':
-        
-        if redis_conn.zscore( key, value ) == None:
-            
-            try: adds = redis_conn.zadd( key, value, 0)
-            except Exception as e:
-                print('An exception occured.',e)
-                adds = 0
-                logs.write_log_data([key, value, False , "Error"])
-            else: logs.write_log_data([key, value, True , False])
-                
-        else:
-            try: redis_conn.zincrby( key, value, amount = 1)
-            except Exception as e:
-                print('An exception occured.',e)
-                logs.write_log_data([key, value, False , "Error"])
-            else: logs.write_log_data([key, value, False , False])
-            adds = 0
-            
-    elif list_check == 'key' and isinstance(key, list):
-        keys = list(map(str,key))
-        adds = 0
-        for string_key in keys:
-            try: adds = redis_conn.sadd( string_key, value )
-            except Exception as e:
-                print('An exception occured.',e)
-                logs.write_log_data([string_key, value, False , "Error"])
-            else: logs.write_log_data([string_key, value, True , False])
-            
-    elif list_check == 'value' and isinstance(value, list):
-        values = list(map(str,value))
-        adds = 0
-        for string_value in values:
-            try: adds = redis_conn.sadd( key, string_value )
-            except Exception as e:
-                print('An exception occured.',e)
-                logs.write_log_data([key, string_value, False , "Error"])
-            else: logs.write_log_data([key, string_value, True , False])
-            
-    else:
-        try: adds = redis_conn.sadd( str(key), str(value) )
-        except Exception as e:
-            print('An exception occured.',e)
-            logs.write_log_data([str(key), str(value), False , "Error"])
-        else: logs.write_log_data([str(key), str(value), True , False])
-
-    return adds
+def primary_key_list_check_gen(data):
+    if isinstance(data,list):
+        for i in data:
+            yield str(i)
+    else: yield data
 
 def main(args):
     
@@ -209,11 +157,16 @@ def main(args):
     6. Stats print out
     """
     
-    run_type, redis_conn_host, mongo_conn_host, r_key, r_value = \
-             args.primary_key[0], args.redis_insert_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
+    run_type, primary_key_check, redis_conn_host, mongo_conn_host, r_key, r_value = \
+             args.run_type[0]\
+             , args.primary_key_check[0]\
+             , args.redis_insert_host[0]\
+             , args.mongo_connection_host[0]\
+             , args.redis_key[0]\
+             , args.redis_value[0]
     
     print('Setting up logger.')
-    if run_type == 'key' or run_type == 'value': headers = ['r_key','r_val','inserted','skipped']
+    if run_type == 'simple': headers = ['r_key','r_val','inserted','skipped']
     elif run_type == 'autocomplete': headers = ['r_val','inserted','skipped']
     else: headers = None
     
@@ -238,14 +191,54 @@ def main(args):
         if inserts[r_value] == None or inserts[r_key] == None:
             logs.write_log_data([inserts[r_key], inserts[r_value], False , True])
             
-        elif run_type == 'key' or 'value':
-            counter += redis_inserts(redis_conn,  inserts[r_key], inserts[r_value], logs, list_check = run_type )
-        
+        elif run_type == 'simple':
+            
+            key, value = inserts[r_key], inserts[r_value]
+            
+            if primary_key_check == 'key':
+                
+                for k in primary_key_list_check_gen(key):
+                    
+                    try: counter += redis_conn.sadd( k, value )
+                    except Exception as e:
+                        print('--- An exception occured.',e)
+                        logs.write_log_data([k, value, False , "Error"])
+                    else: logs.write_log_data([k, value, True , False])
+                    
+            elif primary_key_check == 'value':
+                
+                for v in primary_key_list_check_gen(value):
+                    
+                    try: counter += redis_conn.sadd( key, v )
+                    except Exception as e:
+                        print('--- An exception occured.',e)
+                        logs.write_log_data([key, v, False , "Error"])
+                    else: logs.write_log_data([key, v, True , False])
+
         elif run_type == 'autocomplete':
-            counter += redis_inserts(redis_conn, r_value, inserts[r_value], logs, list_check = run_type )
+            
+            key, value = r_value, inserts[r_value]
+            
+            for v in primary_key_list_check_gen(value):
+                
+                if redis_conn.zscore( key, v ) == None:
+                    
+                    try: counter += redis_conn.zadd( key, v, 0)
+                    except Exception as e:
+                        print('--- An exception occured.',e)
+                        logs.write_log_data([key, v, False , "Error"])
+                    else: logs.write_log_data([key, v, True , False])
+                    
+                else:
+                    
+                    try: redis_conn.zincrby( key, v, amount = 1)
+                    except Exception as e:
+                        print('--- An exception occured.',e)
+                        logs.write_log_data([key, v, False , "Error"])
+                    else: logs.write_log_data([key, v, False , False])
         
-        else:
-            pass
+        else: pass
+        
         # ---- stats
         
         console.write( "\r{:,d} proc / {:,d} mongo dox".format( idx, mongo_conn.count() ))
@@ -268,8 +261,8 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description="REDIS SET INSERTS: Get data from Mongo and load into Redis")
     
-    #parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_uniq_set','autocomplete'])
-    parser.add_argument('primary_key',type=str,nargs=1,choices=['value','key','autocomplete'])
+    parser.add_argument('run_type',type=str,nargs=1,choices=['simple','autocomplete'])
+    parser.add_argument('primary_key',type=str,nargs=1,choices=['key','value'])
     parser.add_argument('mongo_connection_host',type=str,nargs=1,choices=['masters','labels','releases','artists'])
     parser.add_argument('redis_insert_host',type=str,nargs=1)
     parser.add_argument('redis_key',type=str,nargs=1)
