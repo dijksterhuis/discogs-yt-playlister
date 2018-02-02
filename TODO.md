@@ -5,10 +5,10 @@
 - log to logging docker volume...
 - Query for Terrekke, Plant Ages returns ~40 videos - should be 9?
 - Autocomplete on text searches:
-  - redis APIs
+  - jQuery - helper function so simple 'artist' or 'label' func where applicable.
   - Lexographical queries:
     - Reformat redis Text to UPPER:Original ?
-    - How many many results to display ?
+    - How many many results to display ? Dynamic in Redis API ?
     - Don't forget data is in Discogs format - e.g. Artefakt (2)
 - Playlist creation
   - add to existing playlists?
@@ -87,6 +87,7 @@
       - <https://jqueryui.com/autocomplete/>
       - <http://flask.pocoo.org/docs/0.12/patterns/jquery/>
       - <https://stackoverflow.com/questions/15310644/flask-ajax-autocomplete>
+  - redis APIs
 - Requests timeouts - requests.get('http://github.com', timeout=0.001)
 - Youtube API
   - Playlist gen

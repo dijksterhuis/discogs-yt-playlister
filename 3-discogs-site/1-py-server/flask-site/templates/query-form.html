@@ -58,6 +58,8 @@
 </style>
 
 <script type="text/javascript">
+
+  /*http://www.dotnetcurry.com/jquery/1129/jqueryui-autocomplete-using-remote-data*/
   
   $(function() {
     $( "#artist_name" ).autocomplete({
@@ -67,13 +69,13 @@
   
   $(function() {
     $( "#release_name" ).autocomplete({
-      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { s: request }, response);}
+      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { s: request.term, t:'release' }, response);}
     });
   });
    
   $(function() {
     $( "#label_name" ).autocomplete({
-      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { s: request }, response); }
+      source: function( request, response ) { $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { s: request.term, t:'label' }, response); }
     });
   }); 
   </script>
