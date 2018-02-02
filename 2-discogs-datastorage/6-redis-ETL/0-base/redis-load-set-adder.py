@@ -230,12 +230,12 @@ def main(args):
                     else: logs.write_log_data([key, v, True , False])
                     
                 else:
-                    
-                    try: redis_conn.zincrby( key, v, amount = 1)
-                    except Exception as e:
-                        print('--- An exception occured.',e)
-                        logs.write_log_data([key, v, False , "Error"])
-                    else: logs.write_log_data([key, v, False , False])
+                    logs.write_log_data([key, v, False , True])
+                    #try: redis_conn.zincrby( key, v, amount = 1)
+                    #except Exception as e:
+                    #    print('--- An exception occured.',e)
+                    #    logs.write_log_data([key, v, False , "Error"])
+                    #else: logs.write_log_data([key, v, False , False])
         
         else: pass
         
