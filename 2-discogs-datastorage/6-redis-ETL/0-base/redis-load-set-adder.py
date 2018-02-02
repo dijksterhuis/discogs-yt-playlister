@@ -198,7 +198,8 @@ def main(args):
         
         # ---- add to redis
         
-        if inserts[r_value] == None or inserts[r_key] == None: pass
+        if inserts[r_value] == None or inserts[r_key] == None:
+            pass
             logs.write_log_data([inserts[r_key], inserts[r_value], False , True])
             
         elif run_type == 'simple_set':
