@@ -159,7 +159,7 @@ def main(args):
     
     run_type, primary_key_check, redis_conn_host, mongo_conn_host, r_key, r_value = \
              args.run_type[0]\
-             , args.primary_key_check[0]\
+             , args.primary_key[0]\
              , args.redis_insert_host[0]\
              , args.mongo_connection_host[0]\
              , args.redis_key[0]\
