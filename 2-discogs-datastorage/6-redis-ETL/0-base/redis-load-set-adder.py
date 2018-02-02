@@ -210,7 +210,7 @@ def main(args):
     """
     
     run_type, redis_conn_host, mongo_conn_host, r_key, r_value = \
-             args.run_type[0], args.redis_insert_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
+             args.primary_key[0], args.redis_insert_host[0], args.mongo_connection_host[0], args.redis_key[0], args.redis_value[0]
     
     print('Setting up logger.')
     if run_type == 'key' or run_type == 'value': headers = ['r_key','r_val','inserted','skipped']
@@ -269,7 +269,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="REDIS SET INSERTS: Get data from Mongo and load into Redis")
     
     #parser.add_argument('run_type',type=str,nargs=1,choices=['simple_set','meta_uniq_set','autocomplete'])
-    parser.add_argument('lists_check',type=str,nargs=1,choices=['value','key','autocomplete'])
+    parser.add_argument('primary_key',type=str,nargs=1,choices=['value','key','autocomplete'])
     parser.add_argument('mongo_connection_host',type=str,nargs=1,choices=['masters','labels','releases','artists'])
     parser.add_argument('redis_insert_host',type=str,nargs=1)
     parser.add_argument('redis_key',type=str,nargs=1)
