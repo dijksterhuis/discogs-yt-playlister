@@ -154,7 +154,7 @@ def redis_inserts(redis_conn, key, value, logs, list_check = None ):
         
         if redis_conn.zscore( key, value ) == None:
             
-            try: adds += redis_conn.zadd( key, value, 0)
+            try: adds = redis_conn.zadd( key, value, 0)
             except Exception as e:
                 print('An exception occured.',e)
                 adds = 0
@@ -173,7 +173,7 @@ def redis_inserts(redis_conn, key, value, logs, list_check = None ):
         keys = list(map(str,key))
         adds = 0
         for string_key in keys:
-            try: adds += redis_conn.sadd( string_key, value )
+            try: adds = redis_conn.sadd( string_key, value )
             except Exception as e:
                 print('An exception occured.',e)
                 logs.write_log_data([string_key, value, False , "Error"])
@@ -183,7 +183,7 @@ def redis_inserts(redis_conn, key, value, logs, list_check = None ):
         values = list(map(str,value))
         adds = 0
         for string_value in values:
-            try: adds += redis_conn.sadd( key, string_value )
+            try: adds = redis_conn.sadd( key, string_value )
             except Exception as e:
                 print('An exception occured.',e)
                 logs.write_log_data([key, string_value, False , "Error"])
