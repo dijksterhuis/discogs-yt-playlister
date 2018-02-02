@@ -127,14 +127,10 @@ def home():
 @app.route('/_query_autocomplete')
 def query_autocomplete():
     
-    s, t = request.args.get('s'), request.args.get('t')
-    sys.stdout.write('{} {}'.format(s,t))
-    sys.stdout.flush()
-    print(s,t)
-    r = requests.get( 'http://172.23.0.10/artist' , json = { 'value' : s } , headers = API_CALL_HEADERS)
-    #results = r.json()
-    #output = jsonify(results['search_results'])
-    return jsonify([s])
+    search, target = request.args.get('search'), request.args.get('target')
+    results = api_get_requests(API_URLS['auto_comp_names'] + target, r_json = { 'value' : search } )
+    output = jsonify(results['search_results'])
+    return output
 
 #@app.route('/_query_autocomplete')
 #def search():
