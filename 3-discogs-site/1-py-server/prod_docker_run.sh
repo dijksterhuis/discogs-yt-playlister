@@ -1,5 +1,5 @@
 image_name="dijksterhuis/discogs-flask-server"
-image_tag="dev"
+image_tag="nginx"
 container_name="pyserving-test"
 api_net='discogs-get-apis'
 external_net='discogs-external-apis'
