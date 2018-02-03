@@ -48,7 +48,7 @@ def vid_cache_clear(args):
 	return result
 
 @app.route('/max_query_id', methods=['GET'])
-def max_query_id():
+def get_new_id():
 	return max_query_id()
 
 if __name__ == '__main__':
