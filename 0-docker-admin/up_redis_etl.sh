@@ -4,14 +4,12 @@
 function parallel_jobs {
     if [ $2 -z ] ; \
     then \
-        if [ $(getconf _NPROCESSORS_ONLN) > 1 ] ; \
-        then \
-            cpus=$(getconf _NPROCESSORS_ONLN)-1 ; \
-        else \
-            cpus=$(getconf _NPROCESSORS_ONLN) ; \
-        fi \
-    else  \
-        cpus=$2 ; \
+        total_cpus=$(getconf _NPROCESSORS_ONLN) ; \
+        if [ $total_cpus > 2 ] ; \
+        then cpus=$(($total_cpus-2)) ; \
+        else cpus=1 ; \
+        fi ; \
+    else cpus=$2 ; \
     fi
     
     find $1 -print0 -name \*.sh | xargs -0 --max-args=1 --max-procs=$cpus /bin/bash -c
