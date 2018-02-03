@@ -1,0 +1,1 @@
+uwsgi --socket 0.0.0.0:8000 --protocol=http --plugins-dir /usr/lib/uwsgi/ --need-plugin python -w wsgi_app
