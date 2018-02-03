@@ -6,11 +6,11 @@ function parallel_jobs {
     then \
         if [ $(getconf _NPROCESSORS_ONLN) > 1 ] ; \
         then \
-            cpus=$(getconf _NPROCESSORS_ONLN)-1 ;\
+            cpus=$(getconf _NPROCESSORS_ONLN)-1 ; \
         else \
             cpus=$(getconf _NPROCESSORS_ONLN) ; \
         fi \
-    else ; \
+    else  \
         cpus=$2 ; \
     fi
     
