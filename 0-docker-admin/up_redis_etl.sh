@@ -9,7 +9,7 @@ function parallel_jobs {
             cpus=$(getconf _NPROCESSORS_ONLN)-1 ;\
         else \
             cpus=$(getconf _NPROCESSORS_ONLN) ; \
-        fi ; \
+        fi \
     else ; \
         cpus=$2 ; \
     fi
