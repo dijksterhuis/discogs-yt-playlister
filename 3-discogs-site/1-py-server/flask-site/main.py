@@ -151,7 +151,7 @@ def query_builder():
     
     #if 'session_id' not in session: session['session_id'] = 'query:'+str(randint(0,1000))
     
-    if 'session_id' not in session: session['session_id'] = api_get_requests(API_URLS['video_query_cache_max'])
+    if 'session_id' not in session: session['session_id'] = api_get_requests(API_URLS['video_query_cache_max'])['query']
     
     if request.method == 'GET':
         

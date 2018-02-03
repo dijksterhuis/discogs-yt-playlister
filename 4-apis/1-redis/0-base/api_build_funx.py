@@ -195,9 +195,9 @@ def max_query_id():
     
     keys = get_redis_keys(r)
     if len(keys) == 0: max_key = 1
-    else: max_key = max([int(k.lstrip('query:')) for k in keys])
+    else: max_key = max([int(k) for k in keys if isinstance(k,int)])
     
-    return make_json_resp('query:'+str(max_key),200)
+    return make_json_resp({'query':str(max_key)},200)
 
 #### ---- AUTOCOMPLETE:
 
