@@ -18,7 +18,7 @@ function parallel_jobs {
 
 }
 
-paths="6-redis-ETL/1-searches/ 6-redis-ETL/2-autocomplete/"
+paths="./2-discogs-datastorage/6-redis-ETL/1-searches/ ./2-discogs-datastorage/6-redis-ETL/2-autocomplete/"
 cwd=$(pwd)
 echo "------------------------------------------------"
 echo " --- Starting redis ETL script -----------------"
