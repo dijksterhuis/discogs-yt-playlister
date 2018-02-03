@@ -372,8 +372,3 @@ def send_to_yt():
                                         , first_vid = video_ids[0] \
                                         , test = playlist_result \
                                 )
-
-if __name__ == '__main__':
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-    app.run(host='0.0.0.0',debug=True,port=80)
-    #app.run(host='0.0.0.0',debug=False,port=80)
