@@ -106,11 +106,12 @@ def api_get_requests(host_string, r_json=None):
     if r_json is not None: r = requests.get( host_string , json = r_json , headers = API_CALL_HEADERS)
     else: r = requests.get( host_string )
     if r.status_code == 200:
-        r_data = r.json()
-        return json_check(r_data)
+        return r.json()
+        #r_data = r.json()
+        #return json_check(r_data)
     else:
         flash('GET API issue. Please raise a bug report (TODO).','message')
-        return jsonify(['GET API issue. Please raise a bug report (TODO).'])
+        return jsonify({"None":"None"})
 
 def api_put_requests(host_string, r_json = None):
     if r_json is None: raise ValueError('r_json did not have any value. Cannot PUT.')
