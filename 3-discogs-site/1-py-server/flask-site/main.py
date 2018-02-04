@@ -188,7 +188,7 @@ def query_builder():
                         for name in NAME_FIELDS \
                     }
         
-        return render_template('/test.html',a = NAME_FIELDS,  b=name, c= names, d = name_ids)
+        return render_template('/test.html',a = NAME_FIELDS,  b= names, c = name_ids)
         
         if sum([len(v) for v in name_ids.values()]) == 0:
             flash('No results found for your text input. Please try another search.','message')
