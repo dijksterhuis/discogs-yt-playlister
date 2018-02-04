@@ -207,6 +207,9 @@ def get_autocomplete(host, value):
     ping_check = redis_conn_check(r)
     if ping_check is not True: return make_response( ping_check, 500 )
     
-    result = [value.decode('utf-8') for value in list(r.zrangebylex(host+'_name','['+value,'['+value+'z\xff',start=0,num=5))]
+    if host == 'release': tmp = '_title'
+    else: tmp = '_name'
+    
+    result = [value.decode('utf-8') for value in list(r.zrangebylex(host+tmp,'['+value,'['+value+'z\xff',start=0,num=5))]
     return make_json_resp({'search_results': result},200)
     
