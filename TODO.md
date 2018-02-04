@@ -1,4 +1,6 @@
 ## TODOs
+- !!! RELOAD RELEASES DATA INTO MONGO
+
 - log to logging docker volume
   - Mongo load
   - Site usage

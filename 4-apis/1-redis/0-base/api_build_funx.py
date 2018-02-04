@@ -193,11 +193,9 @@ def max_query_id():
     ping_check = redis_conn_check(r)
     if ping_check is not True: return make_response( ping_check, 500 )
     
-    keys = get_redis_keys(r)
+    keys = [int(k) for k in get_redis_keys(r) if isinstance(k,int)]
     if keys is None or len(keys) == 0: max_key = 1
-    else:
-        keys = list(keys)
-        max_key = max([int(k) for k in keys if isinstance(k,int)])
+    else: max_key = max(keys) + 1
     
     return make_json_resp({'query':str(max_key)},200)
 
