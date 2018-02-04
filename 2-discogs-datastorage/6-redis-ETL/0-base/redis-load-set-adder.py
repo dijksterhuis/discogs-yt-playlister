@@ -147,12 +147,12 @@ def primary_key_list_check_gen(data):
     else: yield data
 
 def sorted_set_redis_insert(redis_conn, logs, key, value):
-    try: counter = redis_conn.sadd( key, v )
+    try: counter = redis_conn.sadd( key, value )
     except Exception as e:
         print('--- An exception occured.',e)
-        logs.write_log_data([key, v, False , "Error: " +str(e)])
+        logs.write_log_data([key, value, False , "Error: " +str(e)])
         counter = 0
-    else: logs.write_log_data([key, v, True , False])
+    else: logs.write_log_data([key, value, True , False])
     return counter
 
 def main(args):
