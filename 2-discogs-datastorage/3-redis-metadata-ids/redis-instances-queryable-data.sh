@@ -1,12 +1,13 @@
 #!/bin/bash
 
 network='discogs-redis-site-queries'
-container_names='redis-masterids-titles redis-video-id-urls redis-mainrel-masterid redis-mastersid-artistname redis-artists-ids redis-masters-ids redis-metadata-unique-genre redis-metadata-unique-style redis-metadata-unique-year redis-metadata-unique-reldate redis-labels-ids redis-mastersid-labelname'
+container_names='video-id-urls artists-ids masters-ids metadata-unique-genre metadata-unique-style metadata-unique-year metadata-unique-reldate labels-ids country-ids'
 port=7000
 docker network create $network
 
 for container_name in $container_names ; 
 do \
+    container_name='redis-'$container_name
     docker run \
         -d \
         --restart=always \
@@ -20,26 +21,35 @@ do \
 done
 
 
+# redis-mastersid-artistname redis-mastersid-labelname redis-mainrel-masterid redis-masterids-titles
+
 ### NOTES:
+# ----------------------------------------------------------------
+###### redis-country-ids
+# ----------------------------------------------------------------
+# relevant search sets for country
+# to be used for searching
+## keys: country
+## values: master-id
 # ----------------------------------------------------------------
 ###### redis-masters-ids
 # ----------------------------------------------------------------
 # relevant search sets for master release titles
-# to be used for autocomplete / searching
+# to be used for  searching
 ## keys: release-title
 ## values: master-id
 # ----------------------------------------------------------------
 ###### redis-artists-ids
 # ----------------------------------------------------------------
 # relevant search sets for master artists
-# to be used for autocomplete / searching
+# to be used for  searching
 ## keys: artist-name
 ## values: artist-id
 # ----------------------------------------------------------------
 ###### redis-mastersid-artistname
 # ----------------------------------------------------------------
 # relevant search sets for checking which master releases user wants (against relevant artists)
-# to be used for autocomplete / searching
+# to be used for  searching
 ## keys: masters_id
 ## values: artist_name
 # ----------------------------------------------------------------

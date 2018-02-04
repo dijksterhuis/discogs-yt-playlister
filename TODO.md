@@ -1,23 +1,27 @@
 ## TODOs
 - !!! RELOAD RELEASES DATA INTO MONGO
+- country data
+  - load
+ - to do main site query loading efficiently?
 
 - log to logging docker volume
   - Mongo load
   - Site usage
+
 - Code clean up!
   - Are redis ID -> name instances needed?!
+
 - Exception handling
+
 - Documentation
   - What instnaces hold what data
   - where data is used
   - glossary of terms
 
-- SessionID logic
-  - not randint!
-  - Max query API...
 - Change around IP addresses of Youtbue API and webserver
+
 - Youtube API - how to thread video addition requests?
-- Clear videos cache for session id after playlist build
+
 - NGINX + USWGI
   - ??? https://stackoverflow.com/questions/27920852/nginx-ssl-inside-a-docker-container
   - https://hub.docker.com/r/zerossl/client/
@@ -26,6 +30,7 @@
   - How to SSL it ?
     - oauth breaks using tiangulo docker image.
   - Any other options ?
+  
 - Autocomplete on text searches:
   - jQuery - helper function so simple 'artist' or 'label' func where applicable.
   - Reformat redis Text to UPPER:Original ?
@@ -42,26 +47,31 @@
   - Manage existing youtube playlists?
     - All playlists or only one user has added via discogs-yt
       - Requires holding user data!
+
 - Build query (intersections) on seperate RESTful API ?
-- Country data - Acid Techno from Germany!
+
 - Release date filtering:
   - Release dates are really dirty!!!
   - Design release date query logic (Y & M & D set intersection? or YYYY-MM choice in redis?)
   - Rerun mongo releases script (updated date logic)
   - Run release date redis inserts
   - Add release date query fields
+
 - Redis Inserts:
   - Check how Redis handles multiple I/O requests ?
     - Load to DB 1, switch DB 0 to DB 1, then flush DB 1 after inserts ? 
   - Updates !?
     - Currently assume a master title/label won't change. It could!
+
 - `download_xmls.sh`
   - How to log/automate a flag if the md5checksum results aren't right?
   - What if the data is not uploaded on the 01 of the month? It isn't always!
     - Run a batch job every day checking for a file?
     - No xml file exists, quit, else download?
     - Need to look at curl usage/html response from incorrect address...
+
 - Jenkins CI
+
 - Finish styling:
   - bootstrap?
   - Smaller buttons!
@@ -73,17 +83,23 @@
   - Calendar for date queries?
   - Lighter back colour for inputs
   - Turn off autocomplete suggestions from browser
+
 - FAQ / Landing / Welcome / Privacy Policy pages - started
+
 - Query Javascript loading query script... Give the user something to look at?
+
 - **REAL** artist names ?
   - Covering all of an artists aliases...
   - Requires artists file + linking to masters file...
   - Don't forget names are in Discogs format...
+
 - Hadoop w/ Hive / SQL implementation ?
+
 - MongoDB APIs
   - misc analysis RESTful APIs (public?)
   - convert redis inserts to api requests?
   - yields with requests? request generator syntax?
+
 - Mongo Inserts
   - Does data need to be kept in Mongo ? Do straight ETL ?
   - Database name should be something relevant to file's date information e.g. `179` for `20170901`
@@ -107,7 +123,11 @@
   - Lexographical queries:
     - **NOT FUCNTIONING CORRECTLY**:
       - 'James Hol' returns James Hollingworth **ONLY** -> no James Holden! Must be Redis API lexigraphical search code issue.
-  
+- SessionID logic
+  - not randint!
+  - Max query API...
+
+
 - Requests timeouts - requests.get('http://github.com', timeout=0.001)
 - Youtube API
   - Playlist gen
