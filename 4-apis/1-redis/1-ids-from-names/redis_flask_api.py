@@ -32,13 +32,13 @@ def get_ids(args):
 	req_time = timer()
 	print(args)
 	
-	if args['name_type'] == 'artist':
+	if args['name_type'] == 'artist_name':
 		result = get_smembers('redis-artists-ids', args['name'])
 		
-	elif args['name_type'] == 'release':
+	elif args['name_type'] == 'release_title':
 		result = get_smembers('redis-masters-ids', args['name'])
 		
-	elif args['name_type'] == 'label': 
+	elif args['name_type'] == 'label_name': 
 		result = get_smembers('redis-labels-ids', args['name'])
 		
 	print('request time taken', req_time.time_taken() )

@@ -42,7 +42,7 @@ BASE_API_URL = 'http://172.23.0.'
 EXT_API_URL = 'http://172.25.0.'
 #AUTO_API_URL = 'http://172.x.0.'
 TAGS = ['year','genre','style']
-NAME_FIELDS = ['artist','release','label']
+NAME_FIELDS = ['artist_name','release_title','label_name']
 NAV = \
             { \
                 'Authorise' : '/authorise' \
@@ -143,8 +143,10 @@ def home():
 def query_autocomplete():
     
     search, target = request.args.get('search'), request.args.get('target')
-    results = api_get_requests(API_URLS['auto_comp_names'] + target, r_json = { 'value' : search } )
-    output = jsonify(results['search_results'])
+    if target not in NAME_FIELDS: output = jsonify(["Couldn't retrieve suggestions."])
+    else:
+        results = api_get_requests(API_URLS['auto_comp_names'] + target, r_json = { 'value' : search } )
+        output = jsonify(results['search_results'])
     return output
 
 @app.route('/query_builder',methods=['GET','POST'])
@@ -172,7 +174,7 @@ def query_builder():
         # ---- Query parameters
         
         metadata_query_dict = { tag : request.form.getlist('query:'+tag, type=str) for tag in TAGS}
-        names = {name : request.form.get('search:'+name+'_name', type=str, default='') for name in NAME_FIELDS}
+        names = {name : request.form.get('search:'+name, type=str, default='') for name in NAME_FIELDS}
         
         if sum([len(v) for v in names.values()]) == 0:
             flash('You must provide an input for at least one text search field (Artist, Release or Label name).','message')

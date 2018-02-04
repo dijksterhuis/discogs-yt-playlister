@@ -26,7 +26,7 @@ auth = HTTPBasicAuth()
 def alive():
     return make_json_resp( {'status': 'OK'} , 200 )
 
-@app.route('/artist', methods=['GET'])
+@app.route('/artist_name', methods=['GET'])
 @use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
 def artist(args):
     req_time = timer()
@@ -36,7 +36,7 @@ def artist(args):
         return result
     else: return make_json_resp("none",500)
 
-@app.route('/release', methods=['GET'])
+@app.route('/release_title', methods=['GET'])
 @use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
 def release(args):
     req_time = timer()
@@ -46,7 +46,7 @@ def release(args):
         return result
     else: return make_json_resp("none",500)
 
-@app.route('/label', methods=['GET'])
+@app.route('/label_name', methods=['GET'])
 @use_args(AUTOCOMPLETE_ARGS,locations=IN_DATA_LOCS)
 def label(args):
     req_time = timer()

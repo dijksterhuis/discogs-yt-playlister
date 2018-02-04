@@ -64,16 +64,16 @@
   $(function() {
     $( "#artist_name" ).autocomplete({
       source: function( request, response ) { 
-        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request.term , target:'artist' }, response)
+        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request.term , target:'artist_name' }, response)
         ;}
       })
     ;})
   ;
   
   $(function() {
-    $( "#release_name" ).autocomplete({
+    $( "#release_title" ).autocomplete({
       source: function( request, response ) { 
-        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request.term, target:'release' }, response)
+        $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request.term, target:'release_title' }, response)
         ;}
       })
     ;})
@@ -82,7 +82,7 @@
   $(function() {
     $( "#label_name" ).autocomplete({
       source: function( request, response ) {
-         $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request.term, target:'label' }, response)
+         $.getJSON($SCRIPT_ROOT + "/_query_autocomplete", { search: request.term, target:'label_name' }, response)
         ;}
       })
     ;})
@@ -116,8 +116,8 @@
           </td>
         </tr>
         <tr>
-          <td id="form" valign="middle" align="right">Release Name </td>
-          <td id="form" align="center"><input id="release_name" type="search" name="search:release_name"></td>
+          <td id="form" valign="middle" align="right">Release Title </td>
+          <td id="form" align="center"><input id="release_title" type="search" name="search:release_title"></td>
         </tr>
         <tr>
           <td id="form" valign="middle" align="right">Label Name </p>
