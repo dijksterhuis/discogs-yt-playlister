@@ -43,26 +43,38 @@ EXT_API_URL = 'http://172.25.0.'
 #AUTO_API_URL = 'http://172.x.0.'
 TAGS = ['year','genre','style']
 NAME_FIELDS = ['artist','release','label']
-NAV = { \
-            'Authorise' : '/authorise' \
-            ,'Build A Query' : '/query_builder' \
-            ,'FAQ' : '/faq' \
-            ,'Current Videos' : '/current_urls' \
-            , 'De-Authorise' : '/deauthorise'}
-API_CALL_HEADERS = {"Content-Type": "application/json"}
-API_URLS = { \
+NAV = \
+            { \
+                'Authorise' : '/authorise' \
+                ,'Build A Query' : '/query_builder' \
+                ,'FAQ' : '/faq' \
+                ,'Current Videos' : '/current_urls' \
+                , 'De-Authorise' : '/deauthorise'
+            }
+API_CALL_HEADERS = \
+            { \
+                "Content-Type": "application/json"\
+            }
+API_URLS = \
+            { \
                 'unique_metadata' : BASE_API_URL+'6/unique_metadata' \
                 , 'ids_from_name' : BASE_API_URL+'3/get_ids_from_name' \
                 , 'ids_from_metadata' : BASE_API_URL+'5/ids_from_metadata' \
                 , 'video_urls' : BASE_API_URL+'4/video_urls' \
                 , 'video_query_cache' : BASE_API_URL+'7/video_query_cache' \
                 , 'video_query_cache_clear' : BASE_API_URL+'7/video_query_cache_clear' \
+                , 'video_query_cache_max' : BASE_API_URL+'7/max_query_id' \
                 , 'max_query_id' : BASE_API_URL+'7/max_query_id' \
                 , 'playlist_creator' : EXT_API_URL+'3/create_playlist' \
                 , 'video_adder' : EXT_API_URL+'3/insert_videos' \
                 , 'auto_comp_names' : BASE_API_URL+'10/' \
             }
-AUTOCOMPLETE_URLS = { 'artist' : BASE_API_URL+'10/artist', 'release' : BASE_API_URL+'10/release', 'label' : BASE_API_URL+'10/label' }
+AUTOCOMPLETE_URLS = \
+            { \
+                'artist' : BASE_API_URL+'10/artist' \
+                , 'release' : BASE_API_URL+'10/release' \
+                , 'label' : BASE_API_URL+'10/label' \
+            }
 AD_STRING = '\n\nGenerated with discogs-youtube-playlister.com'
 
 # --------------------------------------------------
@@ -91,21 +103,24 @@ def json_check(r_data):
     return output
 
 def api_get_requests(host_string, r_json=None):
-    if r_json != None: r = requests.get( host_string , json = r_json , headers = API_CALL_HEADERS)
+    if r_json is not None: r = requests.get( host_string , json = r_json , headers = API_CALL_HEADERS)
     else: r = requests.get( host_string )
     if r.status_code == 200:
-        r_data = r.json()
-        return json_check(r_data)
+        return r.json()
+        #r_data = r.json()
+        #return json_check(r_data)
     else:
         flash('GET API issue. Please raise a bug report (TODO).','message')
-        return jsonify(['GET API issue. Please raise a bug report (TODO).'])
+        return jsonify({"None":"None"})
 
-def api_put_requests(host_string, r_json):
+def api_put_requests(host_string, r_json = None):
+    if r_json is None: raise ValueError('r_json did not have any value. Cannot PUT.')
     r = requests.put( host_string , json = r_json , headers = API_CALL_HEADERS)
     r_data = r.json()
     return json_check(r_data)
 
-def api_post(host_string, r_json):
+def api_post(host_string, r_json = None):
+    if r_json is None: raise ValueError('r_json did not have any value. Cannot POST.')
     try:
         r = requests.post( host_string , json = r_json , headers = API_CALL_HEADERS , verify=False, timeout=(3.05,1))
     except:
@@ -132,22 +147,18 @@ def query_autocomplete():
     output = jsonify(results['search_results'])
     return output
 
-#@app.route('/_query_autocomplete')
-#def search():
-#    name_type, search = request.args.get('type'), request.args.get('search')
-#    results = api_get_requests(API_URLS['auto_comp_names']+name_type, r_json={ 'value' : search})
-#    return jsonify(results)
-
 @app.route('/query_builder',methods=['GET','POST'])
 def query_builder():
     
     if 'credentials' not in session: return redirect('authorise')
     
-    if 'session_id' not in session: session['session_id'] = 'query:'+str(randint(0,1000))
+    #if 'session_id' not in session: session['session_id'] = 'query:'+str(randint(0,1000))
+    
+    if 'session_id' not in session: session['session_id'] = api_get_requests(API_URLS['video_query_cache_max'])['query']
     
     if request.method == 'GET':
         
-        uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], {'tag':tag} ) for tag in TAGS }
+        uniq_params = { tag : api_get_requests(API_URLS['unique_metadata'], r_json = {'tag':tag} ) for tag in TAGS }
         
         return render_template('/query-form.html' \
                                         , nav_links=NAV \
@@ -169,7 +180,14 @@ def query_builder():
         
         # ---- Get master IDs from APIs
         
-        name_ids = { name : api_get_requests(API_URLS['ids_from_name'], {'name_type':name,'name':names[name]} ) for name in NAME_FIELDS }
+        name_ids = { \
+                        name : api_get_requests( \
+                                                    API_URLS['ids_from_name'] \
+                                                    , r_json = { 'name_type' : name, 'name' : names[name] } \
+                                                ) \
+                        for name in NAME_FIELDS \
+                    }
+        
         
         if sum([len(v) for v in name_ids.values()]) == 0:
             flash('No results found for your text input. Please try another search.','message')
@@ -180,7 +198,7 @@ def query_builder():
         name_intersections = set_from_dict(name_ids)
         
         if sum([len(v) for v in metadata_query_dict.values()]) != 0:
-            metadata_ids = api_get_requests(API_URLS['ids_from_metadata'], metadata_query_dict )
+            metadata_ids = api_get_requests(API_URLS['ids_from_metadata'], r_json = metadata_query_dict )
             metadata_intersections = set_from_dict(metadata_ids)
             master_ids = set.intersection(name_intersections,metadata_intersections)
         else:
@@ -192,7 +210,7 @@ def query_builder():
         
         # ---- Get video urls
         
-        all_links = api_get_requests(API_URLS['video_urls'], {'master_ids': list(master_ids) } )
+        all_links = api_get_requests(API_URLS['video_urls'], r_json = {'master_ids': list(master_ids) } )
         numb_links = len(all_links)
         
         if numb_links == 0:
@@ -216,12 +234,12 @@ def query_builder():
             
             redis_query_cache_adds = api_put_requests( \
                                                         API_URLS['video_query_cache'] \
-                                                        , { 'session_id' : session['session_id'] , 'video_ids': all_links } \
+                                                        , r_json = { 'session_id' : session['session_id'] , 'video_ids': all_links } \
                                                     )
             
             session['numb_videos'] = len( api_get_requests( \
                                                                 API_URLS['video_query_cache'] \
-                                                                , { 'session_id' : session['session_id'] } \
+                                                                , r_json = { 'session_id' : session['session_id'] } \
                                                             ))
             
             flash(str(numb_links)+' video links found. '+str(session['numb_videos'])+' unique videos in your playlist.','message')
@@ -376,4 +394,3 @@ def send_to_yt():
 if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     app.run(host='0.0.0.0',debug=True,port=80)
-    #app.run(host='0.0.0.0',debug=False,port=80)

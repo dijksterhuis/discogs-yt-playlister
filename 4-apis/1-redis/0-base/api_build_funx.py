@@ -52,8 +52,7 @@ def get_smembers(host_string, value):
     r = redis_host( host_string )
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
+    if ping_check is not True: return make_response( ping_check, 500 )
         
     result = get_redis_values( r , value)
     return make_json_resp( result , 200)
@@ -63,8 +62,7 @@ def put_smembers(host_string, key, value):
     r = redis_host( host_string )
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
+    if ping_check is not True: return make_response( ping_check, 500 )
         
     result = r.sadd(key, value)
     
@@ -82,8 +80,7 @@ def get_videos(master_ids_list):
     r = redis_host( 'redis-video-id-urls' )
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
+    if ping_check is not True: return make_response( ping_check, 500 )
     
     pipe = r.pipeline()
     
@@ -115,8 +112,7 @@ def get_metadata_ids(metadata_filter_dict):
     
     for r in redis_insts.values():
         ping_check = redis_conn_check(r)
-        if ping_check != True:
-            return make_response( ping_check, 500 )
+        if ping_check is not True:     return make_response( ping_check, 500 )
             
     if len(metadata_filter_dict.keys()) == 0:
         return make_json_resp( {'ERR' : 'No input data given '}, 400 )
@@ -146,8 +142,7 @@ def get_unique_metadata(tag):
     r = redis_meta_host(tag)
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
+    if ping_check is not True: return make_response( ping_check, 500 )
     
     metadata = get_redis_keys(r)
     metadata.sort()
@@ -161,8 +156,7 @@ def put_video_ids_cache(session_id,video_ids_list):
     r = redis_host('discogs-session-query-cache')
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
+    if ping_check is not True: return make_response( ping_check, 500 )
     
     stripped_videos = [ video.lstrip('https://www.youtube.com/watch?v=') for video in video_ids_list ]
     result = sum([ r.sadd(session_id, video) for video in stripped_videos ])
@@ -175,8 +169,7 @@ def get_video_ids_cache(session_id):
     r = redis_host('discogs-session-query-cache')
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
+    if ping_check is not True: return make_response( ping_check, 500 )
     
     result = get_redis_values(r,session_id)
     
@@ -187,29 +180,24 @@ def clear_video_ids_cache(session_id):
     r = redis_host('discogs-session-query-cache')
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
+    if ping_check is not True: return make_response( ping_check, 500 )
     
     result = r.delete(session_id)
-    if result == 1:
-        return make_json_resp( { 'session_id' : session_id, 'result' : 'CLEARED' } , 200 )
-    else:
-        return make_json_resp( { 'session_id' : session_id, 'result' : 'NOT CLEARED' } , 200 )
+    if result == 1: return make_json_resp( { 'session_id' : session_id, 'result' : 'CLEARED' } , 200 )
+    else: return make_json_resp( { 'session_id' : session_id, 'result' : 'NOT CLEARED' } , 200 )
 
-#def max_query_id():
-#    
-#    r = redis_host('discogs-session-query-cache')
-#    
-#    ping_check = redis_conn_check(r)
-#    if ping_check != True:
-#        return make_response( ping_check, 500 )
-#        
-#    if len(get_redis_keys(r)) == 0:
-#        max_key = 1
-#    else:
-#        max_key = max([int(k.lstrip('query:')) for k in get_redis_keys(r)])
-#    
-#    return make_json_resp('query:'+str(max_key),200)
+def max_query_id():
+    
+    r = redis_host('discogs-session-query-cache')
+    
+    ping_check = redis_conn_check(r)
+    if ping_check is not True: return make_response( ping_check, 500 )
+    
+    keys = get_redis_keys(r)
+    if len(keys) == 0: max_key = 1
+    else: max_key = max([int(k) for k in keys if isinstance(k,int)])
+    
+    return make_json_resp({'query':str(max_key)},200)
 
 #### ---- AUTOCOMPLETE:
 
@@ -217,10 +205,8 @@ def get_autocomplete(host, value):
     r = redis_host('discogs-redis-autocomplete-'+host)
     
     ping_check = redis_conn_check(r)
-    if ping_check != True:
-        return make_response( ping_check, 500 )
-    result = list()
-    data = list(r.zrangebylex( host+'_name', '['+value, '['+value+'z\xff', start=0, num=5))
-    for i in data: result.append(i.decode('utf-8'))
+    if ping_check is not True: return make_response( ping_check, 500 )
+    
+    result = [value.decode('utf-8') for value in list(r.zrangebylex(host+'_name','['+value,'['+value+'z\xff',start=0,num=5))]
     return make_json_resp({'search_results': result},200)
     
