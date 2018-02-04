@@ -235,7 +235,12 @@ def handle_elements(path, element):
 	
 	# remove non-useful elements (if they exist)
 	# e.g. get rid of images and tracks data, we don't need it
-	if collection_choice == 'releases': keys_to_drop = RELEASE_DROP_KEYS
+    # Releases data has a dictionary called master_id -> annoyingly!
+	if collection_choice == 'releases':
+        keys_to_drop = RELEASE_DROP_KEYS
+        KEY_CHANGES.append( (('master_id',),'masters_detail') )
+        KEY_CHANGES.append( (('masters_detail','#text'),'master_id') )
+        KEY_CHANGES.append( (('masters_detail','@is_main_release'),'main_release_flag') )
 	else: keys_to_drop = DROP_KEYS
 	
 	for key in keys_to_drop:
