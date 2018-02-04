@@ -146,6 +146,15 @@ def primary_key_list_check_gen(data):
             yield str(i)
     else: yield data
 
+def sorted_set_redis_insert(redis_conn, logs, key, value):
+    try: counter = redis_conn.sadd( key, v )
+    except Exception as e:
+        print('--- An exception occured.',e)
+        logs.write_log_data([key, v, False , "Error: " +str(e)])
+        counter = 0
+    else: logs.write_log_data([key, v, True , False])
+    return counter
+
 def main(args):
     
     """
@@ -166,9 +175,7 @@ def main(args):
              , args.redis_value[0]
     
     print('Setting up logger.')
-    if run_type == 'simple': headers = ['r_key','r_val','inserted','skipped']
-    elif run_type == 'autocomplete': headers = ['r_val','inserted','skipped']
-    else: headers = None
+    headers = ['r_key','r_val','inserted','skipped']
     
     logs = MyLogger( path = '/logging/redis_inserts__' + redis_conn_host, headers = headers)
     
@@ -188,40 +195,26 @@ def main(args):
         
         # ---- add to redis
         
-        if inserts[r_value] == None or inserts[r_key] == None:
-            logs.write_log_data([inserts[r_key], inserts[r_value], False , True])
+        if run_type == 'simple': key, value = inserts[r_key], inserts[r_value]
+        elif run_type == 'autocomplete': key, value = r_value, inserts[r_value]
+        
+        if key is None or value is None: logs.write_log_data([key, value, False , True])
             
         elif run_type == 'simple':
-            
-            key, value = inserts[r_key], inserts[r_value]
-            
             if primary_key_check == 'key':
-                
                 for k in primary_key_list_check_gen(key):
-                    
-                    try: counter += redis_conn.sadd( k, value )
-                    except Exception as e:
-                        print('--- An exception occured.',e)
-                        logs.write_log_data([k, value, False , "Error"])
-                    else: logs.write_log_data([k, value, True , False])
+                    counter += sorted_set_redis_insert(redis_conn, logs, k, value)
                     
             elif primary_key_check == 'value':
-                
                 for v in primary_key_list_check_gen(value):
-                    
-                    try: counter += redis_conn.sadd( key, v )
-                    except Exception as e:
-                        print('--- An exception occured.',e)
-                        logs.write_log_data([key, v, False , "Error"])
-                    else: logs.write_log_data([key, v, True , False])
+                    counter += sorted_set_redis_insert(redis_conn, logs, key, v)
+
 
         elif run_type == 'autocomplete':
             
-            key, value = r_value, inserts[r_value]
-            
             for v in primary_key_list_check_gen(value):
                 
-                if redis_conn.zscore( key, v ) == None:
+                if redis_conn.zscore( key, v ) is None:
                     
                     try: counter += redis_conn.zadd( key, v, 0)
                     except Exception as e:
