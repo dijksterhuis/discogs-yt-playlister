@@ -140,13 +140,21 @@ def redis_connect(redis_conn_host):
     
     return redis_conn, redis_conn.pipeline(), init_redis_dbsize
 
-def primary_key_list_check_gen(data):
-    if isinstance(data,list):
-        for i in data:
-            yield str(i)
-    else: yield data
+def primary_key_list_check_gen(i,j):
+    """ If data is type(list), output each item as str """
+    if isinstance(i,list) and isinstance(j,list):
+        for k_1 in i:
+            for k_2 in j: yield str(k_1), str(k_2)
+    elif isinstance(i,list):
+        for k in i: yield str(k), str(j)
+    elif isinstance(i,list):
+        for k in j: yield str(i), str(k)
+    else: yield str(i), str(j)
 
-def sorted_set_redis_insert(redis_conn, logs, key, value):
+def set_redis_insert(redis_conn, logs, key, value):
+    """ Insert data into redis set instance 
+    - TODO Not happy about logs being here - needs too many variables...
+    """
     try: counter = redis_conn.sadd( key, value )
     except Exception as e:
         print('--- An exception occured.',e)
@@ -154,6 +162,25 @@ def sorted_set_redis_insert(redis_conn, logs, key, value):
         counter = 0
     else: logs.write_log_data([key, value, True , False])
     return counter
+
+def sorted_set_redis_insert(redis_conn, logs, key, value, idx):
+    """ Insert data into redis sorted set instance 
+    - TODO Not happy about logs being here - needs too many variables...
+    """
+    v = value.upper() + ':' + value
+    if redis_conn.zscore( key, v ) is None:
+        try: counter = redis_conn.zadd( key, v, 0)
+        except Exception as e:
+            print('--- An exception occured.',e)
+            logs.write_log_data([idx, key, v, False , "Error: " +str(e)])
+            counter = 0
+        else: logs.write_log_data([idx, key, v, True , False])
+    else:
+        # --- TODO increment frequency of key
+        counter = 0
+        logs.write_log_data([key, v, False , True])
+    return counter
+
 
 def main(args):
     
@@ -175,7 +202,7 @@ def main(args):
              , args.redis_value[0]
     
     print('Setting up logger.')
-    headers = ['r_key','r_val','inserted','skipped']
+    headers = ['mongo_idx','r_key','r_val','inserted','skipped']
     
     logs = MyLogger( path = '/logging/redis_inserts__' + redis_conn_host, headers = headers)
     
@@ -186,55 +213,44 @@ def main(args):
     
     print('DB connections set up, beginning data extraction...\n')
     
-    dataset, starttime, counter = mongo_conn.find(), dt.now(), 0
+    dataset, total_dox, starttime, counter = mongo_conn.find(), mongo_conn.count(), dt.now(), 0
     
     for idx, document in enumerate( dataset ):
+        
+        # ---- get the relevant data from document
         
         metadata_tags = [ r_key, r_value ]
         inserts = { key: value for key, value in get_values( metadata_tags,document ) }
         
-        # ---- add to redis
+        # ---- set up key, value pairs
         
         if run_type == 'simple': key, value = inserts[r_key], inserts[r_value]
         elif run_type == 'autocomplete': key, value = r_value, inserts[r_value]
         
-        if key is None or value is None: logs.write_log_data([key, value, False , True])
-            
-        elif run_type == 'simple':
-            if primary_key_check == 'key':
-                for k in primary_key_list_check_gen(key):
-                    counter += sorted_set_redis_insert(redis_conn, logs, k, value)
-                    
-            elif primary_key_check == 'value':
-                for v in primary_key_list_check_gen(value):
-                    counter += sorted_set_redis_insert(redis_conn, logs, key, v)
-
-
-        elif run_type == 'autocomplete':
-            
-            for v in primary_key_list_check_gen(value):
-                
-                if redis_conn.zscore( key, v ) is None:
-                    
-                    try: counter += redis_conn.zadd( key, v, 0)
-                    except Exception as e:
-                        print('--- An exception occured.',e)
-                        logs.write_log_data([key, v, False , "Error: " +str(e)])
-                    else: logs.write_log_data([key, v, True , False])
-                    
-                else:
-                    logs.write_log_data([key, v, False , True])
-                    #try: redis_conn.zincrby( key, v, amount = 1)
-                    #except Exception as e:
-                    #    print('--- An exception occured.',e)
-                    #    logs.write_log_data([key, v, False , "Error"])
-                    #else: logs.write_log_data([key, v, False , False])
+        # ---- iterate over all elements if any are lists
         
-        else: pass
+        for k, v in primary_key_list_check_gen(key, value):
+            
+            # ---- if no (useful) data, log and do nothing
+            
+            if k is None or v is None: 
+                logs.write_log_data([idx, key, value, False , True])
+                
+            elif key.isalnum() is False or value.isalnum() is False:
+                logs.write_log_data([idx, key, value, False , True])
+            
+            # ---- else do inserts
+            
+            elif run_type == "simple": counter += set_redis_insert(redis_conn, logs, k, v, idx)
+            elif run_type == 'autocomplete': counter += sorted_set_redis_insert(redis_conn, logs, k, v, idx)
+            
+            # ---- what other conditions are there?!
+            
+            else: pass
         
         # ---- stats
         
-        console.write( "\r{:,d} proc / {:,d} mongo dox".format( idx, mongo_conn.count() ))
+        console.write( "\r{:,d} proc / {:,d} mongo dox".format( idx, total_dox ))
         console.flush()
     
     # ---- execute redis pipeline
@@ -242,13 +258,15 @@ def main(args):
     print_verbose('Executing redis pipeline.')
     r_pipeline.execute()
     
+    mongo_conn.close()
+    
     # ---- print stats
     
     elapsed_time, redis_additions = dt.now() - starttime, redis_conn.dbsize() - init_redis_dbsize
     print('\nExtraction complete!')
     print_verbose( '{:,d} keys were actually added to the {:s} Redis DB'.format(redis_additions, redis_conn_host) )
     print_verbose( 'Redis counter is at: {:,d}. Does this match?'.format(counter) )
-    print_verbose('Time taken (mins): {:,f}'.format(elapsed_time.total_seconds()//60) )
+    print_verbose( 'Time taken (mins): {:,f}'.format(elapsed_time.total_seconds()//60) )
 
 if __name__ == '__main__':
     
