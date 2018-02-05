@@ -9,8 +9,14 @@
   - Site usage
 
 - Code clean up!
-  - Are redis ID -> name instances needed?!
+  - MyLogger Redis Inserts:
+    - TODO Not happy about logs being inside redis insert funcs
+    - needs too many variables...
 
+- autocomplete-inserts branch:
+    - change query autocomplete to UPPER in main.py
+    - deploy + test!
+  
 - Exception handling
 
 - Documentation
@@ -140,3 +146,4 @@
   - Redis ETL
 - Redis inserts:
   - Sorted set logic for autocomplete searches
+- Are redis ID -> name instances needed?! -> No, marked as depreciated
