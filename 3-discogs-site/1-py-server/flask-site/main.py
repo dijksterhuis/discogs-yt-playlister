@@ -145,7 +145,7 @@ def query_autocomplete():
     search, target = request.args.get('search'), request.args.get('target')
     if target not in NAME_FIELDS: output = jsonify(["Couldn't retrieve suggestions."])
     else:
-        results = api_get_requests(API_URLS['auto_comp_names'] + target, r_json = { 'value' : search } )
+        results = api_get_requests(API_URLS['auto_comp_names'] + target, r_json = { 'value' : search.upper() } )
         output = jsonify(results['search_results'])
     return output
 
