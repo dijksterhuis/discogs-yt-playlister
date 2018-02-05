@@ -1,8 +1,12 @@
 ## TODOs
+- Update README!
+
 - !!! RELOAD RELEASES DATA INTO MONGO
+
 - country data
   - load
- - to do main site query loading efficiently?
+
+- how to do main site query loading efficiently?
 
 - log to logging docker volume
   - Mongo load
@@ -12,6 +16,10 @@
   - MyLogger Redis Inserts:
     - TODO Not happy about logs being inside redis insert funcs
     - needs too many variables...
+  - non alphanumeric redis inserts:
+    - clean the data?
+    - include or exclude?
+    - some labels do have symbols in names! (they're hip like that)
 
 - autocomplete-inserts branch:
     - change query autocomplete to UPPER in main.py
