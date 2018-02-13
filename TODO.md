@@ -1,4 +1,14 @@
 ## TODOs
+
+- Generate new access tokens
+  - All open branches to pull from master (remove old tokens)
+
+- Setup linux box (again)
+  - ngrok
+  - API access keys
+  - public IP ?
+  - public domain name for nginx ?
+
 - Update README!
 
 - !!! RELOAD RELEASES DATA INTO MONGO
