@@ -1,5 +1,13 @@
 ## TODOs
 
+- Applications DDoS
+  - Count of videos API?
+    - Disallow if original master IDs search volumes are > MAX_VIDEOS
+      - Estimate max set cards? - meh.
+      - replace smembers - there's a redis command for limits on sets, isn't there?
+  - Webserver / API Timeouts
+  - Stuff?
+
 - Generate new access tokens
   - All open branches to pull from master (remove old tokens)
 
