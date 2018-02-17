@@ -2,8 +2,6 @@
 
 A Web App to generate private playlists on Youtube from the [discogs monthly data dumps](http://data.discogs.com/).
 
-Go here to try it out: [http://bec48fd6.ngrok.io/](http://bec48fd6.ngrok.io/)
-
 Originally this was meant to be prototyped with Redis, but I ended up having so much fun with it I fell into the Redis rabbit hole. For a final production version of the webapp, a SQL/Hadoop system might want to be implemented.
 
 Basic premise:
