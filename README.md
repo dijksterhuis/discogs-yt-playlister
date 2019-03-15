@@ -1,8 +1,10 @@
 # Discogs Youtube Playlist Generator
 
+**Please note that this project is incomplete and will be refactored when I get some time.**
+
 A Web App to generate private playlists on Youtube from the [discogs monthly data dumps](http://data.discogs.com/).
 
-Originally this was meant to be prototyped with Redis, but I ended up having so much fun with it I fell into the Redis rabbit hole. For a final production version of the webapp, a SQL/Hadoop system might want to be implemented.
+Originally this was meant to be a POC with Redis, but I ended up having so much fun with Redis that I fell into the rabbit hole.
 
 Basic premise:
 
